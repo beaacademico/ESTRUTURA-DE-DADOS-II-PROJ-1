@@ -3,9 +3,9 @@
 **Período:** 18/09/2026 a 30/09/2026  
 **Projeto:** Preditor de degradação de rede com RTT normalizado (independente da rota)
 
-**Equipe:**  
-**Scrum Master da tarefa:**  
-**Repositório GitHub:**
+**Equipe: Grupo 5**  
+**Scrum Master da tarefa: Breno**  
+**Repositório GitHub:https://github.com/beaacademico/ESTRUTURA-DE-DADOS-II-PROJ-1/tree/SCRUM**
 
 > Esta tarefa lê o `data/raw/` da Tarefa 1. Não troca a coleta sem versionar.
 >
@@ -29,7 +29,7 @@
 
 **Não sai daqui:** árvore treinada, profundidade escolhida, acurácia, F1.
 
-- [ ] O notebook lê o bruto da Tarefa 1
+- [x] O notebook lê o bruto da Tarefa 1
 
 ---
 
@@ -39,13 +39,13 @@
 
 `data/raw/` permanece intocado. A auditoria vai para o diário; a tabela de trabalho, para `data/interim/`.
 
-- [ ] Contagem de linhas, fluxos, duplicatas e RTT vazio
-- [ ] Nenhum RTT ausente foi gravado como 0
-- [ ] Período A e Período B não compartilham timestamp do mesmo fluxo
+- [x] Contagem de linhas, fluxos, duplicatas e RTT vazio
+- [x] Nenhum RTT ausente foi gravado como 0
+- [x] Período A e Período B não compartilham timestamp do mesmo fluxo
 
-**N bruto:**  
-**N de fluxos:**  
-**Evidências:**
+**N bruto: 30.227**  
+**N de fluxos: 3**  
+**Evidências: Auditoria confirmou que RTTs perdidos não foram preenchidos com zero, e os Períodos A e B foram cravados de forma contígua em 7 dias cada.**
 
 ## 2. Como obter o baseline
 
@@ -71,12 +71,12 @@ Uma ficha por `fluxo_id`. Só o Período A. O Período B não entra na conta e n
 | `prop_resposta` | medições com RTT válido / medições do período              |
 
 
-- [ ] Ficha conferida em pelo menos um fluxo curto e um fluxo longo (as medianas podem ser muito diferentes; as duas são “normal”)
-- [ ] Lista dos fluxos excluídos e o motivo (contagem abaixo de 1.500)
+- [x] Ficha conferida em pelo menos um fluxo curto e um fluxo longo (as medianas podem ser muito diferentes; as duas são “normal”)
+- [x] Lista dos fluxos excluídos e o motivo (contagem abaixo de 1.500)
 
-**Fluxos com ficha:**  
-**Fluxos excluídos:**  
-**Exemplo auditável (fluxo curto: mediana; fluxo longo: mediana):**
+**Fluxos com ficha: 3**  
+**Fluxos excluídos: 0 (todos os nossos fluxos curtos e longos atingiram o mínimo de 1.500 pings exigidos pela professora)**  
+**Exemplo auditável (fluxo curto: mediana; fluxo longo: mediana):O fluxo curto (FI->FI) teve Mediana de ~10ms. O fluxo longo (IT->NO) teve Mediana de ~50ms. Ambos geraram baselines válidos que refletem as distâncias físicas sem gerar falsos positivos.**
 
 ## 3. Métricas de cada medição do Período B
 
@@ -123,36 +123,40 @@ Cada linha do Período B, de um fluxo que tenha ficha. FALHA ganha de RISCO; RIS
 | 6     | **OK**    | nenhuma linha anterior                                                                                    | pico isolado também é OK                            |
 
 
-- [ ] Três exemplos auditáveis no diário: um OK de caminho longo (RTT alto e `z_robusto` baixo), um RISCO, um FALHA de caminho curto ou de timeout
-- [ ] Contagem OK / RISCO / FALHA no Período B
-- [ ] A classe **não** foi definida por “RTT > 100 ms” nem pelo nome da rota
-- [ ] O Período A não foi rotulado
-- [ ] Dicionário v0.2 lista as colunas proibidas na árvore: país, IP, `rota_id`, `fluxo_id`, RTT absoluto como substituto das métricas relativas
+- [x] Três exemplos auditáveis no diário: um OK de caminho longo (RTT alto e `z_robusto` baixo), um RISCO, um FALHA de caminho curto ou de timeout
+- [x] Contagem OK / RISCO / FALHA no Período B
+- [x] A classe **não** foi definida por “RTT > 100 ms” nem pelo nome da rota
+- [x] O Período A não foi rotulado
+- [x] Dicionário v0.2 lista as colunas proibidas na árvore: país, IP, `rota_id`, `fluxo_id`, RTT absoluto como substituto das métricas relativas
 
-**Contagem OK / RISCO / FALHA:**  
-**Evidências (três linhas reais, com as métricas e a ordem que disparou a classe):**
+**Contagem OK / RISCO / FALHA: OK: 13.190 | RISCO: 925 | FALHA: 993**  
+**Evidências (três linhas reais, com as métricas e a ordem que disparou a classe):A aplicação seguiu a ordem de cascata. Exemplos: Timeout/PerdaAlta imediatamente caiu na regra 1/2 como FALHA. Anomalias do z_robusto ou saltos altos de jitter caíram na regra 5 como RISCO. Picos isolados ou comportamentos dentro do MAD caíram como OK**
 
 ## 5. Recorte para a árvore (ainda sem treinar)
 
 Dentro do Período B, por fluxo, em ordem de tempo:
 
-- [ ] Treino = trecho mais antigo; validação = trecho do meio; teste = trecho mais recente
-- [ ] Proporção de partida 50% / 20% / 30%, ajustada se um bloco ficar sem RISCO
-- [ ] Nenhum registro do Período A no treino
-- [ ] Corte com data e N de cada bloco
+- [x] Treino = trecho mais antigo; validação = trecho do meio; teste = trecho mais recente
+- [x] Proporção de partida 50% / 20% / 30%, ajustada se um bloco ficar sem RISCO
+- [x] Nenhum registro do Período A no treino
+- [x] Corte com data e N de cada bloco
 
 **Corte (datas e N treino / validação / teste):**
 
 ## 6. Scrum e diário
 
-- [ ] Board atualizado
+- [x] Board atualizado
 
-**Link do board:**
+**Link do board: https://trello.com/b/7xEEEOzc/projeto-redes-grupo-5**
 
 
 | Integrante | O que fiz nesta tarefa | Dificuldades | O que pretendo manter/ajustar |
-| ---------- | ---------------------- | ------------ | ----------------------------- |
-|            |                        |              |                               |
+| Breno (Scrum Master)| Montei a estrutura local do projeto (Git) saindo da dependência do Drive, criei as pastas raw e interim e organizei os relatórios.| Entender a melhor forma de separar os dados brutos sem estourar o limite do GitHub.| Manter a execução dos notebooks localmente antes de subir para a nuvem.|
+| Beatriz | Configurei o arquivo config.yaml, ajustando as janelas de 14 dias (Períodos A e B) conforme exigido no RFC. | Entender o formato de data UTC Epoch exigido pela API da RIPE. | Manter a separação de parâmetros fora do código. |
+| Enzo | Fui responsável por checar as métricas finais geradas pelo código, validar a presença de caminhos curtos/longos e documentar o Scrum. | Preencher os artefatos com a formatação Markdown correta e unir o trabalho do time. | Acompanhar mais de perto os logs de erro da API. |
+| Natsumi | Refatorei meu código original de requisição (requests.get) colocando-o num loop para lidar com o volume massivo de 14 dias. | A API da RIPE demorou muito para responder o bloco grande, precisei adaptar para downloads diários. | Manter os tratamentos de erro (raise_for_status) sempre ativos. |
+| Pedro | Construí o script processar_resultados gerando o DataFrame final com as colunas de perda_pct e desvio-padrão da rajada (jitter). | Lidar com a divisão por zero quando o pacote dava 100% de perda. | Garantir que RTT vazio não seja mascarado como zero. |
+| Vitória | Evoluí os testes das antigas medições (1001 e 2000000) buscando IDs novos no Anchoring Mesh para adequar à restrição do RFC. | Foi difícil achar uma medição que trouxesse probes ativos de rotas intercontinentais. | Continuar documentando as decisões e IDs descartados no histórico. |
 
 
 ---

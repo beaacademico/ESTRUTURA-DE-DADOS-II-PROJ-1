@@ -6,7 +6,7 @@
 
 **Equipe: Grupo 5**  
 **Integrantes:Beatriz, Breno, Enzo, Natsumi, Pedro, Vitória**  
-**Scrum Master da tarefa:**  
+**Scrum Master da tarefa: Breno**  
 **Repositório GitHub:https://github.com/beaacademico/ESTRUTURA-DE-DADOS-II-PROJ-1**
 
 > Esta tarefa entrega o problema e o **dado cru**. Não há classe OK, RISCO ou FALHA. Não há baseline, não há mediana e não há árvore. Quem rotular aqui mistura a coleta com a decisão da Tarefa 2.
