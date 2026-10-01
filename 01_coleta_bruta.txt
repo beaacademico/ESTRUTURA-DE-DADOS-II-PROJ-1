@@ -1,0 +1,149 @@
+import requests
+import pandas as pd
+import yaml
+import time
+import json
+from datetime import datetime
+import os
+
+# Carregar configuração
+with open('../config/config.yaml', 'r') as f:
+    config = yaml.safe_load(f)
+
+print("Configuração carregada com sucesso!")
+
+def iso_to_unix(iso_str):
+    return int(datetime.strptime(iso_str, "%Y-%m-%dT%H:%M:%SZ").timestamp())
+
+start_a = iso_to_unix(config['periodos']['periodo_a']['inicio_utc'])
+stop_a = iso_to_unix(config['periodos']['periodo_a']['fim_utc'])
+start_b = iso_to_unix(config['periodos']['periodo_b']['inicio_utc'])
+stop_b = iso_to_unix(config['periodos']['periodo_b']['fim_utc'])
+
+print(f"Período A: {start_a} a {stop_a}")
+print(f"Período B: {start_b} a {stop_b}")
+
+# NOTA: Em um ambiente real, faríamos a consulta GET /measurements/?type=ping&target={anchor_ip}
+# Para garantir a reprodutibilidade e estabilidade no prazo do projeto, utilizaremos um conjunto de measurement IDs 
+# e probes conhecidos que pertencem à malha de Anchoring para os países selecionados.
+
+# Lista de exemplo baseada em probes comuns do Brasil e outros países.
+# ATENÇÃO: Na prática, você precisa usar requests.get('https://atlas.ripe.net/api/v2/measurements/?type=ping&status=1')
+# para filtrar por país e preencher esta lista automaticamente. Para manter o código limpo, vamos buscar 1 probe BR
+# e ver suas medições.
+
+def get_measurement_results(msm_id, start, stop, probe_ids=None):
+    url = f"https://atlas.ripe.net/api/v2/measurements/{msm_id}/results/"
+    params = {
+        'start': start,
+        'stop': stop,
+        'format': 'json'
+    }
+    if probe_ids:
+        params['probe_ids'] = ",".join(map(str, probe_ids))
+        
+    # Limite de timeout configurado
+    response = requests.get(url, params=params, timeout=config['coleta']['timeout_http'])
+    response.raise_for_status()
+    return response.json()
+
+print("Função de coleta pronta.")
+
+import numpy as np
+
+def processar_resultados(raw_json):
+    registros = []
+    for item in raw_json:
+        prb_id = item.get('prb_id')
+        dst_addr = item.get('dst_addr')
+        if not prb_id or not dst_addr:
+            continue
+            
+        # Criar fluxo_id
+        fluxo_id = f"{prb_id}|{dst_addr}"
+        
+        sent = item.get('sent', 0)
+        rcvd = item.get('rcvd', 0)
+        
+        # Perda pct
+        perda_pct = ((sent - rcvd) / sent) * 100 if sent > 0 else 100.0
+        
+        # Timeout atual
+        timeout_atual = 1 if rcvd == 0 or perda_pct == 100.0 else 0
+        
+        # Jitter ms (desvio padrão amostral dos rtts válidos se >=2)
+        jitter_ms = np.nan
+        if rcvd >= 2 and 'result' in item:
+            rtts = [r.get('rtt') for r in item['result'] if 'rtt' in r and r.get('rtt') is not None]
+            if len(rtts) >= 2:
+                jitter_ms = np.std(rtts, ddof=1) # ddof=1 para amostral
+                
+        # RTT avg não deve ser 0 se foi timeout
+        avg = item.get('avg', np.nan)
+        if rcvd == 0 or avg == -1.0:
+            avg = np.nan
+            
+        registros.append({
+            'timestamp': item.get('timestamp'),
+            'measurement_id': item.get('msm_id'),
+            'probe_id': prb_id,
+            'dst_addr': dst_addr,
+            'fluxo_id': fluxo_id,
+            'avg': avg,
+            'min': item.get('min', np.nan),
+            'max': item.get('max', np.nan),
+            'sent': sent,
+            'rcvd': rcvd,
+            'perda_pct': perda_pct,
+            'jitter_ms': jitter_ms,
+            'timeout_atual': timeout_atual
+        })
+        
+    return pd.DataFrame(registros)
+
+print("Processador pronto.")
+
+# ID de exemplo de um ping IPv4 para o K-Root para servir de demonstração do loop.
+# Na tarefa real, deve-se substituir pelos msm_ids das 12 rotas.
+MSM_IDS_TESTE = [7714918, 8937123] 
+PROBES_BR = None 
+
+all_dfs_a = []
+all_dfs_b = []
+
+for msm_id in MSM_IDS_TESTE:
+    print(f"Coletando Período A para msm {msm_id}...")
+    raw_a = get_measurement_results(msm_id, start_a, stop_a, probe_ids=PROBES_BR)
+    # Salvar JSON bruto
+    with open(f'../data/raw/periodo_a/msm_{msm_id}_A.json', 'w') as f:
+        json.dump(raw_a, f)
+    df_a = processar_resultados(raw_a)
+    df_a['periodo'] = 'A'
+    all_dfs_a.append(df_a)
+    
+    print(f"Coletando Período B para msm {msm_id}...")
+    raw_b = get_measurement_results(msm_id, start_b, stop_b, probe_ids=PROBES_BR)
+    # Salvar JSON bruto
+    with open(f'../data/raw/periodo_b/msm_{msm_id}_B.json', 'w') as f:
+        json.dump(raw_b, f)
+    df_b = processar_resultados(raw_b)
+    df_b['periodo'] = 'B'
+    all_dfs_b.append(df_b)
+    
+df_final = pd.concat(all_dfs_a + all_dfs_b, ignore_index=True)
+df_final.to_csv('../data/interim/tabela_bruta_completa.csv', index=False)
+
+print("Coleta finalizada com sucesso! CSV salvo.")
+
+print("--- Relatório de Qualidade ---")
+print(f"N de registros brutos: {len(df_final)}")
+print(f"N de fluxos: {df_final['fluxo_id'].nunique()}")
+print(f"Timeouts detectados: {df_final['timeout_atual'].sum()}")
+print("RTTs ausentes por campo:")
+print(df_final[['avg', 'min', 'max', 'jitter_ms']].isna().sum())
+
+print("\n--- Descrição Estatística --- ")
+display(df_final[['avg', 'perda_pct', 'jitter_ms']].describe())
+
+# Exibindo amostra
+display(df_final.head())

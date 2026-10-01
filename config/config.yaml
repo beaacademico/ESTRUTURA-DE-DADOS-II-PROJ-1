@@ -1,0 +1,54 @@
+periodos:
+  periodo_a:
+    inicio_utc: "2026-09-06T04:32:00Z"
+    fim_utc:    "2026-09-13T04:32:00Z"
+  periodo_b:
+    inicio_utc: "2026-09-13T04:32:00Z"
+    fim_utc:    "2026-09-20T04:32:00Z"
+
+coleta:
+  bloco_dias: 1
+  timeout_http: 120
+  retries: 3
+  formato_tabular: "csv"
+  familia: 4
+
+# Lista de países alvo para buscar anchors. 
+# O script de coleta usará esses países para encontrar measurement_ids do Anchoring Mesh.
+rotas_alvo:
+  - origem: "BR"
+    destino: "BR"
+    escopo: "curto"
+  - origem: "DE"
+    destino: "DE"
+    escopo: "curto"
+  - origem: "AR"
+    destino: "AR"
+    escopo: "curto"
+  - origem: "BR"
+    destino: "UY"
+    escopo: "regional"
+  - origem: "BR"
+    destino: "BO"
+    escopo: "regional"
+  - origem: "DE"
+    destino: "PT"
+    escopo: "regional"
+  - origem: "ES"
+    destino: "PL"
+    escopo: "regional"
+  - origem: "ZA"
+    destino: "KE"
+    escopo: "regional"
+  - origem: "IN"
+    destino: "SG"
+    escopo: "regional"
+  - origem: "BR"
+    destino: "JP"
+    escopo: "intercontinental"
+  - origem: "BR"
+    destino: "IN"
+    escopo: "intercontinental"
+  - origem: "BR"
+    destino: "ZA"
+    escopo: "intercontinental"
