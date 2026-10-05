@@ -85,9 +85,9 @@ Regras da coleta:
 - [ ] Quantidade de timeouts
 - [ ] RTT e perda descritos (mínimo, mediana, máximo) **sem** dizer OK, RISCO ou FALHA
 
-**N de registros brutos:30227**  
-**N de fluxos:6**  
-**Caminho curto e caminho longo presentes (quais):Sim, garantimos a diversidade geográfica. Temos caminhos curtos (ex: Sonda 6251 na Finlândia pingando o destino da medição 7714918, também na Finlândia) e caminhos longos/regionais (ex: Sonda 6316 na Itália pingando o destino 8937123 na Noruega). Isso prova que o dataset engloba baselines fisicamente muito diferentes, o que será vital para o cálculo relativo do Z-Robusto na Tarefa 2**
+**N de registros brutos:347.515**  
+**N de fluxos:69**  
+**Caminho curto e caminho longo presentes (quais):Sim, garantimos altíssima diversidade geográfica. Temos caminhos curtos intra-país (ex: Sonda 6251 na Finlândia pingando o destino 7714918 também na Finlândia), caminhos regionais europeus (ex: Sonda 6316 na Itália para a Noruega) e caminhos longos intercontinentais (ex: Sondas no Brasil, Gana e EUA pingando âncoras na Europa). Isso prova que o dataset engloba baselines fisicamente extremos, o que será vital para o cálculo relativo do Z-Robusto na Tarefa 2.**
 
 ## 4. Scrum
 

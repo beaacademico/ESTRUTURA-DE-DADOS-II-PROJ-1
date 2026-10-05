@@ -1,0 +1,4 @@
+
+# Ignorar estudos da Tarefa 3
+notebooks/03_*
+data/processed/03_*

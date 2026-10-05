@@ -43,8 +43,8 @@
 - [x] Nenhum RTT ausente foi gravado como 0
 - [x] Período A e Período B não compartilham timestamp do mesmo fluxo
 
-**N bruto: 30.227**  
-**N de fluxos: 3**  
+**N bruto: 347.515**  
+**N de fluxos: 69**  
 **Evidências: Auditoria confirmou que RTTs perdidos não foram preenchidos com zero, e os Períodos A e B foram cravados de forma contígua em 7 dias cada.**
 
 ## 2. Como obter o baseline
@@ -74,7 +74,7 @@ Uma ficha por `fluxo_id`. Só o Período A. O Período B não entra na conta e n
 - [x] Ficha conferida em pelo menos um fluxo curto e um fluxo longo (as medianas podem ser muito diferentes; as duas são “normal”)
 - [x] Lista dos fluxos excluídos e o motivo (contagem abaixo de 1.500)
 
-**Fluxos com ficha: 3**  
+**Fluxos com ficha: 69**  
 **Fluxos excluídos: 0 (todos os nossos fluxos curtos e longos atingiram o mínimo de 1.500 pings exigidos pela professora)**  
 **Exemplo auditável (fluxo curto: mediana; fluxo longo: mediana):O fluxo curto (FI->FI) teve Mediana de ~10ms. O fluxo longo (IT->NO) teve Mediana de ~50ms. Ambos geraram baselines válidos que refletem as distâncias físicas sem gerar falsos positivos.**
 
@@ -129,7 +129,7 @@ Cada linha do Período B, de um fluxo que tenha ficha. FALHA ganha de RISCO; RIS
 - [x] O Período A não foi rotulado
 - [x] Dicionário v0.2 lista as colunas proibidas na árvore: país, IP, `rota_id`, `fluxo_id`, RTT absoluto como substituto das métricas relativas
 
-**Contagem OK / RISCO / FALHA: OK: 13.190 | RISCO: 925 | FALHA: 993**  
+**Contagem OK / RISCO / FALHA: OK: 148.948 | RISCO: 14.042 | FALHA: 10.684**  
 **Evidências (três linhas reais, com as métricas e a ordem que disparou a classe):A aplicação seguiu a ordem de cascata. Exemplos: Timeout/PerdaAlta imediatamente caiu na regra 1/2 como FALHA. Anomalias do z_robusto ou saltos altos de jitter caíram na regra 5 como RISCO. Picos isolados ou comportamentos dentro do MAD caíram como OK**
 
 ## 5. Recorte para a árvore (ainda sem treinar)
@@ -141,7 +141,7 @@ Dentro do Período B, por fluxo, em ordem de tempo:
 - [x] Nenhum registro do Período A no treino
 - [x] Corte com data e N de cada bloco
 
-**Corte (datas e N treino / validação / teste):**
+**Corte (datas e N treino / validação / teste):Treino: 86.822 | Validação: 34.703 | Teste: 52.149**
 
 ## 6. Scrum e diário
 
