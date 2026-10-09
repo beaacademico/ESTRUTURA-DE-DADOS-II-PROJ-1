@@ -11,17 +11,21 @@ Avaliar as vantagens, limitações e possibilidades de utilização de um datase
 
 ---
 
-## 🚀 Arquitetura e Pipeline Atual (Fase 2)
+## 🚀 Arquitetura e Pipeline Atual (Fase 3)
 
-Após a definição pela **API RIPE Atlas**, o repositório foi reestruturado sob uma metodologia Ágil (Scrum) para comportar o pipeline profissional de dados:
+Após a estruturação da engenharia de dados (Fase 2), o projeto avançou para a construção dos modelos preditivos e deploy:
 
-* 📁 **`config/`**: Arquivos de parametrização (janelas de tempo, ids de medição e timeouts).
-* 📁 **`data/`**: Separação estrita entre dados brutos (`raw/`), transformados (`interim/`) e rotulados (`processed/`).
-* 📁 **`notebooks/`**: 
-  * `01_coleta_bruta`: Loop de requisição HTTP e extração de *jitter* e *perda_pct*.
-  * `02_baseline_rotulagem`: Motor matemático que usa **Mediana e MAD** (Median Absolute Deviation) para calcular a normalidade de uma rota e aplicar a rotulagem em cascata baseada no `z_robusto`.
-* 📁 **`tarefas/`**: Diários de bordo e relatórios de qualidade em Markdown.
-* 📁 **`legado/`**: Arquivos e pesquisas da Fase 1 do projeto.
+* ⚙️ **`config/`**: Arquivos de parametrização (janelas de tempo, ids de medição e timeouts).
+* 🗄️ **`data/`**: Separação estrita entre dados brutos (`raw/`), transformados (`interim/`) e rotulados (`processed/`).
+* 🧠 **`notebooks/`**: 
+  * `01_coleta_bruta`: Loop de requisição HTTP e extração da rede.
+  * `02_baseline_rotulagem`: Motor matemático baseado no `z_robusto` e `MAD`.
+  * `03_arvore_inicial_estudo`: Prototipação rápida da primeira Decision Tree.
+  * `04_comparacao_modelos`: **(Novo)** Competição justa (GridSearchCV) entre Árvore de Decisão, Random Forest e XGBoost.
+* 🌐 **`docs/`**: **(Novo)** Código-fonte (HTML/CSS/Markdown) do artigo estático publicado no GitHub Pages.
+* 🤖 **`producao/`**: **(Novo)** Contém o cérebro físico da Inteligência Artificial escolhida (`modelo_final.joblib`), pronto para deploy.
+* 📋 **`tarefas/`**: Diários de bordo e relatórios Markdown.
+* 🗑️ **`legado/`**: Arquivos e pesquisas da Fase 1 do projeto.
 
 ---
 

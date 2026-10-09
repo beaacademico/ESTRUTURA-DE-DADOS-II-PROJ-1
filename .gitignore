@@ -1,4 +1,5 @@
-
-# Ignorar estudos da Tarefa 3
-notebooks/03_*
-data/processed/03_*
+# Ignorar arquivos de sistema e cache Python
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.env
