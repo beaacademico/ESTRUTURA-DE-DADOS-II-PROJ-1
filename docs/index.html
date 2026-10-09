@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Árvore, Floresta ou Boosting? Preditor de Redes</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1, h2, h3 { color: #2c3e50; }
+        .header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
+        .autores { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+        .autor { background: #f9f9f9; padding: 15px; border-radius: 8px; text-align: center; width: 200px; }
+        .autor img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; }
+        pre { background: #282c34; color: #abb2bf; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .tabela-comparativa { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .tabela-comparativa th, .tabela-comparativa td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .tabela-comparativa th { background-color: #f2f2f2; }
+        .imagem-responsiva { max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px; padding: 5px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Árvore, Floresta ou Boosting?</h1>
+        <h2>A Busca pelo Modelo Ideal para Previsão de Falhas em Redes Geograficamente Distribuídas</h2>
+    </div>
+
+    <section id="autoria">
+        <!-- Preencher com os dados do Grupo (LGPD: Apenas dados permitidos) -->
+        <div class="autores">
+            <div class="autor">
+                <img src="https://via.placeholder.com/100" alt="Foto do Autor 1">
+                <h3>Breno Brasil</h3>
+                <p>Scrum Master e Arquiteto de Dados</p>
+                <a href="#">GitHub</a> | <a href="#">LinkedIn</a>
+            </div>
+            <!-- Adicionar os outros membros aqui -->
+        </div>
+    </section>
+
+    <section id="introducao">
+        <h2>1. Introdução: O Problema do RTT Absoluto</h2>
+        <p>No monitoramento clássico de redes de computadores (como o Zabbix), costuma-se usar regras fixas: <i>"Se o ping passar de 200ms, dispare um alarme"</i>. O problema é que, numa rede global, 200ms pode ser catastrófico para uma rota curta (Brasil-Brasil), mas absolutamente normal para uma rota intercontinental (Brasil-Europa). O objetivo deste artigo é ensinar como usamos Machine Learning para julgar falhas de rede usando métricas relativas (Desvio Absoluto Robusto), e qual algoritmo performa melhor nesse cenário.</p>
+    </section>
+
+    <section id="modelos">
+        <h2>2. Os Três Gigantes do Aprendizado de Máquina</h2>
+        
+        <h3>2.1. Árvore de Decisão (Decision Tree)</h3>
+        <p>A Árvore de Decisão faz perguntas em sequência (Ex: <i>"O Z-Robusto é > 3?"</i>) até chegar a uma conclusão. É extremamente rápida e interpretável, mas sofre de "overfitting" (tende a decorar os dados de treino).</p>
+        
+        <h3>2.2. Random Forest (Bagging)</h3>
+        <p>Ao invés de uma árvore, plantamos milhares delas. Cada árvore vê uma parte diferente dos dados (Amostragem Bootstrap). No final, elas votam para decidir se a rede está em falha. Isso reduz o viés da árvore simples.</p>
+        
+        <h3>2.3. XGBoost (Boosting)</h3>
+        <p>Aqui as árvores não votam juntas, elas <strong>corrigem</strong> umas às outras. A árvore 2 foca exclusivamente nos pacotes que a árvore 1 errou. É o algoritmo campeão de competições no Kaggle.</p>
+    </section>
+
+    <section id="experimento">
+        <h2>3. O Experimento e Resultados</h2>
+        <p>Treinamos os três modelos utilizando o <code>GridSearchCV</code> para garantir uma disputa justa (ajuste de hiperparâmetros). Utilizamos um dataset com 69 fluxos da rede RIPE Atlas.</p>
+        
+        <!-- Esta imagem será gerada pelo nosso novo Notebook! -->
+        <img src="matriz_xgboost.png" alt="Matriz de Confusão do XGBoost" class="imagem-responsiva">
+
+        <table class="tabela-comparativa">
+            <thead>
+                <tr>
+                    <th>Modelo</th>
+                    <th>F1-Score (Macro)</th>
+                    <th>Tempo de Treino</th>
+                    <th>Interpretabilidade</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Árvore de Decisão</td>
+                    <td>Aguardando Execução</td>
+                    <td>...</td>
+                    <td>Alta</td>
+                </tr>
+                <tr>
+                    <td>Random Forest</td>
+                    <td>Aguardando Execução</td>
+                    <td>...</td>
+                    <td>Média</td>
+                </tr>
+                <tr>
+                    <td>XGBoost</td>
+                    <td>Aguardando Execução</td>
+                    <td>...</td>
+                    <td>Baixa</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="codigo">
+        <h2>4. Show me the code</h2>
+        <p>Usamos a biblioteca <code>scikit-learn</code> para o GridSearch. Exemplo de treino:</p>
+        <pre><code>from xgboost import XGBClassifier
+from sklearn.model_selection import GridSearchCV
+
+params = {'n_estimators': [50, 100], 'learning_rate': [0.05, 0.1]}
+grid = GridSearchCV(XGBClassifier(), params, cv=3)
+grid.fit(X_treino, y_treino)
+        </code></pre>
+    </section>
+
+    <section id="conclusao">
+        <h2>5. Recomendação e Limitações (Data Drift)</h2>
+        <p><strong>Recomendação:</strong> [Aqui o grupo justificará o vencedor com base no tempo vs acurácia].</p>
+        <p><strong>Limitação:</strong> Redes de computadores sofrem de <i>Data Drift</i>. Um rompimento de fibra óptica amanhã pode mudar o padrão de latência da rede, tornando nosso modelo obsoleto. Na vida real, seria necessário re-treinar o modelo periodicamente usando dados novos.</p>
+    </section>
+
+    <footer>
+        <p><small>Licença MIT | Código Fonte no <a href="#">Repositório GitHub</a> | Atualizado em: 10/10/2026</small></p>
+    </footer>
+</body>
+</html>
