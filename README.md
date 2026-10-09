@@ -15,17 +15,16 @@ Avaliar as vantagens, limitações e possibilidades de utilização de um datase
 
 Após a estruturação da engenharia de dados (Fase 2), o projeto avançou para a construção dos modelos preditivos e deploy:
 
-* ⚙️ **`config/`**: Arquivos de parametrização (janelas de tempo, ids de medição e timeouts).
-* 🗄️ **`data/`**: Separação estrita entre dados brutos (`raw/`), transformados (`interim/`) e rotulados (`processed/`).
-* 🧠 **`notebooks/`**: 
-  * `01_coleta_bruta`: Loop de requisição HTTP e extração da rede.
-  * `02_baseline_rotulagem`: Motor matemático baseado no `z_robusto` e `MAD`.
-  * `03_arvore_inicial_estudo`: Prototipação rápida da primeira Decision Tree.
-  * `04_comparacao_modelos`: **(Novo)** Competição justa (GridSearchCV) entre Árvore de Decisão, Random Forest e XGBoost.
-* 🌐 **`docs/`**: **(Novo)** Código-fonte (HTML/CSS/Markdown) do artigo estático publicado no GitHub Pages.
-* 🤖 **`producao/`**: **(Novo)** Contém o cérebro físico da Inteligência Artificial escolhida (`modelo_final.joblib`), pronto para deploy.
-* 📋 **`tarefas/`**: Diários de bordo e relatórios Markdown.
-* 🗑️ **`legado/`**: Arquivos e pesquisas da Fase 1 do projeto.
+* ⚙️ **config/**: Arquivos de parametrização e dicionários JSON.
+* 🗄️ **data/**: Separação estrita entre dados brutos (
+aw/), transformados (interim/) e rotulados (processed/).
+* 🧠 **
+otebooks/**: Motor principal de extração, baseline, matemática e a competição de modelos de IA (GridSearch).
+* 🐍 **src/**: **(Novo)** Scripts Python auxiliares (como buscas avulsas de IDs na API do RIPE).
+* 🌐 **docs/**: **(Novo)** Código-fonte (HTML/CSS/Markdown) do artigo estático publicado no GitHub Pages.
+* 🤖 **producao/**: **(Novo)** Contém o cérebro físico da Inteligência Artificial escolhida (modelo_final.joblib), pronto para deploy.
+* 📋 **	arefas/**: Diários de bordo e relatórios Markdown.
+* 🗑️ **legado/**: Arquivos e pesquisas da Fase 1 do projeto.
 
 ---
 
