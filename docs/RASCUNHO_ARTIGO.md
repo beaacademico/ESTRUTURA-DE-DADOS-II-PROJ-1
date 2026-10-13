@@ -1,73 +1,94 @@
-# Rascunho Oficial do Artigo - Fase 3
-*(Use este documento para dividir as tarefas de redação entre o grupo. Quando estiver pronto, passaremos o conteúdo para o HTML).*
+# 📄 Rascunho Oficial do Artigo - Fase 3
+> **Objetivo:** Produzir o artigo técnico comparativo (Árvore de Decisão vs. Random Forest vs. XGBoost) e estruturar a apresentação de 5 minutos do grupo.
 
 ---
 
-## 0. Cabeçalho e Autoria
-* **Título:** Árvore, Floresta ou Boosting?
-* **Subtítulo:** A busca pelo modelo ideal para previsão de falhas em redes geograficamente distribuídas usando Desvio Relativo.
-* **Autores:** 
-  * *(Adicionar para cada membro: Nome, Mini-bio [ex: Estudante de TI, 4º Semestre], Link do GitHub e LinkedIn. Atenção à LGPD: Não coloquem e-mails pessoais ou telefones).*
+## 👥 Quadro de Alocação do Grupo (Escolha Livre)
+
+| Parte | Módulo / Seção | Responsável | Status |
+| :---: | :--- | :--- | :---: |
+| **Parte 1** | Introdução, Cenário de Redes e Autoria/LGPD | `[A definir]` | ⏳ Pendente |
+| **Parte 2** | Teoria I: Árvore de Decisão (Conceitos Básicos) | `[A definir]` | ⏳ Pendente |
+| **Parte 3** | Teoria II: Random Forest vs. XGBoost (Ensembles) | `[A definir]` | ⏳ Pendente |
+| **Parte 4** | O Experimento Justo (GridSearch e Código Python) | `[A definir]` | ⏳ Pendente |
+| **Parte 5** | Resultados, Métricas e Matrizes de Confusão | `[A definir]` | ⏳ Pendente |
+| **Parte 6** | Veredito, MLOps (Data Drift) e Quadro de Observações | `[A definir]` | ⏳ Pendente |
 
 ---
 
-## 1. Introdução (O Problema)
-* **Objetivo da seção:** Explicar para um aluno de TI qual é o problema de redes que estamos resolvendo.
-* **Tópicos para escrever:**
-  * O monitoramento clássico usa latência absoluta (Ex: Alarme se RTT > 200ms).
-  * Por que isso falha numa rede global? (200ms no Brasil é falha, mas Brasil-Europa é normal).
-  * O que o leitor vai aprender? (Como usamos Inteligência Artificial e a métrica de *Z-Robusto* para julgar a rede pelo "desvio" e não pelo tempo bruto, e qual algoritmo é melhor para isso).
+## 📌 Detalhamento das 6 Partes
+
+### 👤 Parte 1: Introdução, Cenário de Redes e Autoria
+* **Responsável:** `[A definir]`
+* **Tempo na Apresentação:** ~50 segundos (Abertura e Contextualização).
+* **O que deve redigir:**
+  1. **Cartões de Autoria (LGPD):** Coletar e estruturar os dados de cada um dos 6 membros (Nome completo, mini-bio acadêmica, links públicos do GitHub e LinkedIn, foto). *Atenção:* Não expor e-mails pessoais ou telefones.
+  2. **O Problema de Redes:** Explicar didaticamente por que monitorar redes por "latência fixa" (ex: ping > 200ms) é ineficiente em uma infraestrutura global (200ms em uma rota curta é falha crítica, mas em um cabo submarino intercontinental é o estado normal).
+  3. **A Proposta do Grupo:** Apresentar a abordagem do projeto utilizando desvio relativo (*Z-Robusto*) e histórico recente com dados reais da rede RIPE Atlas (69 fluxos).
 
 ---
 
-## 2. Conceitos: Os Três Modelos (O Core do Artigo)
-* **Objetivo da seção:** Explicar didaticamente (com exemplos) como cada modelo funciona antes de jogar a matemática pesada.
-
-### 2.1 Árvore de Decisão
-* **O que é:** Um modelo simples de perguntas e respostas.
-* **Para escrever:** Dar um exemplo prático ("O pacote excedeu o Z-Robusto de 3? Se sim, é risco..."). Citar que é muito rápido e interpretável, mas sofre de *overfitting* (decora os dados).
-
-### 2.2 Random Forest (O conceito de Bagging)
-* **O que é:** Várias árvores treinadas em paralelo com amostras diferentes, decidindo por votação.
-* **Para escrever:** Explicar o que é *Bagging* de forma simples. Reduz a variância, mas perde um pouco da interpretabilidade (é uma "caixa preta" parcial).
-
-### 2.3 XGBoost (O conceito de Boosting)
-* **O que é:** Árvores treinadas em sequência, onde a Árvore 2 tenta consertar os erros cometidos pela Árvore 1.
-* **Para escrever:** Explicar a sacada do *Boosting*. Ele não vota igual a floresta, ele evolui. Citar o ajuste de taxa de aprendizado (*learning rate*).
+### 👤 Parte 2: Teoria Didática I – Árvore de Decisão
+* **Responsável:** `[A definir]`
+* **Tempo na Apresentação:** ~50 segundos (Conceito base).
+* **O que deve redigir:**
+  1. **Intuição:** Explicar a tomada de decisão sequencial por perguntas condicionais simples (*"O Z-Robusto é > 3.5?"*).
+  2. **Conceitos Fundamentais:** Definir nó raiz, nós internos, ramos, folhas, critério de divisão (Índice Gini / Entropia), profundidade máxima e poda (*pruning*).
+  3. **Vantagens e Limitações:** Alta interpretabilidade humana versus alta propensão a *overfitting* (decorar os dados de treino) e sensibilidade a variações nos dados (alta variância).
+  4. **Visual:** Incluir uma figura ilustrativa simples de árvore de decisão para tráfego de rede com legenda e texto alternativo acessível.
 
 ---
 
-## 3. O Experimento e Ajuste Honesto
-* **Objetivo da seção:** Provar que a competição foi justa (Regra da Professora).
-* **Dados para usar no texto:**
-  * Usamos o dataset do RIPE Atlas com **69 fluxos** (173.674 pacotes).
-  * Dividimos temporalmente: Treino (50%), Validação (20%), Teste (30%).
-  * Usamos o **GridSearchCV** do `scikit-learn` para ajuste hiperparâmetros (Não chutamos nada, o computador testou todas as combinações).
+### 👤 Parte 3: Teoria Didática II – Random Forest vs. XGBoost
+* **Responsável:** `[A definir]`
+* **Tempo na Apresentação:** ~50 segundos (Confronto dos Ensembles).
+* **O que deve redigir:**
+  1. **Random Forest (Bagging):** Construção de múltiplas árvores paralelas com amostragem *Bootstrap* e seleção aleatória de atributos. Explicar como a votação por maioria reduz a **variância**.
+  2. **XGBoost (Boosting):** Construção de árvores em sequência, onde cada nova árvore foca em corrigir os resíduos (erros) das árvores anteriores. Explicar taxa de aprendizado (*learning rate*), regularização e como isso reduz o **viés**.
+  3. **Visual:** Diagrama comparativo esquemático: árvores paralelas com votação (Floresta) versus árvores sequenciais somatórias (XGBoost).
 
 ---
 
-## 4. Resultados (Os Números do Nosso Projeto)
-*(Aqui estão os números reais que eu extraí do nosso `.joblib` e do `Notebook 04`. Basta vocês formatarem em texto).*
-
-* **O Campeão Absoluto:** XGBoost.
-* **Hiperparâmetros Vencedores:** 100 Árvores, Profundidade 4, Learning Rate 0.05.
-* **O que a IA achou mais importante?**
-  1. `z_robusto` (36.37%)
-  2. `n5_risco` (27.67%)
-  3. `jitter_relativo` (20.30%)
-* **Latência (Tempo de Predição):** O XGBoost julgou milhares de pacotes da validação em poucos milissegundos. Arquivo final pesa apenas `372 KB`.
-* **Imagens a incluir:** (As imagens já foram geradas na pasta `docs/`).
-  1. Desenho de uma Árvore Simples.
-  2. Esquema de Bagging vs Boosting (O grupo precisa desenhar/buscar).
-  3. Matriz de Confusão do XGBoost (`matriz_xgboost.png`).
+### 👤 Parte 4: O Experimento Justo e Código Python
+* **Responsável:** `[A definir]`
+* **Tempo na Apresentação:** ~50 segundos (Rigor metodológico).
+* **O que deve redigir:**
+  1. **Metodologia sem Vazamento (Data Leakage):** Explicar a divisão temporal estrita do Período B (Treino 50% / Validação 20% / Teste 30%), garantindo que os dados do Período A foram usados apenas como baseline e a fixação da semente (`random_state=42`).
+  2. **Ajuste Honesto (GridSearchCV):** Explicar que nenhum hiperparâmetro foi chutado; foi usada busca exaustiva em grade para calibrar profundidade, estimadores e taxas nos três modelos.
+  3. **Show me the Code:** Apresentar trechos curtos e bem comentados em Python (`scikit-learn` e `xgboost`), indicando versões e link para o notebook completo [04_comparacao_modelos.ipynb](../notebooks/04_comparacao_modelos.ipynb).
 
 ---
 
-## 5. Recomendação e Limitações (Data Drift)
-* **Recomendação:** Nós recomendamos o **XGBoost** porque ele combinou um F1-Score altíssimo com um arquivo extremamente leve (372 KB), ideal para rodar em tempo real em servidores de monitoramento de redes sem gargalos de CPU.
-* **Limitações (Data Drift):** Explicar que a rede física muda (cabos rompem, roteadores pifam). O que é normal hoje, pode não ser mês que vem. O modelo não duraria para sempre; precisaria ser re-treinado periodicamente.
+### 👤 Parte 5: Resultados, Métricas e Matrizes de Confusão
+* **Responsável:** `[A definir]`
+* **Tempo na Apresentação:** ~50 segundos (Análise dos dados).
+* **O que deve redigir:**
+  1. **Tabela Comparativa de Métricas:** Preencher e comentar a tabela com Precisão, Recall, F1-Score (macro), tempo de treinamento e tempo de inferência para os 3 modelos.
+  2. **Matriz de Confusão:** Explicar a matriz do modelo campeão (usar o arquivo [matriz_xgboost.png](matriz_xgboost.png)).
+  3. **Custo dos Erros em Operação de Redes:** Avaliar o impacto de um Falso Positivo (alarme falso que acorda o plantonista de SRE) versus um Falso Negativo (degradação não detectada que afeta os usuários).
+  4. **Importância dos Atributos:** Comentar o peso das features extraídas do nosso modelo final:
+     * `z_robusto`: **36.37%**
+     * `n5_risco`: **27.67%**
+     * `jitter_relativo`: **20.30%**
+     * Outros atributos (aumento, perda): **~15.66%**
 
 ---
 
-## 6. Referências
-* Listar entre 3 a 7 links bons (Documentação oficial do XGBoost, Scikit-learn, Artigo NSL-KDD, etc).
+### 👤 Parte 6: Recomendação Final, MLOps (Data Drift) e Quadro de Observações
+* **Responsável:** `[A definir]`
+* **Tempo na Apresentação:** ~50 segundos (Conclusão, produção e deploy).
+* **O que deve redigir:**
+  1. **Recomendação Justificada:** Defender a escolha do modelo campeão (**XGBoost**) combinando alta acurácia com leveza operacional (arquivo gerado de apenas **372 KB** em `producao/modelo/modelo_final.joblib`, ideal para baixa latência em tempo real).
+  2. **Limitações e Data Drift:** Explicar o fenômeno do desvio de conceito/dados na física da rede (rompimentos de rota, mudança de operadora) que demanda monitoramento contínuo e rotinas de retreino.
+  3. **Quadro de Observação (Exigência do Projeto):**
+     * *Duas referências analisadas:* (ex: documentação oficial do XGBoost e artigo Chen & Guestrin).
+     * *Três decisões do grupo:* (ex: adoção do Z-Robusto relativo, uso de GridSearchCV honesto e estruturação MLOps com `.joblib`).
+     * *Uma coisa que o grupo decidiu NÃO fazer:* (ex: não utilizar limiares fixos de RTT em milissegundos).
+  4. **Deploy e Acesso:** Validar e disponibilizar a URL pública da página funcionando no GitHub Pages.
+
+---
+
+## 🚀 Como Proceder
+1. Cada integrante escolhe uma das partes acima e preenche seu nome na tabela inicial.
+2. Cada responsável redige o texto do seu bloco neste arquivo `.md` ou diretamente na seção correspondente do [index.html](index.html).
+3. Após revisão geral do grupo, atualizamos a página estática e sincronizamos no GitHub.
