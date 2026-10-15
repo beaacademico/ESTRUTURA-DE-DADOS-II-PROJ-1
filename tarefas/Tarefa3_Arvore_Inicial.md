@@ -175,8 +175,8 @@ A árvore de contraste criou cortes duros em milissegundos (`avg <= 1.91 ms`, `a
 
 | Critério | Peso | Nota máxima | Nota | Observações |
 |---|---|---|---|---|
-| Árvore oficial | 1,5 | Uma árvore, critério e profundidade declarados, regras em português, fit só no treino | 1,5 | Árvore CART (Gini), profundidade 4, 8 folhas, 4 regras extraídas textualmente. |
-| Métricas de três classes | 1,0 | Matriz 3×3, F1 por classe e F1 macro; acurácia não é o critério | 1,0 | Matriz 3×3 completa, F1 Macro de 0.9851 e análise de desbalanceamento. |
-| Independência da rota | 1,0 | Colunas relativas apenas; árvore de contraste mostra o atalho da distância e é descartada | 1,0 | Árvore de contraste treinou com `avg`, provou o atalho em ms e foi descartada. |
-| Scrum + diário | 0,5 | Board e diário de todos | 0,5 | Todos os 6 integrantes com tarefas, dificuldades e ajustes descritos. |
-| **Total** | **4,0** | | **4,0 / 4,0** | |
+| Árvore oficial | 1,5 | Uma árvore, critério e profundidade declarados, regras em português, fit só no treino | | |
+| Métricas de três classes | 1,0 | Matriz 3×3, F1 por classe e F1 macro; acurácia não é o critério | | |
+| Independência da rota | 1,0 | Colunas relativas apenas; árvore de contraste mostra o atalho da distância e é descartada | | |
+| Scrum + diário | 0,5 | Board e diário de todos | | |
+| **Total** | **4,0** | | **___ / 4,0** | |

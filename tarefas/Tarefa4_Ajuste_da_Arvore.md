@@ -134,8 +134,8 @@ O ajuste da profundidade para 7 permitiu à árvore navegar pelos ramos secundá
 
 | Critério | Peso | Nota máxima | Nota | Observações |
 |---|---|---|---|---|
-| Ajuste ligado ao erro | 1,5 | Cada mudança da árvore cita um erro da Tarefa 3; continua árvore de decisão | 1,5 | Cada um dos 196 erros foi justificado e solucionado pela expansão para `max_depth = 7`. |
-| Rota fora do modelo | 1,0 | Nenhuma coluna de rota, país, IP ou RTT absoluto; baseline da Tarefa 2 intacto | 1,0 | Apenas features relativas baseadas em MAD; sem contaminação por latência absoluta. |
-| Tabela Tarefa 3 → Tarefa 4 | 1,0 | F1 macro e recall de FALHA e de RISCO na validação, com leitura | 1,0 | Tabela completa mostrando o salto de 0.9851 para 1.0000 e matriz 3×3 zerada. |
-| Revisão + diário | 0,5 | Incremento mostrado ao docente; diário de todos | 0,5 | Feedback docente documentado com direcionamento para Ensembles e MLOps. |
-| **Total** | **4,0** | | **4,0 / 4,0** | |
+| Ajuste ligado ao erro | 1,5 | Cada mudança da árvore cita um erro da Tarefa 3; continua árvore de decisão | | |
+| Rota fora do modelo | 1,0 | Nenhuma coluna de rota, país, IP ou RTT absoluto; baseline da Tarefa 2 intacto | | |
+| Tabela Tarefa 3 → Tarefa 4 | 1,0 | F1 macro e recall de FALHA e de RISCO na validação, com leitura | | |
+| Revisão + diário | 0,5 | Incremento mostrado ao docente; diário de todos | | |
+| **Total** | **4,0** | | **___ / 4,0** | |
