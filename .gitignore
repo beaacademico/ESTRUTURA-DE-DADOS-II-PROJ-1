@@ -3,3 +3,6 @@
 __pycache__/
 *.pyc
 .env
+
+# Guias e PDFs locais de estudo
+*.pdf
