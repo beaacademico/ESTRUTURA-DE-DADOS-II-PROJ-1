@@ -5,17 +5,175 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Árvore, Floresta ou Boosting? Preditor de Redes</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
-        h1, h2, h3 { color: #2c3e50; }
-        .header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
-        .autores { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
-        .autor { background: #f9f9f9; padding: 15px; border-radius: 8px; text-align: center; width: 200px; }
-        .autor img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; }
-        pre { background: #282c34; color: #abb2bf; padding: 15px; border-radius: 5px; overflow-x: auto; }
-        .tabela-comparativa { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        .tabela-comparativa th, .tabela-comparativa td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        .tabela-comparativa th { background-color: #f2f2f2; }
-        .imagem-responsiva { max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px; padding: 5px; }
+        body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:800px;margin:0 auto;padding:20px;}
+        h1,h2,h3{color:#2c3e50;}
+        .header{text-align:center;margin-bottom:40px;border-bottom:2px solid #eee;padding-bottom:20px;}
+        .autores{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        .autor{background:#f9f9f9;padding:15px;border-radius:8px;text-align:center;width:200px;}
+        .autor img{width:100px;height:100px;border-radius:50%;object-fit:cover;}
+        pre{background:#282c34;color:#abb2bf;padding:15px;border-radius:5px;overflow-x:auto;}
+        .tabela-comparativa{width:100%;border-collapse:collapse;margin:20px 0;}
+        .tabela-comparativa th,.tabela-comparativa td{border:1px solid #ddd;padding:8px;text-align:left;}
+        .tabela-comparativa th{background-color:#f2f2f2;}
+        .imagem-responsiva{max-width:100%;height:auto;border:1px solid #ddd;border-radius:4px;padding:5px;}
+        /* ===== Seção Random Forest / Bagging ===== */
+        .rf-intro{margin:28px 0 18px;padding:22px;background:#f7fafc;border:1px solid #e4eaf0;border-radius:14px;}
+        .rf-intro h3{margin-top:0;font-size:1.55rem;}
+        .rf-lead{font-size:1.05rem;margin-bottom:12px;}
+        .rf-highlight{margin:18px 0 0;padding:14px 16px;border-left:4px solid #4d6f8f;background:#eef4f8;border-radius:6px;}
+        .rf-cards{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:14px;margin:22px 0 30px;}
+        .rf-card{border:1px solid #dfe5ea;border-radius:12px;padding:16px;background:#fff;}
+        .rf-card h4{margin:0 0 8px;color:#2c3e50;}
+        .rf-card p{margin:0;font-size:0.96rem;}
+        .bagging-box{margin:30px 0 36px;padding:22px;border:1px solid #dfe5ea;border-radius:16px;background:#fbfcfd;}
+        .bagging-box h4{margin:0 0 6px;font-size:1.25rem;color:#2c3e50;}
+        .bagging-box>p{margin-top:0;}
+        .bagging-diagram{margin-top:24px;display:flex;flex-direction:column;align-items:center;gap:12px;}
+        .diagram-node{box-sizing:border-box;width:min(100%, 430px);padding:12px 16px;text-align:center;border:1px solid #b9c7d3;border-radius:10px;background:#fff;font-weight:600;}
+        .diagram-node small{display:block;margin-top:4px;font-weight:400;color:#5d6d7e;}
+        .diagram-arrow{font-size:1.55rem;line-height:1;color:#667788;}
+        .bootstrap-samples,.tree-row,.vote-row{width:100%;display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:12px;}
+        .sample,.tree,.prediction{padding:12px 10px;text-align:center;border-radius:10px;}
+        .sample{border:1px dashed #9aabb8;background:#f2f6f8;font-family:Consolas,"Courier New",monospace;font-size:0.9rem;}
+        .tree{border:1px solid #b9c7d3;background:#fff;font-weight:600;}
+        .tree::before{content:"🌳";display:block;font-size:1.7rem;margin-bottom:4px;}
+        .prediction{border:1px solid #ccd6dd;background:#f8fafb;font-weight:600;}
+        .final-vote{width:min(100%, 300px);padding:14px 18px;text-align:center;border-radius:10px;background:#2c3e50;color:#fff;font-weight:700;}
+        .diagram-caption{margin-top:16px;font-size:0.92rem;color:#5f6d78;text-align:center;}
+        @media (max-width: 700px){
+            .rf-cards,.bootstrap-samples,.tree-row,.vote-row{grid-template-columns:1fr;}
+        }
+        /* ===== Viés (Bias) x Variância ===== */
+        .bias-variance-box{margin:30px 0 36px;padding:22px;border:1px solid #dfe5ea;border-radius:16px;background:#ffffff;}
+        .bias-variance-box h4{margin:0 0 8px;font-size:1.25rem;color:#2c3e50;}
+        .bias-variance-box>p{margin-top:0;}
+        .bias-variance-grid{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:18px;margin:24px 0;}
+        .bias-card{border:1px solid #dfe5ea;border-radius:14px;padding:16px;background:#f9fbfc;}
+        .bias-card h5{margin:0 0 6px;color:#2c3e50;font-size:1rem;text-align:center;}
+        .bias-card p{margin:10px 0 0;font-size:0.92rem;}
+        .target{position:relative;width:135px;height:135px;margin:14px auto;border:2px solid #aebdca;border-radius:50%;background:radial-gradient(circle,
+                    transparent 0 19%,
+                    #dbe4ea 20% 21%,
+                    transparent 22% 39%,
+                    #dbe4ea 40% 41%,
+                    transparent 42% 59%,
+                    #dbe4ea 60% 61%,
+                    transparent 62%);}
+        .target::after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;transform:translate(-50%, -50%);background:#2c3e50;border-radius:50%;}
+        .shot{position:absolute;width:9px;height:9px;border-radius:50%;background:#4d6f8f;box-shadow:0 0 0 2px rgba(255,255,255,.85);}
+        /* Viés alto: previsões agrupadas, mas longe do centro */
+        .target.high-bias .s1{left:24%;top:24%;}
+        .target.high-bias .s2{left:29%;top:29%;}
+        .target.high-bias .s3{left:20%;top:33%;}
+        .target.high-bias .s4{left:34%;top:21%;}
+        .target.high-bias .s5{left:27%;top:37%;}
+        /* Variância alta: previsões espalhadas */
+        .target.high-variance .s1{left:18%;top:20%;}
+        .target.high-variance .s2{left:72%;top:22%;}
+        .target.high-variance .s3{left:28%;top:70%;}
+        .target.high-variance .s4{left:68%;top:66%;}
+        .target.high-variance .s5{left:47%;top:38%;}
+        /* Bom equilíbrio: previsões próximas do centro */
+        .target.balanced .s1{left:45%;top:43%;}
+        .target.balanced .s2{left:52%;top:47%;}
+        .target.balanced .s3{left:42%;top:52%;}
+        .target.balanced .s4{left:55%;top:55%;}
+        .target.balanced .s5{left:48%;top:58%;}
+        .bias-definition{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:22px 0;}
+        .definition-card{padding:16px;border-radius:12px;background:#f7fafc;border-left:4px solid #4d6f8f;}
+        .definition-card strong{display:block;margin-bottom:5px;color:#2c3e50;}
+        .rf-connection{margin-top:20px;padding:16px 18px;border-radius:12px;background:#eef4f8;border:1px solid #d8e3eb;}
+        .rf-connection p{margin:0;}
+        .small-note{margin-top:14px;font-size:0.88rem;color:#63717c;}
+        @media (max-width: 700px){
+            .bias-variance-grid,.bias-definition{grid-template-columns:1fr;}
+        }
+        /* ===== Seção XGBoost / Boosting ===== */
+        .xgb-intro{margin:34px 0 18px;padding:22px;background:#fbfaf7;border:1px solid #e8e2d7;border-radius:14px;}
+        .xgb-intro h3{margin-top:0;font-size:1.55rem;}
+        .xgb-highlight{margin-top:18px;padding:14px 16px;border-left:4px solid #8a6a38;background:#f6f0e5;border-radius:6px;}
+        .xgb-cards{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:14px;margin:22px 0 30px;}
+        .xgb-card{border:1px solid #e2ddd3;border-radius:12px;padding:16px;background:#fff;}
+        .xgb-card h4{margin:0 0 8px;color:#2c3e50;}
+        .xgb-card p{margin:0;font-size:0.96rem;}
+        .boosting-box{margin:30px 0 34px;padding:22px;border:1px solid #e2ddd3;border-radius:16px;background:#fffdf9;}
+        .boosting-box h4{margin:0 0 6px;font-size:1.25rem;color:#2c3e50;}
+        .boosting-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:stretch;gap:10px;margin:24px 0;}
+        .boost-step{border:1px solid #d7cbb8;border-radius:12px;background:#fff;padding:14px;text-align:center;min-height:145px;display:flex;flex-direction:column;justify-content:center;}
+        .boost-step .tree-icon{font-size:1.8rem;margin-bottom:4px;}
+        .boost-step strong{color:#2c3e50;}
+        .boost-step small{display:block;margin-top:6px;color:#66737d;line-height:1.35;}
+        .boost-arrow{align-self:center;font-size:1.55rem;color:#8a6a38;}
+        .error-chip{display:inline-block;margin-top:8px;padding:4px 8px;border-radius:999px;background:#f4eee3;color:#755a31;font-size:0.78rem;font-weight:600;}
+        .xgb-result{margin-top:18px;padding:14px 16px;border-radius:10px;background:#2c3e50;color:#fff;text-align:center;font-weight:700;}
+        .learning-rate-box{margin:30px 0 36px;padding:22px;border:1px solid #e2ddd3;border-radius:16px;background:#ffffff;}
+        .learning-rate-box h4{margin:0 0 8px;color:#2c3e50;font-size:1.25rem;}
+        .lr-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px;}
+        .lr-card{border:1px solid #e1e5e8;border-radius:14px;padding:16px;background:#fafbfc;}
+        .lr-card h5{margin:0 0 10px;text-align:center;color:#2c3e50;font-size:1rem;}
+        .lr-track{position:relative;height:72px;margin:12px 0 16px;border-bottom:2px solid #cbd4da;}
+        .lr-goal{position:absolute;right:5%;bottom:-5px;width:10px;height:10px;border-radius:50%;background:#2c3e50;}
+        .lr-goal-label{position:absolute;right:0;top:2px;font-size:0.75rem;color:#5d6870;}
+        .lr-step{position:absolute;bottom:0;width:10px;border-radius:5px 5px 0 0;background:#8a6a38;}
+        .lr-high .s1{left:12%;height:30px;}
+        .lr-high .s2{left:38%;height:52px;}
+        .lr-high .s3{left:70%;height:66px;}
+        .lr-low .s1{left:10%;height:14px;}
+        .lr-low .s2{left:25%;height:25px;}
+        .lr-low .s3{left:40%;height:36px;}
+        .lr-low .s4{left:55%;height:47px;}
+        .lr-low .s5{left:70%;height:57px;}
+        .lr-low .s6{left:84%;height:65px;}
+        .xgb-note{margin-top:20px;padding:16px 18px;border-radius:12px;background:#f6f0e5;border:1px solid #e7dac4;}
+        .xgb-note p{margin:0;}
+        .xgb-transition{margin:32px 0 10px;padding:18px;text-align:center;border-top:1px solid #e4e8eb;border-bottom:1px solid #e4e8eb;background:#fafbfc;}
+        .xgb-transition strong{color:#2c3e50;}
+        @media (max-width: 700px){
+            .xgb-cards,.lr-grid{grid-template-columns:1fr;}
+            .boosting-flow{grid-template-columns:1fr;}
+            .boost-arrow{transform:rotate(90deg);justify-self:center;}
+        }
+        /* ===== Quadro conceitual: Bagging x Boosting ===== */
+        .ensemble-compare{margin:34px 0 24px;padding:22px;border:1px solid #dfe5ea;border-radius:16px;background:#fbfcfd;}
+        .ensemble-compare h4{margin:0 0 8px;font-size:1.25rem;color:#2c3e50;}
+        .ensemble-compare>p{margin-top:0;}
+        .ensemble-table{width:100%;border-collapse:collapse;margin-top:18px;overflow:hidden;border-radius:12px;}
+        .ensemble-table th,.ensemble-table td{border:1px solid #dfe5ea;padding:12px;vertical-align:top;}
+        .ensemble-table th{background:#f1f5f8;color:#2c3e50;text-align:left;}
+        .ensemble-table td:first-child{font-weight:600;width:28%;color:#3e4d59;background:#fafcfd;}
+        .compare-summary{margin-top:16px;padding:14px 16px;border-radius:10px;background:#eef4f8;border-left:4px solid #4d6f8f;}
+        .compare-summary p{margin:0;}
+        @media (max-width: 700px){
+            .ensemble-table,.ensemble-table thead,.ensemble-table tbody,.ensemble-table tr,.ensemble-table th,.ensemble-table td{display:block;width:100%;}
+            .ensemble-table thead{display:none;}
+            .ensemble-table tr{margin-bottom:14px;border:1px solid #dfe5ea;border-radius:10px;overflow:hidden;}
+            .ensemble-table td{border:0;border-bottom:1px solid #e7ecef;}
+            .ensemble-table td:last-child{border-bottom:0;}
+            .ensemble-table td::before{display:block;font-size:0.78rem;font-weight:700;color:#6a7781;margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em;}
+            .ensemble-table td:nth-child(1)::before{content:"Aspecto";}
+            .ensemble-table td:nth-child(2)::before{content:"Random Forest";}
+            .ensemble-table td:nth-child(3)::before{content:"XGBoost";}
+        }
+        /* ===== Principais hiperparâmetros ===== */
+        .hyperparams-section{margin:34px 0 30px;padding:22px;border:1px solid #dfe5ea;border-radius:16px;background:#ffffff;}
+        .hyperparams-section h4{margin:0 0 8px;font-size:1.25rem;color:#2c3e50;}
+        .hyperparams-section>p{margin-top:0;}
+        .hyperparams-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px;}
+        .hyper-model{border:1px solid #dfe5ea;border-radius:14px;overflow:hidden;background:#fbfcfd;}
+        .hyper-model-header{padding:14px 16px;background:#f1f5f8;border-bottom:1px solid #dfe5ea;}
+        .hyper-model-header h5{margin:0;color:#2c3e50;font-size:1.05rem;}
+        .hyper-model-header p{margin:4px 0 0;font-size:0.9rem;color:#66737d;}
+        .hyper-list{margin:0;padding:0;list-style:none;}
+        .hyper-item{padding:14px 16px;border-bottom:1px solid #e6ebee;}
+        .hyper-item:last-child{border-bottom:0;}
+        .hyper-name{display:inline-block;margin-bottom:5px;padding:2px 7px;border-radius:6px;background:#eaf0f4;color:#2c3e50;font-family:Consolas,"Courier New",monospace;font-size:0.9rem;font-weight:700;}
+        .hyper-item p{margin:0;font-size:0.93rem;}
+        .hyper-effect{display:block;margin-top:5px;color:#65727b;font-size:0.86rem;}
+        .hyper-handoff{margin-top:20px;padding:15px 17px;border-radius:10px;background:#f6f0e5;border-left:4px solid #8a6a38;}
+        .hyper-handoff p{margin:0;}
+        @media (max-width: 700px){
+            .hyperparams-grid{grid-template-columns:1fr;}
+        }
     </style>
 </head>
 <body>
@@ -33,7 +191,36 @@
                 <p>Scrum Master e Arquiteto de Dados</p>
                 <a href="#">GitHub</a> | <a href="#">LinkedIn</a>
             </div>
-            <!-- Adicionar os outros membros aqui -->
+            <div class="autor">
+                <img src="https://via.placeholder.com/100" alt="Foto do Autor 2">
+                <h3>Beatriz Gonçalves da Silva</h3>
+                <p>A preencher</p>
+                <a href="#">GitHub</a> | <a href="#">LinkedIn</a>
+            </div>
+            <div class="autor">
+                <img src="https://via.placeholder.com/100" alt="Foto do Autor 3">
+                <h3>Enzo Moraes Sousa</h3>
+                <p>A preencher</p>
+                <a href="#">GitHub</a> | <a href="#">LinkedIn</a>
+            </div>
+            <div class="autor">
+                <img src="https://via.placeholder.com/100" alt="Foto do Autor 4">
+                <h3>Natsumi Goto</h3>
+                <p>Analista e Desenvolvedora de Sistemas</p>
+                <a href="https://github.com/nanatsunami">GitHub</a> | <a href="https://www.linkedin.com/in/natsumi-goto-2b6192378">LinkedIn</a>
+            </div>
+            <div class="autor">
+                <img src="https://via.placeholder.com/100" alt="Foto do Autor 5">
+                <h3>Pedro Viana da Silva</h3>
+                <p>A preencher</p>
+                <a href="#">GitHub</a> | <a href="#">LinkedIn</a>
+            </div>
+            <div class="autor">
+                <img src="https://via.placeholder.com/100" alt="Foto do Autor 6">
+                <h3>Vitória Alessandra das Neves</h3>
+                <p>A preencher</p>
+                <a href="#">GitHub</a> | <a href="#">LinkedIn</a>
+            </div>
         </div>
     </section>
 
@@ -47,13 +234,531 @@
         
         <h3>2.1. Árvore de Decisão (Decision Tree)</h3>
         <p>A Árvore de Decisão faz perguntas em sequência (Ex: <i>"O Z-Robusto é > 3?"</i>) até chegar a uma conclusão. É extremamente rápida e interpretável, mas sofre de "overfitting" (tende a decorar os dados de treino).</p>
-        
-        <h3>2.2. Random Forest (Bagging)</h3>
-        <p>Ao invés de uma árvore, plantamos milhares delas. Cada árvore vê uma parte diferente dos dados (Amostragem Bootstrap). No final, elas votam para decidir se a rede está em falha. Isso reduz o viés da árvore simples.</p>
-        
-        <h3>2.3. XGBoost (Boosting)</h3>
-        <p>Aqui as árvores não votam juntas, elas <strong>corrigem</strong> umas às outras. A árvore 2 foca exclusivamente nos pacotes que a árvore 1 errou. É o algoritmo campeão de competições no Kaggle.</p>
-    </section>
+
+        <!-- Random Forest / Bagging -->
+        <div class="rf-intro">
+            <h3>2.2. Random Forest: quando uma árvore só não é suficiente</h3>
+            <p class="rf-lead">
+                Uma Árvore de Decisão pode ser muito boa para explicar uma regra, mas também pode ser
+                sensível aos dados usados no treinamento. Pequenas mudanças na amostra podem produzir
+                uma árvore diferente e, consequentemente, outra classificação.
+            </p>
+            <p>
+                O <strong>Random Forest</strong> reduz essa dependência de uma única árvore ao combinar
+                várias Árvores de Decisão. Cada árvore é treinada com uma amostra diferente dos dados e
+                também pode analisar subconjuntos diferentes de atributos. Em um problema de classificação,
+                as árvores fazem suas previsões de forma independente e a floresta combina essas respostas,
+                normalmente por votação.
+            </p>
+            <div class="rf-highlight">
+                <strong>Ideia principal:</strong> em vez de confiar em uma única árvore, o Random Forest
+                reúne várias opiniões. Isso tende a tornar a previsão mais estável e a reduzir a
+                <strong>variância</strong> em relação a uma árvore isolada.
+            </div>
+        </div>
+
+        <div class="rf-cards" aria-label="Três ideias centrais do Random Forest">
+            <div class="rf-card">
+                <h4>🌳 Muitas árvores</h4>
+                <p>O modelo é formado por várias Árvores de Decisão, e não por uma única estrutura.</p>
+            </div>
+            <div class="rf-card">
+                <h4>🎲 Aleatoriedade</h4>
+                <p>As árvores recebem amostras diferentes dos dados e podem considerar subconjuntos diferentes de atributos.</p>
+            </div>
+            <div class="rf-card">
+                <h4>🗳️ Votação</h4>
+                <p>Em classificação, as previsões das árvores são agregadas e a classe mais apoiada pelo conjunto tende a ser escolhida.</p>
+            </div>
+        </div>
+
+        <div class="bagging-box">
+            <h4>Como isso acontece? O papel do Bagging</h4>
+            <p>
+                <strong>Bagging</strong> vem de <em>Bootstrap Aggregating</em>. Primeiro são criadas várias
+                amostras do conjunto de treinamento por amostragem com reposição. Depois, um modelo é
+                treinado em cada amostra. No final, as previsões são agregadas.
+            </p>
+
+            <div class="bagging-diagram" role="img"
+                 aria-label="Fluxo do Bagging: dataset original gera amostras bootstrap, que treinam árvores independentes e têm suas previsões combinadas por votação.">
+                <div class="diagram-node">
+                    Dataset original
+                    <small>Um único conjunto de treinamento</small>
+                </div>
+                <div class="diagram-arrow" aria-hidden="true">↓</div>
+                <div class="diagram-node">
+                    Bootstrap
+                    <small>Criação de várias amostras com reposição</small>
+                </div>
+                <div class="diagram-arrow" aria-hidden="true">↓</div>
+                <div class="bootstrap-samples">
+                    <div class="sample">Amostra A<br>1 · 2 · 2 · 5 · 7</div>
+                    <div class="sample">Amostra B<br>1 · 3 · 4 · 4 · 8</div>
+                    <div class="sample">Amostra C<br>2 · 3 · 5 · 6 · 8</div>
+                </div>
+                <div class="diagram-arrow" aria-hidden="true">↓</div>
+                <div class="tree-row">
+                    <div class="tree">Árvore A</div>
+                    <div class="tree">Árvore B</div>
+                    <div class="tree">Árvore C</div>
+                </div>
+                <div class="diagram-arrow" aria-hidden="true">↓</div>
+                <div class="vote-row">
+                    <div class="prediction">OK</div>
+                    <div class="prediction">RISCO</div>
+                    <div class="prediction">OK</div>
+                </div>
+                <div class="diagram-arrow" aria-hidden="true">↓</div>
+                <div class="final-vote">Votação final → OK</div>
+            </div>
+
+            <p class="diagram-caption">
+                Exemplo ilustrativo: as amostras acima servem apenas para mostrar o funcionamento
+                do Bootstrap e da agregação; não representam os dados reais do experimento.
+            </p>
+        </div>
+
+        <!--   Explicação de viés (bias) e variância -->
+        <div class="bias-variance-box">
+            <h4>Por que várias árvores ajudam? Viés e variância</h4>
+
+            <p>
+                Para entender por que o Random Forest costuma ser mais estável que uma única Árvore de Decisão,
+                vale separar dois tipos de erro: <strong>viés (bias)</strong> e <strong>variância (variance)</strong>.
+                Eles descrevem maneiras diferentes de um modelo errar.
+            </p>
+
+            <div class="bias-definition">
+                <div class="definition-card">
+                    <strong>Viés (Bias)</strong>
+                    É a tendência de um modelo errar de forma sistemática porque simplifica demais o problema.
+                    Quando o viés é alto, o modelo pode não aprender relações importantes dos dados, situação
+                    associada ao <em>underfitting</em>.
+                </div>
+
+                <div class="definition-card">
+                    <strong>Variância (Variance)</strong>
+                    É o quanto a resposta do modelo muda quando o conjunto de treinamento muda um pouco.
+                    Uma árvore muito sensível aos exemplos usados no treino pode apresentar alta variância e
+                    sofrer com <em>overfitting</em>.
+                </div>
+            </div>
+
+            <div class="bias-variance-grid" aria-label="Comparação visual entre viés alto, variância alta e equilíbrio">
+                <div class="bias-card">
+                    <h5>Viés alto</h5>
+                    <div class="target high-bias" aria-hidden="true">
+                        <span class="shot s1"></span>
+                        <span class="shot s2"></span>
+                        <span class="shot s3"></span>
+                        <span class="shot s4"></span>
+                        <span class="shot s5"></span>
+                    </div>
+                    <p>
+                        As previsões ficam próximas umas das outras, mas afastadas do resultado ideal:
+                        o modelo erra de maneira consistente.
+                    </p>
+                </div>
+
+                <div class="bias-card">
+                    <h5>Variância alta</h5>
+                    <div class="target high-variance" aria-hidden="true">
+                        <span class="shot s1"></span>
+                        <span class="shot s2"></span>
+                        <span class="shot s3"></span>
+                        <span class="shot s4"></span>
+                        <span class="shot s5"></span>
+                    </div>
+                    <p>
+                        As previsões ficam espalhadas: pequenas mudanças nos dados podem levar o modelo
+                        a respostas muito diferentes.
+                    </p>
+                </div>
+
+                <div class="bias-card">
+                    <h5>Bom equilíbrio</h5>
+                    <div class="target balanced" aria-hidden="true">
+                        <span class="shot s1"></span>
+                        <span class="shot s2"></span>
+                        <span class="shot s3"></span>
+                        <span class="shot s4"></span>
+                        <span class="shot s5"></span>
+                    </div>
+                    <p>
+                        O objetivo é obter previsões que sejam próximas do resultado esperado e também
+                        estáveis quando os dados mudam.
+                    </p>
+                </div>
+            </div>
+
+            <div class="rf-connection">
+                <p>
+                    <strong>E onde entra o Random Forest?</strong>
+                    Árvores de decisão profundas podem ter boa capacidade de se ajustar aos dados, mas também
+                    podem apresentar alta variância. O <strong>Bagging</strong> treina várias árvores com
+                    amostras diferentes e combina suas previsões. Ao agregar essas árvores, erros particulares
+                    de uma árvore tendem a ter menos influência no resultado final, o que ajuda principalmente
+                    a <strong>reduzir a variância</strong>.
+                </p>
+            </div>
+
+            <p class="small-note">
+                Os alvos acima são apenas uma analogia visual para explicar viés e variância; eles não representam
+                medições ou resultados reais do experimento de redes.
+            </p>
+        </div>
+
+        <!-- XGBoost / Boosting -->
+        <div class="xgb-intro">
+            <h3>2.3. XGBoost: aprender corrigindo os erros que ainda restam</h3>
+
+            <p>
+                O <strong>XGBoost</strong> também combina várias árvores, mas segue uma estratégia diferente
+                do Random Forest. Em vez de treinar árvores independentes e depois colocá-las para votar,
+                o modelo é construído <strong>em sequência</strong>: cada nova árvore é adicionada para
+                melhorar o conjunto que já existe.
+            </p>
+
+            <p>
+                Essa ideia pertence à família do <strong>boosting</strong>. A primeira árvore produz uma
+                previsão inicial; depois, o algoritmo identifica onde o conjunto ainda apresenta erro e
+                acrescenta uma nova árvore para reduzir parte desse erro. O processo se repete, formando
+                progressivamente um modelo mais forte.
+            </p>
+
+            <div class="xgb-highlight">
+                <strong>Diferença essencial:</strong> no Random Forest, as árvores trabalham de forma
+                independente e suas respostas são agregadas. No boosting, cada nova árvore depende do que
+                já foi aprendido pelo conjunto anterior.
+            </div>
+        </div>
+
+        <div class="xgb-cards" aria-label="Três ideias centrais do XGBoost">
+            <div class="xgb-card">
+                <h4> Sequencial</h4>
+                <p>
+                    As árvores são acrescentadas uma após a outra, em vez de serem treinadas como
+                    decisões independentes.
+                </p>
+            </div>
+
+            <div class="xgb-card">
+                <h4> Correção progressiva</h4>
+                <p>
+                    Cada etapa busca reduzir os erros que ainda permanecem no conjunto de árvores.
+                </p>
+            </div>
+
+            <div class="xgb-card">
+                <h4> Controle do aprendizado</h4>
+                <p>
+                    Parâmetros como <code>learning_rate</code>, profundidade e número de árvores controlam
+                    o quanto e como o modelo evolui.
+                </p>
+            </div>
+        </div>
+
+        <div class="boosting-box">
+            <h4>Como funciona o Boosting?</h4>
+
+            <p>
+                O esquema abaixo simplifica o processo. As árvores não substituem as anteriores:
+                cada nova contribuição é somada ao modelo que já existe.
+            </p>
+
+            <div class="boosting-flow" role="img"
+                 aria-label="Fluxo de boosting: uma primeira árvore faz uma previsão, uma segunda árvore é adicionada para reduzir o erro restante e uma terceira refina novamente o conjunto.">
+
+                <div class="boost-step">
+                    <div class="tree-icon" aria-hidden="true">🌳</div>
+                    <strong>Árvore 1</strong>
+                    <small>Produz uma primeira aproximação para classificar os dados.</small>
+                    <span class="error-chip">Ainda existem erros</span>
+                </div>
+
+                <div class="boost-arrow" aria-hidden="true">→</div>
+
+                <div class="boost-step">
+                    <div class="tree-icon" aria-hidden="true">🌳</div>
+                    <strong>Árvore 2</strong>
+                    <small>É acrescentada para melhorar pontos em que o conjunto anterior ainda erra.</small>
+                    <span class="error-chip">Erro reduzido</span>
+                </div>
+
+                <div class="boost-arrow" aria-hidden="true">→</div>
+
+                <div class="boost-step">
+                    <div class="tree-icon" aria-hidden="true">🌳</div>
+                    <strong>Árvore 3</strong>
+                    <small>Refina novamente a previsão, contribuindo com uma nova correção.</small>
+                    <span class="error-chip">Novo refinamento</span>
+                </div>
+            </div>
+
+            <div class="xgb-result">
+                Previsão final = contribuição combinada de todas as árvores
+            </div>
+        </div>
+
+        <div class="learning-rate-box">
+            <h4>Learning rate: quanto cada nova árvore pode influenciar?</h4>
+
+            <p>
+                O <code>learning_rate</code> controla o tamanho da contribuição adicionada a cada etapa.
+                Uma taxa maior permite mudanças mais agressivas; uma taxa menor torna o aprendizado mais
+                gradual e, em geral, exige mais etapas para chegar a uma solução semelhante.
+            </p>
+
+            <div class="lr-grid">
+                <div class="lr-card">
+                    <h5>Learning rate maior</h5>
+                    <div class="lr-track lr-high" aria-hidden="true">
+                        <span class="lr-step s1"></span>
+                        <span class="lr-step s2"></span>
+                        <span class="lr-step s3"></span>
+                        <span class="lr-goal"></span>
+                        <span class="lr-goal-label">objetivo</span>
+                    </div>
+                    <p>
+                        Passos maiores: o modelo muda mais a cada árvore. Pode aprender mais rapidamente,
+                        mas exige cuidado para não fazer correções agressivas demais.
+                    </p>
+                </div>
+
+                <div class="lr-card">
+                    <h5>Learning rate menor</h5>
+                    <div class="lr-track lr-low" aria-hidden="true">
+                        <span class="lr-step s1"></span>
+                        <span class="lr-step s2"></span>
+                        <span class="lr-step s3"></span>
+                        <span class="lr-step s4"></span>
+                        <span class="lr-step s5"></span>
+                        <span class="lr-step s6"></span>
+                        <span class="lr-goal"></span>
+                        <span class="lr-goal-label">objetivo</span>
+                    </div>
+                    <p>
+                        Passos menores: cada árvore altera menos o conjunto. O aprendizado fica mais gradual,
+                        normalmente acompanhado por um número maior de árvores.
+                    </p>
+                </div>
+            </div>
+
+            <div class="xgb-note">
+                <p>
+                    <strong>Por que isso importa no experimento?</strong>
+                    Não existe um valor universalmente ideal para <code>learning_rate</code>, profundidade ou
+                    número de árvores. Esses hiperparâmetros precisam ser ajustados de maneira controlada
+                    usando apenas os dados destinados ao treinamento e à validação.
+                </p>
+            </div>
+        </div>
+
+
+
+        <!-- Hiperparâmetros do Random Forest e XGBoost -->
+        <div class="hyperparams-section">
+            <h4>Principais hiperparâmetros: o que podemos ajustar?</h4>
+
+            <p>
+                <strong>Hiperparâmetros</strong> são configurações definidas antes ou durante o processo de
+                treinamento e que controlam como o algoritmo constrói o modelo. Eles não são aprendidos
+                diretamente como as divisões das árvores; precisam ser escolhidos e avaliados durante o
+                ajuste do modelo.
+            </p>
+
+            <div class="hyperparams-grid">
+                <article class="hyper-model">
+                    <div class="hyper-model-header">
+                        <h5>🌲 Random Forest</h5>
+                        <p>Parâmetros que controlam quantidade, complexidade e diversidade das árvores.</p>
+                    </div>
+
+                    <ul class="hyper-list">
+                        <li class="hyper-item">
+                            <span class="hyper-name">n_estimators</span>
+                            <p>
+                                Define quantas árvores formam a floresta.
+                                <span class="hyper-effect">
+                                    Mais árvores podem deixar a previsão mais estável, mas também aumentam o
+                                    tempo de treinamento e o custo de predição.
+                                </span>
+                            </p>
+                        </li>
+
+                        <li class="hyper-item">
+                            <span class="hyper-name">max_depth</span>
+                            <p>
+                                Limita a profundidade máxima de cada árvore.
+                                <span class="hyper-effect">
+                                    Árvores profundas conseguem representar relações mais complexas; profundidade
+                                    excessiva pode aumentar o risco de overfitting.
+                                </span>
+                            </p>
+                        </li>
+
+                        <li class="hyper-item">
+                            <span class="hyper-name">min_samples_leaf</span>
+                            <p>
+                                Define o número mínimo de amostras que uma folha deve conter.
+                                <span class="hyper-effect">
+                                    Valores maiores impedem folhas muito específicas e funcionam como uma forma
+                                    de controlar a complexidade das árvores.
+                                </span>
+                            </p>
+                        </li>
+
+                        <li class="hyper-item">
+                            <span class="hyper-name">max_features</span>
+                            <p>
+                                Controla quantos atributos podem ser considerados ao procurar uma divisão.
+                                <span class="hyper-effect">
+                                    Restringir os atributos disponíveis aumenta a diversidade entre as árvores,
+                                    característica importante do Random Forest.
+                                </span>
+                            </p>
+                        </li>
+                    </ul>
+                </article>
+
+                <article class="hyper-model">
+                    <div class="hyper-model-header">
+                        <h5>⚡ XGBoost</h5>
+                        <p>Parâmetros que controlam ritmo de aprendizado, complexidade e amostragem.</p>
+                    </div>
+
+                    <ul class="hyper-list">
+                        <li class="hyper-item">
+                            <span class="hyper-name">n_estimators</span>
+                            <p>
+                                Define o número de etapas de boosting, isto é, quantas árvores serão adicionadas.
+                                <span class="hyper-effect">
+                                    Mais etapas permitem mais correções, mas também aumentam custo e podem favorecer
+                                    overfitting se o conjunto continuar sendo ajustado além do necessário.
+                                </span>
+                            </p>
+                        </li>
+
+                        <li class="hyper-item">
+                            <span class="hyper-name">max_depth</span>
+                            <p>
+                                Limita a profundidade de cada árvore adicionada ao conjunto.
+                                <span class="hyper-effect">
+                                    Profundidades maiores permitem interações mais complexas, mas tornam cada árvore
+                                    mais especializada.
+                                </span>
+                            </p>
+                        </li>
+
+                        <li class="hyper-item">
+                            <span class="hyper-name">learning_rate</span>
+                            <p>
+                                Controla o tamanho da contribuição de cada nova árvore.
+                                <span class="hyper-effect">
+                                    Taxas menores tornam as correções mais graduais e normalmente são combinadas
+                                    com mais árvores.
+                                </span>
+                            </p>
+                        </li>
+
+                        <li class="hyper-item">
+                            <span class="hyper-name">subsample</span>
+                            <p>
+                                Define a fração das amostras de treinamento usada em cada etapa.
+                                <span class="hyper-effect">
+                                    Usar apenas parte dos dados pode introduzir aleatoriedade e ajudar a controlar
+                                    overfitting, mas valores muito baixos podem descartar informação demais.
+                                </span>
+                            </p>
+                        </li>
+
+                        <li class="hyper-item">
+                            <span class="hyper-name">colsample_bytree</span>
+                            <p>
+                                Define a fração de atributos disponível para cada árvore.
+                                <span class="hyper-effect">
+                                    Reduzir a quantidade de atributos por árvore aumenta a aleatoriedade e pode
+                                    diminuir a dependência de poucas variáveis.
+                                </span>
+                            </p>
+                        </li>
+                    </ul>
+                </article>
+            </div>
+
+            <div class="hyper-handoff">
+                <p>
+                    <strong>Importante para o experimento:</strong> esta seção identifica o que cada
+                    hiperparâmetro controla, mas não escolhe os valores “vencedores”. A grade de valores
+                    testados deve ser definida na etapa experimental, com esforço de ajuste comparável entre
+                    Árvore de Decisão, Random Forest e XGBoost e sem usar o conjunto de teste para escolher
+                    configurações.
+                </p>
+            </div>
+        </div>
+        <!-- Bagging x Boosting -->
+        <div class="ensemble-compare">
+            <h4>Bagging × Boosting: qual é a diferença?</h4>
+
+            <p>
+                Os dois métodos combinam várias árvores, mas a lógica de construção do conjunto é diferente.
+                Este quadro resume apenas a diferença <strong>conceitual</strong>; qual modelo funciona melhor
+                para o nosso problema será decidido no experimento.
+            </p>
+
+            <table class="ensemble-table">
+                <thead>
+                    <tr>
+                        <th>Aspecto</th>
+                        <th>Random Forest — Bagging</th>
+                        <th>XGBoost — Boosting</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Como as árvores são criadas</td>
+                        <td>Várias árvores são treinadas de forma independente, usando amostras diferentes dos dados.</td>
+                        <td>As árvores são acrescentadas em sequência, cada etapa melhorando o conjunto anterior.</td>
+                    </tr>
+                    <tr>
+                        <td>Como as previsões são combinadas</td>
+                        <td>As respostas das árvores são agregadas; em classificação, normalmente por votação.</td>
+                        <td>As contribuições das árvores são somadas progressivamente para formar a previsão final.</td>
+                    </tr>
+                    <tr>
+                        <td>Ideia principal</td>
+                        <td>Diminuir a dependência de uma única árvore e reduzir principalmente a variância.</td>
+                        <td>Reduzir progressivamente o erro que ainda permanece no conjunto.</td>
+                    </tr>
+                    <tr>
+                        <td>Relação entre as árvores</td>
+                        <td>As árvores são independentes entre si durante o treinamento.</td>
+                        <td>As novas árvores dependem do que já foi aprendido anteriormente.</td>
+                    </tr>
+                    <tr>
+                        <td>Controle importante</td>
+                        <td>Número de árvores, profundidade, tamanho mínimo das folhas e quantidade de atributos considerados.</td>
+                        <td>Número de árvores, profundidade, <code>learning_rate</code>, amostragem de linhas e de atributos.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="compare-summary">
+                <p>
+                    <strong>Em uma frase:</strong> o Bagging pergunta “o que várias árvores independentes acham?”;
+                    o Boosting pergunta “o que ainda precisamos corrigir na previsão que já construímos?”.
+                </p>
+            </div>
+        </div>
+
+        <div class="xgb-transition">
+            <strong>Random Forest ou XGBoost?</strong><br>
+            A teoria mostra estratégias diferentes. A próxima seção testa os modelos sob as mesmas condições
+            para descobrir qual funciona melhor no conjunto de dados de redes.
+        </div>
+
+</section>
 
     <section id="experimento">
         <h2>3. O Experimento e Resultados</h2>
