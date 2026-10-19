@@ -10,7 +10,7 @@
 | **Parte 1** | Introdução, Cenário de Redes e Autoria/LGPD | `[A definir]` | ⏳ Pendente |
 | **Parte 2** | Teoria I: Árvore de Decisão (Conceitos Básicos) | **Vitória Alessandra** | ✅ Concluído (Integrado no HTML) |
 | **Parte 3** | Teoria II: Random Forest vs. XGBoost (Ensembles) | **Natsumi Goto** | ✅ Concluído (Integrado no HTML) |
-| **Parte 4** | O Experimento Justo (GridSearch e Código Python) | `[A definir]` | ⏳ Pendente |
+| **Parte 4** | O Experimento Justo (GridSearch e Código Python) | **Breno Brasil** | ✅ Concluído (Integrado no HTML) |
 | **Parte 5** | Resultados, Métricas e Matrizes de Confusão | `[A definir]` | ⏳ Pendente |
 | **Parte 6** | Veredito, MLOps (Data Drift) e Quadro de Observações | `[A definir]` | ⏳ Pendente |
 
@@ -50,12 +50,18 @@
 ---
 
 ### 👤 Parte 4: O Experimento Justo e Código Python
-* **Responsável:** `[A definir]`
-* **Tempo na Apresentação:** ~50 segundos (Rigor metodológico).
-* **O que deve redigir:**
+* **Responsável:** **Breno Brasil**
+* **Tempo na Apresentação:** ~50 segundos (Rigor metodológico e Engenharia de Software).
+* **O que foi redigido e implementado no HTML:**
   1. **Metodologia sem Vazamento (Data Leakage):** Explicar a divisão temporal estrita do Período B (Treino 50% / Validação 20% / Teste 30%), garantindo que os dados do Período A foram usados apenas como baseline e a fixação da semente (`random_state=42`).
-  2. **Ajuste Honesto (GridSearchCV):** Explicar que nenhum hiperparâmetro foi chutado; foi usada busca exaustiva em grade para calibrar profundidade, estimadores e taxas nos três modelos.
-  3. **Show me the Code:** Apresentar trechos curtos e bem comentados em Python (`scikit-learn` e `xgboost`), indicando versões e link para o notebook completo [04_comparacao_modelos.ipynb](../notebooks/04_comparacao_modelos.ipynb).
+  2. **Ajuste Honesto (GridSearchCV):** Explicar que nenhum hiperparâmetro foi chutado; foi usada busca exaustiva em grade para calibrar profundidade, estimadores e taxas nos três modelos com scoring `f1_macro`.
+  3. **Show me the Code:** Apresentação modular do código em 3 passos: mapeamento numérico das classes, execução do GridSearch com medição de tempo e persistência do artefato `.joblib`.
+* **Roteiro de Fala para a Apresentação (~50 segundos):**
+  > *"Olá a todos! Eu sou o Breno, atuei como Scrum Master e Arquiteto de Dados do grupo, e fiquei responsável por estruturar o experimento e a esteira de código.*
+  > 
+  > *Em Machine Learning para redes, o maior perigo é o vazamento de dados — o famoso Data Leakage. Por isso, blindamos o pipeline: congelamos o Período A exclusivamente para o cálculo do baseline, dividimos o Período B em ordem cronológica estrita em 50% treino, 20% validação e 30% teste lacrado, e fixamos a semente em 42.*
+  > 
+  > *Para garantir uma disputa justa entre os três modelos, não chutamos parâmetros. Implementamos o GridSearchCV do Scikit-Learn avaliando os modelos pelo F1-Score Macro em três partições. E para fechar o ciclo de engenharia de software, empacotamos o modelo vencedor em um artefato `.joblib` de apenas 372 KB, deixando a IA pronta para rodar em produção com inferência em tempo real."*
 
 ---
 

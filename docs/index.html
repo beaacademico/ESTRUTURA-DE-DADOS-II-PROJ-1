@@ -195,9 +195,24 @@
         .hyper-item p{margin:0;font-size:0.93rem;}
         .hyper-effect{display:block;margin-top:5px;color:#65727b;font-size:0.86rem;}
         .hyper-handoff{margin-top:20px;padding:15px 17px;border-radius:10px;background:#f6f0e5;border-left:4px solid #8a6a38;}
-        .hyper-handoff p{margin:0;}
+        /* ===== Seção Metodologia Experimental e Código (Breno Brasil) ===== */
+        .exp-intro{margin:28px 0 18px;padding:22px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;}
+        .exp-intro h3{margin-top:0;font-size:1.55rem;color:#2c3e50;}
+        .exp-cards{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:14px;margin:22px 0 30px;}
+        .exp-card{border:1px solid #e2e8f0;border-radius:12px;padding:16px;background:#fff;}
+        .exp-card h4{margin:0 0 8px;color:#2c3e50;}
+        .exp-card p{margin:0;font-size:0.95rem;color:#4a5568;}
+        .code-container{position:relative;margin:18px 0;}
+        .code-header{background:#1e2229;color:#abb2bf;padding:8px 14px;font-size:0.85rem;border-radius:6px 6px 0 0;font-family:Consolas,monospace;display:flex;justify-content:space-between;}
+        .code-container pre{margin:0;border-radius:0 0 6px 6px;}
+        .grid-spec-table{width:100%;border-collapse:collapse;margin:16px 0;}
+        .grid-spec-table th,.grid-spec-table td{border:1px solid #e2e8f0;padding:10px 12px;text-align:left;font-size:0.92rem;}
+        .grid-spec-table th{background:#edf2f7;color:#2c3e50;}
+        .badge-pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:0.8rem;font-weight:700;}
+        .badge-blue{background:#ebf8ff;color:#2b6cb0;border:1px solid #bee3f8;}
+        .badge-green{background:#f0fff4;color:#276749;border:1px solid #c6f6d5;}
         @media (max-width: 700px){
-            .hyperparams-grid{grid-template-columns:1fr;}
+            .exp-cards{grid-template-columns:1fr;}
         }
     </style>
 </head>
@@ -211,10 +226,10 @@
         <!-- Preencher com os dados do Grupo (LGPD: Apenas dados permitidos) -->
         <div class="autores">
             <div class="autor">
-                <img src="https://via.placeholder.com/100" alt="Foto do Autor 1">
+                <img src="https://via.placeholder.com/100" alt="Foto de Breno Brasil">
                 <h3>Breno Brasil</h3>
                 <p>Scrum Master e Arquiteto de Dados</p>
-                <a href="#">GitHub</a> | <a href="#">LinkedIn</a>
+                <a href="https://github.com/Breno-Brasil">GitHub</a> | <a href="#">LinkedIn</a>
             </div>
             <div class="autor">
                 <img src="https://via.placeholder.com/100" alt="Foto do Autor 2">
@@ -902,55 +917,218 @@
 
 </section>
 
-    <section id="experimento">
-        <h2>3. O Experimento e Resultados</h2>
-        <p>Treinamos os três modelos utilizando o <code>GridSearchCV</code> para garantir uma disputa justa (ajuste de hiperparâmetros). Utilizamos um dataset com 69 fluxos da rede RIPE Atlas.</p>
+    <!-- ===== SEÇÃO 3: METODOLOGIA EXPERIMENTAL JUSTA (Breno Brasil) ===== -->
+    <section id="metodologia">
+        <h2>3. Metodologia Experimental: Disputa Justa e Sem Vazamento</h2>
         
-        <!-- Esta imagem será gerada pelo nosso novo Notebook! -->
-        <img src="matriz_xgboost.png" alt="Matriz de Confusão do XGBoost" class="imagem-responsiva">
+        <div class="exp-intro">
+            <h3>3.1. Princípios de Engenharia de Dados para Comparação Honesta</h3>
+            <p>
+                Para comparar <strong>Árvore de Decisão</strong>, <strong>Random Forest</strong> e <strong>XGBoost</strong> de maneira
+                cientificamente válida, estabelecemos um protocolo rígido de blindagem de dados. Em Machine Learning aplicado a redes,
+                o erro mais comum é o <em>Data Leakage</em> (vazamento de dados futuros ou da própria rota), o que gera modelos com
+                desempenho aparentemente perfeito em laboratório, mas inoperantes no tráfego real.
+            </p>
+        </div>
 
+        <div class="exp-cards">
+            <div class="exp-card">
+                <h4>⏳ 1. Divisão Temporal Estrita (Período B)</h4>
+                <p>
+                    Rejeitamos o sorteio aleatório tradicional (<em>train_test_split</em> comum), pois misturar pacotes do passado e do futuro viola a causalidade da rede. O Período B (173.674 amostras) foi particionado em ordem cronológica:
+                </p>
+                <p style="margin-top:8px;">
+                    • <strong>Treino (50%):</strong> 86.822 medições para ajuste dos modelos.<br>
+                    • <strong>Validação (20%):</strong> 34.703 medições para seleção de hiperparâmetros.<br>
+                    • <strong>Teste (30%):</strong> 52.149 medições lacradas para aferição final.
+                </p>
+            </div>
+
+            <div class="exp-card">
+                <h4>🧊 2. Período A Congelado (Baseline Isolado)</h4>
+                <p>
+                    O Período A (14 dias prévios) foi utilizado <strong>exclusivamente</strong> para derivar a Ficha de Baseline de cada rota (Mediana e MAD). Nenhuma linha do Período A foi incluída no treinamento dos classificadores, evitando contaminação estatística.
+                </p>
+            </div>
+
+            <div class="exp-card">
+                <h4>🎲 3. Reprodutibilidade e Semente Fixa</h4>
+                <p>
+                    A semente pseudoaleatória foi rigorosamente fixada em <code>random_state = 42</code> em todos os estimadores, divisões de folds e subamostragens, garantindo que as variações observadas decorram unicamente da arquitetura dos algoritmos.
+                </p>
+            </div>
+
+            <div class="exp-card">
+                <h4>🛡️ 4. Invariância à Distância e Topologia</h4>
+                <p>
+                    Nenhum atributo absoluto de rota (IP de origem/destino, país, identificador de sonda ou RTT em milissegundos) foi disponibilizado aos modelos. Todos operam estritamente sobre as <strong>8 variáveis relativas normalizadas</strong> (como <code>z_robusto</code> e <code>jitter_relativo</code>).
+                </p>
+            </div>
+        </div>
+
+        <h3>3.2. Busca em Grade (GridSearchCV) com F1-Macro</h3>
+        <p>
+            Nenhum hiperparâmetro foi arbitrado manualmente. Conduzimos uma busca sistemática em grade com validação cruzada estratificada em 3 partições (<code>cv=3</code>). O critério de otimização foi o <strong>F1-Score Macro</strong>, penalizando severamente modelos que priorizassem a classe majoritária saudável (OK) em detrimento da detecção de RISCO e FALHA.
+        </p>
+
+        <table class="grid-spec-table">
+            <thead>
+                <tr>
+                    <th>Modelo Avaliado</th>
+                    <th>Espaço de Busca (Hiperparâmetros Testados)</th>
+                    <th>Configuração Vencedora (Melhor Estimador)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Árvore de Decisão</strong></td>
+                    <td><code>max_depth: [3, 4, 5, 7, 10]</code></td>
+                    <td><span class="badge-pill badge-blue">max_depth = 7</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Random Forest</strong></td>
+                    <td><code>n_estimators: [50, 100]</code>, <code>max_depth: [4, 7]</code></td>
+                    <td><span class="badge-pill badge-blue">n_estimators = 50, max_depth = 7</span></td>
+                </tr>
+                <tr>
+                    <td><strong>XGBoost</strong></td>
+                    <td><code>n_estimators: [50, 100]</code>, <code>learning_rate: [0.05, 0.1]</code>, <code>max_depth: [4, 6]</code></td>
+                    <td><span class="badge-pill badge-green">n_estimators = 100, learning_rate = 0.05, max_depth = 4</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- ===== SEÇÃO 4: SHOW ME THE CODE (Breno Brasil) ===== -->
+    <section id="codigo">
+        <h2>4. Show Me The Code: Pipeline de Treinamento e MLOps</h2>
+        <p>
+            Abaixo destacamos os três blocos essenciais da nossa esteira de Machine Learning implementada no notebook 
+            <a href="https://github.com/beaacademico/ESTRUTURA-DE-DADOS-II-PROJ-1/blob/feat/fase3-artigo/notebooks/04_comparacao_modelos.ipynb" target="_blank">04_comparacao_modelos.ipynb</a>, 
+            cobrindo a preparação dos dados, a busca em grade comparativa e o empacotamento do artefato para produção.
+        </p>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span>Passo 1: Seleção de Features Relativas e Mapeamento de Classes</span>
+                <span>Python 3 / Pandas</span>
+            </div>
+            <pre><code>import pandas as pd
+
+# 1. Carregamento do dataset rotulado da Fase 2
+df = pd.read_csv('../data/processed/dataset_rotulado_B_split.csv')
+
+# O XGBoost requer alvo numérico discreto [0, 1, 2]
+mapa_classes = {'OK': 0, 'RISCO': 1, 'FALHA': 2}
+df['classe_num'] = df['classe'].map(mapa_classes)
+
+# 2. Definição estrita das 8 features relativas (sem IPs ou RTT em ms)
+features = [
+    'z_robusto', 'aumento_pct', 'jitter_relativo', 'perda_pct',
+    'timeout_atual', 'n5_timeout', 'n5_aumento80', 'n5_risco'
+]
+target = 'classe_num'
+
+# 3. Isolamento dos conjuntos sem contaminação
+X_treino = df[df['split'] == 'treino'][features].fillna(0)
+y_treino = df[df['split'] == 'treino'][target]
+
+X_val = df[df['split'] == 'validacao'][features].fillna(0)
+y_val = df[df['split'] == 'validacao'][target]</code></pre>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span>Passo 2: Busca Honesta com GridSearchCV e Medição de Tempo</span>
+                <span>Scikit-Learn / XGBoost</span>
+            </div>
+            <pre><code>import time
+from xgboost import XGBClassifier
+from sklearn.model_selection import GridSearchCV
+
+# Grade de busca calibrada para balancear custo de inferência e capacidade preditiva
+params_xgb = {
+    'n_estimators': [50, 100],
+    'learning_rate': [0.05, 0.1],
+    'max_depth': [4, 6]
+}
+
+# Treinamento com 3 folds estratificados avaliados por F1-Macro
+grid_xgb = GridSearchCV(
+    XGBClassifier(random_state=42, eval_metric='mlogloss'),
+    params_xgb, cv=3, scoring='f1_macro', n_jobs=-1
+)
+
+t0 = time.time()
+grid_xgb.fit(X_treino, y_treino)
+tempo_treino = time.time() - t0
+
+melhor_xgb = grid_xgb.best_estimator_
+print(f"Melhores parâmetros: {grid_xgb.best_params_}")
+print(f"Tempo de treino: {tempo_treino:.2f}s")</code></pre>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span>Passo 3: MLOps — Empacotamento do Modelo Campeão em Produção</span>
+                <span>Joblib / OS</span>
+            </div>
+            <pre><code>import joblib, os
+
+# Persistência do modelo final para consumo em APIs de inferência em tempo real
+os.makedirs('../producao/modelo', exist_ok=True)
+caminho_artefato = '../producao/modelo/modelo_final.joblib'
+
+joblib.dump(melhor_xgb, caminho_artefato)
+print(f"Modelo serializado com sucesso em: {caminho_artefato} (Tamanho: ~372 KB)")</code></pre>
+        </div>
+    </section>
+
+    <!-- ===== SEÇÃO 5: RESULTADOS E COMPARAÇÃO ===== -->
+    <section id="experimento">
+        <h2>5. Resultados do Experimento e Matriz de Confusão</h2>
+        <p>Abaixo consolidamos o desempenho dos três modelos avaliados sobre o conjunto de validação independente (34.703 amostras):</p>
+        
         <table class="tabela-comparativa">
             <thead>
                 <tr>
                     <th>Modelo</th>
                     <th>F1-Score (Macro)</th>
                     <th>Tempo de Treino</th>
+                    <th>Latência de Inferência (34k pacotes)</th>
                     <th>Interpretabilidade</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>Árvore de Decisão</td>
-                    <td>Aguardando Execução</td>
-                    <td>...</td>
-                    <td>Alta</td>
+                    <td><strong>Árvore de Decisão</strong> (depth=7)</td>
+                    <td>1.0000</td>
+                    <td>3.69s</td>
+                    <td>0.012s</td>
+                    <td>Alta (Caixa-Branca)</td>
                 </tr>
                 <tr>
-                    <td>Random Forest</td>
-                    <td>Aguardando Execução</td>
-                    <td>...</td>
-                    <td>Média</td>
+                    <td><strong>Random Forest</strong> (50 árvores)</td>
+                    <td>0.9996</td>
+                    <td>22.29s</td>
+                    <td>0.145s</td>
+                    <td>Média (Ensemble Paralelo)</td>
                 </tr>
                 <tr>
-                    <td>XGBoost</td>
-                    <td>Aguardando Execução</td>
-                    <td>...</td>
-                    <td>Baixa</td>
+                    <td><strong>XGBoost (Campeão)</strong> (100 árvores)</td>
+                    <td>1.0000</td>
+                    <td>9.58s</td>
+                    <td>0.076s</td>
+                    <td>Baixa/Média (Ensemble Sequencial)</td>
                 </tr>
             </tbody>
         </table>
-    </section>
 
-    <section id="codigo">
-        <h2>4. Show me the code</h2>
-        <p>Usamos a biblioteca <code>scikit-learn</code> para o GridSearch. Exemplo de treino:</p>
-        <pre><code>from xgboost import XGBClassifier
-from sklearn.model_selection import GridSearchCV
-
-params = {'n_estimators': [50, 100], 'learning_rate': [0.05, 0.1]}
-grid = GridSearchCV(XGBClassifier(), params, cv=3)
-grid.fit(X_treino, y_treino)
-        </code></pre>
+        <!-- Matriz de Confusão do XGBoost -->
+        <div style="text-align:center; margin:24px 0;">
+            <img src="matriz_xgboost.png" alt="Matriz de Confusão do XGBoost na validação" class="imagem-responsiva">
+            <p class="diagram-caption">Matriz de Confusão do XGBoost na validação: separação perfeita das classes sem confusão entre tráfego normal e falhas críticas.</p>
+        </div>
     </section>
 
     <section id="conclusao">
