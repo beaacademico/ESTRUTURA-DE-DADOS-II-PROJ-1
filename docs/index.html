@@ -264,12 +264,89 @@
         </div>
     </section>
 
-    <section id="introducao">
-        <h2>1. Introdução: O Problema do RTT Absoluto</h2>
-        <p>No monitoramento clássico de redes de computadores (como o Zabbix), costuma-se usar regras fixas: <i>"Se o ping passar de 200ms, dispare um alarme"</i>. O problema é que, numa rede global, 200ms pode ser catastrófico para uma rota curta (Brasil-Brasil), mas absolutamente normal para uma rota intercontinental (Brasil-Europa). O objetivo deste artigo é ensinar como usamos Machine Learning para julgar falhas de rede usando métricas relativas (Desvio Absoluto Robusto), e qual algoritmo performa melhor nesse cenário.</p>
-    </section>
+    
+        
+<section id="introducao">
+    <h2>1. Introdução: O Problema do RTT Absoluto</h2>
 
-    <section id="modelos">
+    <p>
+        No monitoramento tradicional de redes de computadores, ferramentas
+        como o Zabbix permitem configurar limites fixos para métricas de
+        desempenho. Um exemplo seria emitir um alerta quando o RTT
+        (<i>Round-Trip Time</i>), que representa o tempo de ida e volta de
+        um pacote de dados, ultrapassa 200 milissegundos.
+    </p>
+
+    <p>
+        Entretanto, a utilização de limites absolutos apresenta limitações,
+        pois o tempo de resposta considerado normal depende das características
+        da conexão. Em uma rota curta, um RTT de 200 ms pode representar uma
+        degradação significativa. Já em uma rota intercontinental, esse valor
+        pode ser esperado devido à distância e às condições de comunicação.
+        Assim, utilizar o mesmo limite para todas as rotas pode gerar falsos
+        alarmes ou deixar de identificar problemas importantes.
+    </p>
+
+    <p>
+        Uma alternativa é avaliar o RTT em relação ao comportamento histórico
+        de cada conexão. Para isso, podem ser utilizadas métricas estatísticas
+        robustas, como o Desvio Absoluto Mediano
+        (<i>Median Absolute Deviation</i> — MAD), que auxilia na identificação
+        de valores atípicos e apresenta menor sensibilidade a valores extremos.
+    </p>
+
+    <p>
+        Nesse contexto, técnicas de aprendizado de máquina
+        (<i>Machine Learning</i>) podem ser utilizadas para analisar o
+        comportamento das métricas de rede e identificar possíveis anomalias.
+        A comparação entre diferentes algoritmos permite investigar sua
+        capacidade de detectar alterações relevantes e reduzir falsos alarmes.
+    </p>
+
+    <p>
+        Dessa forma, o objetivo é investigar como métricas relativas e técnicas
+        de aprendizado de máquina podem contribuir para um monitoramento mais
+        adaptável às características de cada conexão, utilizando dados de
+        medições de rede, como os disponibilizados pela plataforma RIPE Atlas.
+    </p>
+</section>
+
+<section id="referencias">
+    <h2>Referências</h2>
+
+    <ol>
+        <li>
+            ZABBIX. <i>Triggers</i>. Documentação oficial.
+            Disponível em:
+            <a href="https://www.zabbix.com/documentation/7.2/en/manual/config/triggers"
+               target="_blank" rel="noopener noreferrer">
+                Documentação de triggers do Zabbix
+            </a>.
+        </li>
+
+        <li>
+            RIPE NCC. <i>Introduction — RIPE Atlas REST API Documentation</i>.
+            Disponível em:
+            <a href="https://atlas.ripe.net/docs/apis/rest-api-manual/introduction"
+               target="_blank" rel="noopener noreferrer">
+                Documentação da API do RIPE Atlas
+            </a>.
+        </li>
+
+        <li>
+            NIST/SEMATECH. <i>e-Handbook of Statistical Methods:
+            Detection of Outliers</i>.
+            Disponível em:
+            <a href="https://itl.nist.gov/div898/handbook/eda/section3/eda35h.htm"
+               target="_blank" rel="noopener noreferrer">
+                Métodos estatísticos para detecção de valores atípicos
+            </a>.
+        </li>
+    </ol>
+</section>
+
+<section id="modelos">
+
         <h2>2. Os Três Gigantes do Aprendizado de Máquina</h2>
         
         <!-- Seção 2.1: Árvore de Decisão (Vitória Alessandra) -->
