@@ -16,6 +16,31 @@
         .tabela-comparativa th,.tabela-comparativa td{border:1px solid #ddd;padding:8px;text-align:left;}
         .tabela-comparativa th{background-color:#f2f2f2;}
         .imagem-responsiva{max-width:100%;height:auto;border:1px solid #ddd;border-radius:4px;padding:5px;}
+        /* ===== Seção Árvore de Decisão ===== */
+        .dt-intro{margin:28px 0 18px;padding:22px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;}
+        .dt-intro h3{margin-top:0;font-size:1.55rem;color:#2c3e50;}
+        .dt-lead{font-size:1.05rem;margin-bottom:12px;}
+        .dt-highlight{margin:18px 0 0;padding:14px 16px;border-left:4px solid #2b6cb0;background:#ebf8ff;border-radius:6px;}
+        .dt-cards{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:14px;margin:22px 0 30px;}
+        .dt-card{border:1px solid #e2e8f0;border-radius:12px;padding:16px;background:#fff;}
+        .dt-card h4{margin:0 0 8px;color:#2c3e50;}
+        .dt-card p{margin:0;font-size:0.96rem;}
+        .dt-anatomy-table{width:100%;border-collapse:collapse;margin:20px 0;}
+        .dt-anatomy-table th,.dt-anatomy-table td{border:1px solid #e2e8f0;padding:10px 12px;text-align:left;}
+        .dt-anatomy-table th{background:#ebf8ff;color:#2c3e50;}
+        .dt-step-box{margin:26px 0;padding:22px;border:1px solid #e2e8f0;border-radius:16px;background:#ffffff;}
+        .dt-step-box h4{margin:0 0 10px;font-size:1.25rem;color:#2c3e50;}
+        .dt-diagram{display:flex;flex-direction:column;align-items:center;gap:12px;margin:24px 0;}
+        .dt-node{box-sizing:border-box;width:min(100%, 420px);padding:12px 16px;text-align:center;border:1px solid #90cdf4;border-radius:10px;background:#ebf8ff;font-weight:600;}
+        .dt-node small{display:block;margin-top:4px;font-weight:400;color:#4a5568;}
+        .dt-branch-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;width:100%;max-width:540px;}
+        .dt-branch{text-align:center;padding:12px;border:1px solid #cbd5e0;border-radius:10px;background:#f7fafc;}
+        .dt-leaf-ok{display:inline-block;padding:6px 14px;border-radius:8px;background:#c6f6d5;color:#22543d;font-weight:700;}
+        .dt-leaf-risco{display:inline-block;padding:6px 14px;border-radius:8px;background:#feebc8;color:#7b341e;font-weight:700;}
+        .dt-leaf-falha{display:inline-block;padding:6px 14px;border-radius:8px;background:#fed7d7;color:#742a2a;font-weight:700;}
+        @media (max-width: 700px){
+            .dt-cards,.dt-branch-row{grid-template-columns:1fr;}
+        }
         /* ===== Seção Random Forest / Bagging ===== */
         .rf-intro{margin:28px 0 18px;padding:22px;background:#f7fafc;border:1px solid #e4eaf0;border-radius:14px;}
         .rf-intro h3{margin-top:0;font-size:1.55rem;}
@@ -216,9 +241,9 @@
                 <a href="#">GitHub</a> | <a href="#">LinkedIn</a>
             </div>
             <div class="autor">
-                <img src="https://via.placeholder.com/100" alt="Foto do Autor 6">
+                <img src="https://via.placeholder.com/100" alt="Foto de Vitória Alessandra das Neves">
                 <h3>Vitória Alessandra das Neves</h3>
-                <p>A preencher</p>
+                <p>Analista de Redes e Modelos</p>
                 <a href="#">GitHub</a> | <a href="#">LinkedIn</a>
             </div>
         </div>
@@ -232,8 +257,125 @@
     <section id="modelos">
         <h2>2. Os Três Gigantes do Aprendizado de Máquina</h2>
         
-        <h3>2.1. Árvore de Decisão (Decision Tree)</h3>
-        <p>A Árvore de Decisão faz perguntas em sequência (Ex: <i>"O Z-Robusto é > 3?"</i>) até chegar a uma conclusão. É extremamente rápida e interpretável, mas sofre de "overfitting" (tende a decorar os dados de treino).</p>
+        <!-- Seção 2.1: Árvore de Decisão (Vitória Alessandra) -->
+        <div class="dt-intro">
+            <h3>2.1. Árvore de Decisão: o ponto de partida do aprendizado</h3>
+            <p class="dt-lead">
+                Uma Árvore de Decisão é um modelo de aprendizado supervisionado: aprende com exemplos que já têm
+                uma classificação e depois usa regras lógicas para prever a classe de novos casos. Em vez de "chutar" uma resposta,
+                faz perguntas sequenciais sobre os dados.
+            </p>
+            <p>
+                A imagem mental mais simples é a de um <strong>fluxograma de perguntas de "sim" ou "não"</strong>.
+                No nosso projeto, as entradas são medidas de telemetria do tráfego ou da rota — por exemplo,
+                <code>z_robusto</code>, <code>perda_pct</code>, <code>jitter_relativo</code> e <code>n5_risco</code> — e a saída
+                é uma destas três classes: <strong>OK, RISCO ou FALHA</strong>.
+            </p>
+            <div class="dt-highlight">
+                <strong>Em uma frase:</strong> a árvore transforma dados em uma sequência de perguntas; seguir as respostas leva a uma classificação final.
+            </div>
+        </div>
+
+        <div class="dt-step-box">
+            <h4>Como a árvore funciona: anatomia dos nós</h4>
+            <p>
+                Imagine um fluxo de pacotes de rede. A árvore avalia uma característica, compara seu valor com uma condição
+                e segue pelo ramo correspondente. Em cada etapa, uma nova pergunta pode separar melhor os casos.
+                Quando chega a uma folha, a árvore para e entrega a previsão.
+            </p>
+
+            <table class="dt-anatomy-table">
+                <thead>
+                    <tr>
+                        <th>Parte</th>
+                        <th>O que faz</th>
+                        <th>Exemplo no contexto do projeto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Raiz</strong></td>
+                        <td>Primeira pergunta da árvore (o teste mais decisivo).</td>
+                        <td><code>z_robusto > 3.0?</code> — desvio em relação ao baseline histórico.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Nó interno</strong></td>
+                        <td>Pergunta intermediária que refina a decisão.</td>
+                        <td><code>n5_risco > 2?</code> — se o primeiro teste indicar anomalia moderada.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Ramo</strong></td>
+                        <td>Caminho escolhido pela resposta à condição.</td>
+                        <td>"Sim" ou "Não" para cada teste lógico.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Folha</strong></td>
+                        <td>Resultado terminal: a previsão final.</td>
+                        <td><strong>OK</strong>, <strong>RISCO</strong> ou <strong>FALHA</strong>.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Exemplo passo a passo</h4>
+            <div class="dt-diagram" role="img" aria-label="Diagrama da Árvore de Decisão: nó raiz avalia z_robusto > 3.0, ramifica para OK ou para nó interno que avalia n5_risco > 2, resultando em FALHA ou RISCO.">
+                <div class="dt-node">
+                    Nó Raiz: z_robusto > 3.0?
+                    <small>Avalia o desvio robusto da rota em relação ao baseline histórico</small>
+                </div>
+                <div class="dt-branch-row">
+                    <div class="dt-branch">
+                        <strong>Não (Dentro do padrão)</strong><br><br>
+                        <span class="dt-leaf-ok">Folha: OK</span>
+                    </div>
+                    <div class="dt-branch">
+                        <strong>Sim (Desvio detectado)</strong><br><br>
+                        <div class="dt-node" style="width:100%; margin-bottom:12px;">
+                            Nó Interno: n5_risco > 2?
+                            <small>Mais de 2 anomalias nos últimos 5 pacotes?</small>
+                        </div>
+                        <div style="display:flex; justify-content:space-around; gap:8px;">
+                            <div>
+                                <small>Sim</small><br>
+                                <span class="dt-leaf-falha">FALHA</span>
+                            </div>
+                            <div>
+                                <small>Não</small><br>
+                                <span class="dt-leaf-risco">RISCO</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="diagram-caption">
+                O caminho pode ser resumido assim: <strong>pergunta na raiz → escolha do ramo → pergunta intermediária (se houver) → classe na folha</strong>.
+                A árvore não precisa usar todas as métricas em toda previsão; cada caminho avalia apenas os atributos necessários.
+            </p>
+        </div>
+
+        <div class="dt-cards">
+            <div class="dt-card">
+                <h4>📐 Como o algoritmo escolhe as perguntas?</h4>
+                <p>
+                    O algoritmo compara divisões possíveis e prefere aquelas que deixam os grupos resultantes mais homogêneos (por exemplo, um ramo com muitos casos OK e outro com mais casos FALHA). A mistura de classes dentro de um nó é chamada de <strong>impureza</strong>. Uma divisão útil reduz essa mistura, gerando <strong>ganho de informação</strong>.
+                </p>
+                <p style="margin-top:10px;">
+                    <strong>Índice Gini:</strong> mede a mistura das classes (0 indica pureza absoluta).<br>
+                    <strong>Entropia:</strong> mede a desordem em bits (0 também significa nó puro).
+                </p>
+            </div>
+            <div class="dt-card">
+                <h4>⚖️ Vantagem, risco e controle</h4>
+                <p>
+                    <strong>Vantagem (Interpretabilidade):</strong> é um modelo "caixa-branca"; equipes de NOC e infraestrutura conseguem auditar a árvore e entender a razão exata de cada alarme.
+                </p>
+                <p style="margin-top:8px;">
+                    <strong>Risco (Overfitting / Alta Variância):</strong> se a árvore crescer demais, decora os exemplos de treino e falha em tráfego novo.
+                </p>
+                <p style="margin-top:8px;">
+                    <strong>Controles adotados:</strong> <code>max_depth</code> (limita o encadeamento de perguntas) e <strong>Poda (pruning)</strong> para eliminar regras que capturam apenas ruído transitório.
+                </p>
+            </div>
+        </div>
 
         <!-- Random Forest / Bagging -->
         <div class="rf-intro">

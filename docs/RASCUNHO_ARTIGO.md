@@ -8,8 +8,8 @@
 | Parte | Módulo / Seção | Responsável | Status |
 | :---: | :--- | :--- | :---: |
 | **Parte 1** | Introdução, Cenário de Redes e Autoria/LGPD | `[A definir]` | ⏳ Pendente |
-| **Parte 2** | Teoria I: Árvore de Decisão (Conceitos Básicos) | `[A definir]` | ⏳ Pendente |
-| **Parte 3** | Teoria II: Random Forest vs. XGBoost (Ensembles) | `[A definir]` | ⏳ Pendente |
+| **Parte 2** | Teoria I: Árvore de Decisão (Conceitos Básicos) | **Vitória Alessandra** | ✅ Concluído (Integrado no HTML) |
+| **Parte 3** | Teoria II: Random Forest vs. XGBoost (Ensembles) | **Natsumi Goto** | ✅ Concluído (Integrado no HTML) |
 | **Parte 4** | O Experimento Justo (GridSearch e Código Python) | `[A definir]` | ⏳ Pendente |
 | **Parte 5** | Resultados, Métricas e Matrizes de Confusão | `[A definir]` | ⏳ Pendente |
 | **Parte 6** | Veredito, MLOps (Data Drift) e Quadro de Observações | `[A definir]` | ⏳ Pendente |
