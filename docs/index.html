@@ -1,1221 +1,391 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Árvore, Floresta ou Boosting? Preditor de Redes</title>
-    <style>
-        body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:800px;margin:0 auto;padding:20px;}
-        h1,h2,h3{color:#2c3e50;}
-        .header{text-align:center;margin-bottom:40px;border-bottom:2px solid #eee;padding-bottom:20px;}
-        .autores{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
-        .autor{background:#f9f9f9;padding:15px;border-radius:8px;text-align:center;width:200px;}
-        .autor img{width:100px;height:100px;border-radius:50%;object-fit:cover;}
-        pre{background:#282c34;color:#abb2bf;padding:15px;border-radius:5px;overflow-x:auto;}
-        .tabela-comparativa{width:100%;border-collapse:collapse;margin:20px 0;}
-        .tabela-comparativa th,.tabela-comparativa td{border:1px solid #ddd;padding:8px;text-align:left;}
-        .tabela-comparativa th{background-color:#f2f2f2;}
-        .imagem-responsiva{max-width:100%;height:auto;border:1px solid #ddd;border-radius:4px;padding:5px;}
-        /* ===== Seção Árvore de Decisão ===== */
-        .dt-intro{margin:28px 0 18px;padding:22px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;}
-        .dt-intro h3{margin-top:0;font-size:1.55rem;color:#2c3e50;}
-        .dt-lead{font-size:1.05rem;margin-bottom:12px;}
-        .dt-highlight{margin:18px 0 0;padding:14px 16px;border-left:4px solid #2b6cb0;background:#ebf8ff;border-radius:6px;}
-        .dt-cards{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:14px;margin:22px 0 30px;}
-        .dt-card{border:1px solid #e2e8f0;border-radius:12px;padding:16px;background:#fff;}
-        .dt-card h4{margin:0 0 8px;color:#2c3e50;}
-        .dt-card p{margin:0;font-size:0.96rem;}
-        .dt-anatomy-table{width:100%;border-collapse:collapse;margin:20px 0;}
-        .dt-anatomy-table th,.dt-anatomy-table td{border:1px solid #e2e8f0;padding:10px 12px;text-align:left;}
-        .dt-anatomy-table th{background:#ebf8ff;color:#2c3e50;}
-        .dt-step-box{margin:26px 0;padding:22px;border:1px solid #e2e8f0;border-radius:16px;background:#ffffff;}
-        .dt-step-box h4{margin:0 0 10px;font-size:1.25rem;color:#2c3e50;}
-        .dt-diagram{display:flex;flex-direction:column;align-items:center;gap:12px;margin:24px 0;}
-        .dt-node{box-sizing:border-box;width:min(100%, 420px);padding:12px 16px;text-align:center;border:1px solid #90cdf4;border-radius:10px;background:#ebf8ff;font-weight:600;}
-        .dt-node small{display:block;margin-top:4px;font-weight:400;color:#4a5568;}
-        .dt-branch-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;width:100%;max-width:540px;}
-        .dt-branch{text-align:center;padding:12px;border:1px solid #cbd5e0;border-radius:10px;background:#f7fafc;}
-        .dt-leaf-ok{display:inline-block;padding:6px 14px;border-radius:8px;background:#c6f6d5;color:#22543d;font-weight:700;}
-        .dt-leaf-risco{display:inline-block;padding:6px 14px;border-radius:8px;background:#feebc8;color:#7b341e;font-weight:700;}
-        .dt-leaf-falha{display:inline-block;padding:6px 14px;border-radius:8px;background:#fed7d7;color:#742a2a;font-weight:700;}
-        @media (max-width: 700px){
-            .dt-cards,.dt-branch-row{grid-template-columns:1fr;}
-        }
-        /* ===== Seção Random Forest / Bagging ===== */
-        .rf-intro{margin:28px 0 18px;padding:22px;background:#f7fafc;border:1px solid #e4eaf0;border-radius:14px;}
-        .rf-intro h3{margin-top:0;font-size:1.55rem;}
-        .rf-lead{font-size:1.05rem;margin-bottom:12px;}
-        .rf-highlight{margin:18px 0 0;padding:14px 16px;border-left:4px solid #4d6f8f;background:#eef4f8;border-radius:6px;}
-        .rf-cards{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:14px;margin:22px 0 30px;}
-        .rf-card{border:1px solid #dfe5ea;border-radius:12px;padding:16px;background:#fff;}
-        .rf-card h4{margin:0 0 8px;color:#2c3e50;}
-        .rf-card p{margin:0;font-size:0.96rem;}
-        .bagging-box{margin:30px 0 36px;padding:22px;border:1px solid #dfe5ea;border-radius:16px;background:#fbfcfd;}
-        .bagging-box h4{margin:0 0 6px;font-size:1.25rem;color:#2c3e50;}
-        .bagging-box>p{margin-top:0;}
-        .bagging-diagram{margin-top:24px;display:flex;flex-direction:column;align-items:center;gap:12px;}
-        .diagram-node{box-sizing:border-box;width:min(100%, 430px);padding:12px 16px;text-align:center;border:1px solid #b9c7d3;border-radius:10px;background:#fff;font-weight:600;}
-        .diagram-node small{display:block;margin-top:4px;font-weight:400;color:#5d6d7e;}
-        .diagram-arrow{font-size:1.55rem;line-height:1;color:#667788;}
-        .bootstrap-samples,.tree-row,.vote-row{width:100%;display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:12px;}
-        .sample,.tree,.prediction{padding:12px 10px;text-align:center;border-radius:10px;}
-        .sample{border:1px dashed #9aabb8;background:#f2f6f8;font-family:Consolas,"Courier New",monospace;font-size:0.9rem;}
-        .tree{border:1px solid #b9c7d3;background:#fff;font-weight:600;}
-        .tree::before{content:"🌳";display:block;font-size:1.7rem;margin-bottom:4px;}
-        .prediction{border:1px solid #ccd6dd;background:#f8fafb;font-weight:600;}
-        .final-vote{width:min(100%, 300px);padding:14px 18px;text-align:center;border-radius:10px;background:#2c3e50;color:#fff;font-weight:700;}
-        .diagram-caption{margin-top:16px;font-size:0.92rem;color:#5f6d78;text-align:center;}
-        @media (max-width: 700px){
-            .rf-cards,.bootstrap-samples,.tree-row,.vote-row{grid-template-columns:1fr;}
-        }
-        /* ===== Viés (Bias) x Variância ===== */
-        .bias-variance-box{margin:30px 0 36px;padding:22px;border:1px solid #dfe5ea;border-radius:16px;background:#ffffff;}
-        .bias-variance-box h4{margin:0 0 8px;font-size:1.25rem;color:#2c3e50;}
-        .bias-variance-box>p{margin-top:0;}
-        .bias-variance-grid{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:18px;margin:24px 0;}
-        .bias-card{border:1px solid #dfe5ea;border-radius:14px;padding:16px;background:#f9fbfc;}
-        .bias-card h5{margin:0 0 6px;color:#2c3e50;font-size:1rem;text-align:center;}
-        .bias-card p{margin:10px 0 0;font-size:0.92rem;}
-        .target{position:relative;width:135px;height:135px;margin:14px auto;border:2px solid #aebdca;border-radius:50%;background:radial-gradient(circle,
-                    transparent 0 19%,
-                    #dbe4ea 20% 21%,
-                    transparent 22% 39%,
-                    #dbe4ea 40% 41%,
-                    transparent 42% 59%,
-                    #dbe4ea 60% 61%,
-                    transparent 62%);}
-        .target::after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;transform:translate(-50%, -50%);background:#2c3e50;border-radius:50%;}
-        .shot{position:absolute;width:9px;height:9px;border-radius:50%;background:#4d6f8f;box-shadow:0 0 0 2px rgba(255,255,255,.85);}
-        /* Viés alto: previsões agrupadas, mas longe do centro */
-        .target.high-bias .s1{left:24%;top:24%;}
-        .target.high-bias .s2{left:29%;top:29%;}
-        .target.high-bias .s3{left:20%;top:33%;}
-        .target.high-bias .s4{left:34%;top:21%;}
-        .target.high-bias .s5{left:27%;top:37%;}
-        /* Variância alta: previsões espalhadas */
-        .target.high-variance .s1{left:18%;top:20%;}
-        .target.high-variance .s2{left:72%;top:22%;}
-        .target.high-variance .s3{left:28%;top:70%;}
-        .target.high-variance .s4{left:68%;top:66%;}
-        .target.high-variance .s5{left:47%;top:38%;}
-        /* Bom equilíbrio: previsões próximas do centro */
-        .target.balanced .s1{left:45%;top:43%;}
-        .target.balanced .s2{left:52%;top:47%;}
-        .target.balanced .s3{left:42%;top:52%;}
-        .target.balanced .s4{left:55%;top:55%;}
-        .target.balanced .s5{left:48%;top:58%;}
-        .bias-definition{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:22px 0;}
-        .definition-card{padding:16px;border-radius:12px;background:#f7fafc;border-left:4px solid #4d6f8f;}
-        .definition-card strong{display:block;margin-bottom:5px;color:#2c3e50;}
-        .rf-connection{margin-top:20px;padding:16px 18px;border-radius:12px;background:#eef4f8;border:1px solid #d8e3eb;}
-        .rf-connection p{margin:0;}
-        .small-note{margin-top:14px;font-size:0.88rem;color:#63717c;}
-        @media (max-width: 700px){
-            .bias-variance-grid,.bias-definition{grid-template-columns:1fr;}
-        }
-        /* ===== Seção XGBoost / Boosting ===== */
-        .xgb-intro{margin:34px 0 18px;padding:22px;background:#fbfaf7;border:1px solid #e8e2d7;border-radius:14px;}
-        .xgb-intro h3{margin-top:0;font-size:1.55rem;}
-        .xgb-highlight{margin-top:18px;padding:14px 16px;border-left:4px solid #8a6a38;background:#f6f0e5;border-radius:6px;}
-        .xgb-cards{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:14px;margin:22px 0 30px;}
-        .xgb-card{border:1px solid #e2ddd3;border-radius:12px;padding:16px;background:#fff;}
-        .xgb-card h4{margin:0 0 8px;color:#2c3e50;}
-        .xgb-card p{margin:0;font-size:0.96rem;}
-        .boosting-box{margin:30px 0 34px;padding:22px;border:1px solid #e2ddd3;border-radius:16px;background:#fffdf9;}
-        .boosting-box h4{margin:0 0 6px;font-size:1.25rem;color:#2c3e50;}
-        .boosting-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:stretch;gap:10px;margin:24px 0;}
-        .boost-step{border:1px solid #d7cbb8;border-radius:12px;background:#fff;padding:14px;text-align:center;min-height:145px;display:flex;flex-direction:column;justify-content:center;}
-        .boost-step .tree-icon{font-size:1.8rem;margin-bottom:4px;}
-        .boost-step strong{color:#2c3e50;}
-        .boost-step small{display:block;margin-top:6px;color:#66737d;line-height:1.35;}
-        .boost-arrow{align-self:center;font-size:1.55rem;color:#8a6a38;}
-        .error-chip{display:inline-block;margin-top:8px;padding:4px 8px;border-radius:999px;background:#f4eee3;color:#755a31;font-size:0.78rem;font-weight:600;}
-        .xgb-result{margin-top:18px;padding:14px 16px;border-radius:10px;background:#2c3e50;color:#fff;text-align:center;font-weight:700;}
-        .learning-rate-box{margin:30px 0 36px;padding:22px;border:1px solid #e2ddd3;border-radius:16px;background:#ffffff;}
-        .learning-rate-box h4{margin:0 0 8px;color:#2c3e50;font-size:1.25rem;}
-        .lr-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px;}
-        .lr-card{border:1px solid #e1e5e8;border-radius:14px;padding:16px;background:#fafbfc;}
-        .lr-card h5{margin:0 0 10px;text-align:center;color:#2c3e50;font-size:1rem;}
-        .lr-track{position:relative;height:72px;margin:12px 0 16px;border-bottom:2px solid #cbd4da;}
-        .lr-goal{position:absolute;right:5%;bottom:-5px;width:10px;height:10px;border-radius:50%;background:#2c3e50;}
-        .lr-goal-label{position:absolute;right:0;top:2px;font-size:0.75rem;color:#5d6870;}
-        .lr-step{position:absolute;bottom:0;width:10px;border-radius:5px 5px 0 0;background:#8a6a38;}
-        .lr-high .s1{left:12%;height:30px;}
-        .lr-high .s2{left:38%;height:52px;}
-        .lr-high .s3{left:70%;height:66px;}
-        .lr-low .s1{left:10%;height:14px;}
-        .lr-low .s2{left:25%;height:25px;}
-        .lr-low .s3{left:40%;height:36px;}
-        .lr-low .s4{left:55%;height:47px;}
-        .lr-low .s5{left:70%;height:57px;}
-        .lr-low .s6{left:84%;height:65px;}
-        .xgb-note{margin-top:20px;padding:16px 18px;border-radius:12px;background:#f6f0e5;border:1px solid #e7dac4;}
-        .xgb-note p{margin:0;}
-        .xgb-transition{margin:32px 0 10px;padding:18px;text-align:center;border-top:1px solid #e4e8eb;border-bottom:1px solid #e4e8eb;background:#fafbfc;}
-        .xgb-transition strong{color:#2c3e50;}
-        @media (max-width: 700px){
-            .xgb-cards,.lr-grid{grid-template-columns:1fr;}
-            .boosting-flow{grid-template-columns:1fr;}
-            .boost-arrow{transform:rotate(90deg);justify-self:center;}
-        }
-        /* ===== Quadro conceitual: Bagging x Boosting ===== */
-        .ensemble-compare{margin:34px 0 24px;padding:22px;border:1px solid #dfe5ea;border-radius:16px;background:#fbfcfd;}
-        .ensemble-compare h4{margin:0 0 8px;font-size:1.25rem;color:#2c3e50;}
-        .ensemble-compare>p{margin-top:0;}
-        .ensemble-table{width:100%;border-collapse:collapse;margin-top:18px;overflow:hidden;border-radius:12px;}
-        .ensemble-table th,.ensemble-table td{border:1px solid #dfe5ea;padding:12px;vertical-align:top;}
-        .ensemble-table th{background:#f1f5f8;color:#2c3e50;text-align:left;}
-        .ensemble-table td:first-child{font-weight:600;width:28%;color:#3e4d59;background:#fafcfd;}
-        .compare-summary{margin-top:16px;padding:14px 16px;border-radius:10px;background:#eef4f8;border-left:4px solid #4d6f8f;}
-        .compare-summary p{margin:0;}
-        @media (max-width: 700px){
-            .ensemble-table,.ensemble-table thead,.ensemble-table tbody,.ensemble-table tr,.ensemble-table th,.ensemble-table td{display:block;width:100%;}
-            .ensemble-table thead{display:none;}
-            .ensemble-table tr{margin-bottom:14px;border:1px solid #dfe5ea;border-radius:10px;overflow:hidden;}
-            .ensemble-table td{border:0;border-bottom:1px solid #e7ecef;}
-            .ensemble-table td:last-child{border-bottom:0;}
-            .ensemble-table td::before{display:block;font-size:0.78rem;font-weight:700;color:#6a7781;margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em;}
-            .ensemble-table td:nth-child(1)::before{content:"Aspecto";}
-            .ensemble-table td:nth-child(2)::before{content:"Random Forest";}
-            .ensemble-table td:nth-child(3)::before{content:"XGBoost";}
-        }
-        /* ===== Principais hiperparâmetros ===== */
-        .hyperparams-section{margin:34px 0 30px;padding:22px;border:1px solid #dfe5ea;border-radius:16px;background:#ffffff;}
-        .hyperparams-section h4{margin:0 0 8px;font-size:1.25rem;color:#2c3e50;}
-        .hyperparams-section>p{margin-top:0;}
-        .hyperparams-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px;}
-        .hyper-model{border:1px solid #dfe5ea;border-radius:14px;overflow:hidden;background:#fbfcfd;}
-        .hyper-model-header{padding:14px 16px;background:#f1f5f8;border-bottom:1px solid #dfe5ea;}
-        .hyper-model-header h5{margin:0;color:#2c3e50;font-size:1.05rem;}
-        .hyper-model-header p{margin:4px 0 0;font-size:0.9rem;color:#66737d;}
-        .hyper-list{margin:0;padding:0;list-style:none;}
-        .hyper-item{padding:14px 16px;border-bottom:1px solid #e6ebee;}
-        .hyper-item:last-child{border-bottom:0;}
-        .hyper-name{display:inline-block;margin-bottom:5px;padding:2px 7px;border-radius:6px;background:#eaf0f4;color:#2c3e50;font-family:Consolas,"Courier New",monospace;font-size:0.9rem;font-weight:700;}
-        .hyper-item p{margin:0;font-size:0.93rem;}
-        .hyper-effect{display:block;margin-top:5px;color:#65727b;font-size:0.86rem;}
-        .hyper-handoff{margin-top:20px;padding:15px 17px;border-radius:10px;background:#f6f0e5;border-left:4px solid #8a6a38;}
-        /* ===== Seção Metodologia Experimental e Código (Breno Brasil) ===== */
-        .exp-intro{margin:28px 0 18px;padding:22px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;}
-        .exp-intro h3{margin-top:0;font-size:1.55rem;color:#2c3e50;}
-        .exp-cards{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:14px;margin:22px 0 30px;}
-        .exp-card{border:1px solid #e2e8f0;border-radius:12px;padding:16px;background:#fff;}
-        .exp-card h4{margin:0 0 8px;color:#2c3e50;}
-        .exp-card p{margin:0;font-size:0.95rem;color:#4a5568;}
-        .code-container{position:relative;margin:18px 0;}
-        .code-header{background:#1e2229;color:#abb2bf;padding:8px 14px;font-size:0.85rem;border-radius:6px 6px 0 0;font-family:Consolas,monospace;display:flex;justify-content:space-between;}
-        .code-container pre{margin:0;border-radius:0 0 6px 6px;}
-        .grid-spec-table{width:100%;border-collapse:collapse;margin:16px 0;}
-        .grid-spec-table th,.grid-spec-table td{border:1px solid #e2e8f0;padding:10px 12px;text-align:left;font-size:0.92rem;}
-        .grid-spec-table th{background:#edf2f7;color:#2c3e50;}
-        .badge-pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:0.8rem;font-weight:700;}
-        .badge-blue{background:#ebf8ff;color:#2b6cb0;border:1px solid #bee3f8;}
-        .badge-green{background:#f0fff4;color:#276749;border:1px solid #c6f6d5;}
-        @media (max-width: 700px){
-            .exp-cards{grid-template-columns:1fr;}
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08111f">
+  <meta name="description" content="Artigo técnico sobre Árvores de Decisão, Random Forest e XGBoost para previsão de degradação de redes com medições distribuídas.">
+  <title>Árvore, Floresta ou Boosting? | Preditor de Redes</title>
+  <style>
+    :root{
+      color-scheme:dark;
+      --bg:#07101d; --bg2:#0b1728; --panel:#101e31; --panel2:#14243a;
+      --line:#243951; --text:#eaf2fb; --muted:#a9bbcf; --cyan:#61e4ef;
+      --blue:#72a7ff; --green:#81e6b4; --amber:#ffd28a; --red:#ff929b;
+      --radius:18px; --shadow:0 18px 50px rgba(0,0,0,.22); --max:1160px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{margin:0;background:radial-gradient(ellipse at 15% 0%,rgba(37,99,150,.18),transparent 38%),var(--bg);color:var(--text);font:16px/1.7 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    a{color:var(--cyan);text-underline-offset:4px}
+    a:hover{color:#fff}
+    button{font:inherit}
+    .skip{position:absolute;left:-9999px;top:8px;background:var(--cyan);color:#04111a;padding:10px 14px;border-radius:8px;z-index:100}
+    .skip:focus{left:8px}
+    .topbar{position:sticky;top:0;z-index:20;background:rgba(7,16,29,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(91,126,162,.25)}
+    .navwrap{max-width:var(--max);margin:auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);font-weight:800;letter-spacing:.02em;white-space:nowrap}
+    .brandmark{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--cyan),var(--blue));color:#07101d;font-size:18px}
+    .navlinks{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
+    .navlinks a{font-size:.83rem;color:var(--muted);text-decoration:none;padding:7px 9px;border-radius:9px}
+    .navlinks a:hover,.navlinks a:focus{background:var(--panel2);color:var(--text)}
+    .hero{max-width:var(--max);margin:auto;padding:86px 24px 56px;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(270px,.8fr);gap:44px;align-items:center}
+    .eyebrow{display:inline-flex;gap:9px;align-items:center;color:var(--cyan);font-size:.78rem;text-transform:uppercase;letter-spacing:.14em;font-weight:800}
+    .eyebrow:before{content:"";width:28px;height:2px;background:var(--cyan)}
+    h1{font-size:clamp(2.5rem,6vw,4.9rem);line-height:1.04;letter-spacing:-.055em;margin:18px 0 22px;max-width:800px}
+    h1 .accent{color:var(--cyan)}
+    .lead{font-size:1.12rem;line-height:1.8;color:#c1d0e1;max-width:760px}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:11px 16px;border:1px solid var(--line);border-radius:12px;text-decoration:none;font-weight:750;font-size:.92rem;transition:transform .18s,border-color .18s}
+    .btn:hover{transform:translateY(-2px);border-color:var(--cyan)}
+    .btn.primary{background:var(--cyan);color:#07101d;border-color:var(--cyan)}
+    .hero-card{position:relative;background:linear-gradient(145deg,rgba(21,42,66,.94),rgba(10,23,39,.96));border:1px solid #29435e;border-radius:24px;padding:24px;box-shadow:var(--shadow);overflow:hidden}
+    .hero-card:before{content:"";position:absolute;width:170px;height:170px;border:1px solid rgba(97,228,239,.18);border-radius:50%;right:-65px;top:-75px;box-shadow:0 0 0 22px rgba(97,228,239,.04),0 0 0 45px rgba(97,228,239,.025)}
+    .hero-card h2{font-size:1rem;margin:0 0 18px;color:var(--muted);font-weight:700}
+    .signal{display:grid;grid-template-columns:72px 1fr;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)}
+    .signal:last-child{border:0}
+    .signal-icon{height:60px;border-radius:14px;display:grid;place-items:center;background:#182d44;color:var(--cyan);font-size:1.5rem;font-weight:900}
+    .signal strong{display:block;font-size:1rem}
+    .signal span{display:block;color:var(--muted);font-size:.86rem}
+    .section{max-width:var(--max);margin:auto;padding:46px 24px}
+    .section-head{max-width:800px;margin-bottom:28px}
+    .kicker{font-size:.78rem;color:var(--cyan);font-weight:800;letter-spacing:.13em;text-transform:uppercase}
+    h2{font-size:clamp(1.8rem,4vw,2.7rem);line-height:1.15;letter-spacing:-.035em;margin:9px 0 14px}
+    h3{font-size:1.2rem;line-height:1.3;margin:0 0 12px}
+    p{margin:0 0 15px}
+    .muted{color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+    .card{background:linear-gradient(155deg,var(--panel),#0b1727);border:1px solid var(--line);border-radius:var(--radius);padding:22px;min-width:0}
+    .card p:last-child{margin-bottom:0}
+    .tag{display:inline-flex;align-items:center;border:1px solid #31506a;background:#122b40;color:var(--cyan);font-size:.75rem;font-weight:800;padding:4px 9px;border-radius:999px;margin-bottom:14px}
+    .model-symbol{width:48px;height:48px;display:grid;place-items:center;border-radius:14px;background:#18334a;color:var(--cyan);font-size:1.3rem;margin-bottom:17px}
+    .tree{display:flex;flex-direction:column;align-items:center;gap:9px;margin:20px 0 8px;font-size:.8rem}
+    .node{border:1px solid #3c6683;border-radius:9px;padding:8px 12px;background:#122b42;text-align:center;min-width:100px}
+    .branches{display:flex;gap:22px;position:relative}
+    .branches:before{content:"";position:absolute;top:-10px;left:25%;right:25%;height:1px;background:#4c6e8b}
+    .branch{display:flex;flex-direction:column;align-items:center;gap:7px}
+    .leaf{background:#153b3c;border-color:#347c76;color:#b8fff0}
+    .forest{display:flex;justify-content:center;gap:8px;align-items:end;margin:25px 0 12px;height:105px}
+    .mini-tree{width:55px;display:flex;flex-direction:column;align-items:center;gap:5px}
+    .mini-tree span{display:block;width:100%;height:42px;border:1px solid #3e708d;background:#17334b;border-radius:8px 8px 4px 4px}
+    .mini-tree:nth-child(2) span{height:65px}.mini-tree:nth-child(3) span{height:52px}.mini-tree:nth-child(4) span{height:78px}
+    .mini-tree small{font-size:.7rem;color:var(--muted)}
+    .boost{display:flex;gap:8px;align-items:center;margin:28px 0 24px;flex-wrap:wrap}
+    .boost span{padding:11px 12px;border-radius:10px;border:1px solid #385675;background:#142941;font-weight:800}
+    .boost b{color:var(--cyan)}
+    .callout{border-left:3px solid var(--cyan);padding:15px 18px;background:rgba(97,228,239,.06);border-radius:0 12px 12px 0;color:#c9d9e8;margin:20px 0}
+    .notice{border:1px solid rgba(255,210,138,.38);background:rgba(255,210,138,.07);padding:18px;border-radius:14px;color:#f3dfbc}
+    .notice strong{color:var(--amber)}
+    .steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;counter-reset:steps}
+    .step{counter-increment:steps;padding:18px;border-radius:14px;border:1px solid var(--line);background:var(--panel)}
+    .step:before{content:"0" counter(steps);display:block;color:var(--cyan);font-weight:900;font-size:.8rem;letter-spacing:.1em;margin-bottom:12px}
+    .step strong{display:block;margin-bottom:7px}
+    .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+    table{width:100%;border-collapse:collapse;min-width:700px;font-size:.91rem}
+    th,td{padding:14px 16px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+    th{background:#14263b;color:#dceaf7;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em}
+    tbody tr:last-child td{border-bottom:0}
+    tbody tr:hover{background:rgba(97,228,239,.035)}
+    .num{font-variant-numeric:tabular-nums;white-space:nowrap}
+    .pill{display:inline-block;padding:3px 8px;border-radius:7px;background:#153b35;color:var(--green);font-size:.78rem;font-weight:800}
+    .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:22px 0}
+    .metric{border:1px solid var(--line);background:var(--panel);padding:18px;border-radius:14px}
+    .metric .value{display:block;font-size:1.7rem;font-weight:900;letter-spacing:-.04em;color:var(--cyan)}
+    .metric .label{display:block;font-size:.82rem;color:var(--muted);margin-top:4px}
+    .codebox{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#060c15;margin:18px 0}
+    .codehead{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;background:#111f31;border-bottom:1px solid var(--line);color:var(--muted);font-size:.8rem}
+    .copy{border:1px solid #38536e;background:#152b42;color:var(--text);border-radius:7px;padding:5px 9px;cursor:pointer;font-size:.78rem}
+    pre{margin:0;padding:18px;overflow:auto;color:#d9e8f6;font: .84rem/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:4}
+    code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+    .team{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .person{display:flex;gap:14px;align-items:flex-start}
+    .avatar{flex:0 0 50px;width:50px;height:50px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,#1e5970,#274278);color:#e5fbff;font-weight:900}
+    .person h3{font-size:1rem;margin:2px 0 5px}
+    .person p{font-size:.85rem;color:var(--muted);margin:0 0 8px}
+    .person a{font-size:.82rem}
+    .refs{padding-left:22px}
+    .refs li{padding:0 0 13px;color:var(--muted)}
+    .refs strong{color:var(--text)}
+    .footer{border-top:1px solid var(--line);margin-top:50px;padding:30px 24px 42px;color:var(--muted);font-size:.86rem}
+    .footer-inner{max-width:var(--max);margin:auto;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+    .backtop{color:var(--cyan);text-decoration:none}
+    .small{font-size:.86rem}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .checklist{list-style:none;padding:0;margin:12px 0 0}
+    .checklist li{position:relative;padding:0 0 10px 25px;color:var(--muted)}
+    .checklist li:before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:900}
+    @media(max-width:900px){.hero{grid-template-columns:1fr;gap:28px;padding-top:60px}.grid,.team{grid-template-columns:repeat(2,minmax(0,1fr))}.steps{grid-template-columns:repeat(2,minmax(0,1fr))}.navwrap{align-items:flex-start;flex-direction:column}.navlinks{justify-content:flex-start}}
+    @media(max-width:580px){.section{padding:34px 18px}.hero{padding:48px 18px 34px}.grid,.team,.two-col,.metrics{grid-template-columns:1fr}.steps{grid-template-columns:1fr}.navwrap{padding:10px 16px}.navlinks{gap:2px}.navlinks a{font-size:.78rem;padding:6px}.brand{font-size:.9rem}h1{font-size:2.7rem}.card{padding:18px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
+  </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Árvore, Floresta ou Boosting?</h1>
-        <h2>A Busca pelo Modelo Ideal para Previsão de Falhas em Redes Geograficamente Distribuídas</h2>
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+<header class="topbar">
+  <div class="navwrap">
+    <a class="brand" href="#inicio" aria-label="Preditor de Redes, início"><span class="brandmark">⌁</span><span>PREDITOR DE REDES</span></a>
+    <nav class="navlinks" aria-label="Navegação principal">
+      <a href="#problema">Problema</a><a href="#modelos">Modelos</a><a href="#metodologia">Metodologia</a><a href="#resultados">Resultados</a><a href="#conclusao">Conclusão</a><a href="#equipe">Equipe</a><a href="#referencias">Referências</a>
+    </nav>
+  </div>
+</header>
+
+<main id="conteudo">
+  <section class="hero" id="inicio">
+    <div>
+      <span class="eyebrow">Artigo técnico · Estruturas de Dados II</span>
+      <h1>Árvore, Floresta ou <span class="accent">Boosting?</span></h1>
+      <p class="lead">A busca pelo modelo ideal para prever degradação em redes geograficamente distribuídas — comparando Árvore de Decisão, Random Forest e XGBoost com foco em desempenho, custo computacional e interpretabilidade.</p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#resultados">Explorar resultados <span aria-hidden="true">↘</span></a>
+        <a class="btn" href="https://github.com/beaacademico/ESTRUTURA-DE-DADOS-II-PROJ-1" target="_blank" rel="noopener noreferrer">Ver repositório ↗</a>
+      </div>
     </div>
-
-    <section id="autoria">
-        <!-- Preencher com os dados do Grupo (LGPD: Apenas dados permitidos) -->
-        <div class="autores">
-            <div class="autor">
-                <img src="https://via.placeholder.com/100" alt="Foto de Breno Brasil">
-                <h3>Breno Brasil</h3>
-                <p>Scrum Master e Arquiteto de Dados</p>
-                <a href="https://github.com/Breno-Brasil">GitHub</a> | <a href="#">LinkedIn</a>
-            </div>
-            <div class="autor">
-                <img src="https://via.placeholder.com/100" alt="Foto do Autor 2">
-                <h3>Beatriz Gonçalves da Silva</h3>
-                <p>A preencher</p>
-                <a href="#">GitHub</a> | <a href="#">LinkedIn</a>
-            </div>
-            <div class="autor">
-                <img src="https://via.placeholder.com/100" alt="Foto do Autor 3">
-                <h3>Enzo Moraes Sousa</h3>
-                <p>A preencher</p>
-                <a href="#">GitHub</a> | <a href="#">LinkedIn</a>
-            </div>
-            <div class="autor">
-                <img src="https://via.placeholder.com/100" alt="Foto do Autor 4">
-                <h3>Natsumi Goto</h3>
-                <p>Analista e Desenvolvedora de Sistemas</p>
-                <a href="https://github.com/nanatsunami">GitHub</a> | <a href="https://www.linkedin.com/in/natsumi-goto-2b6192378">LinkedIn</a>
-            </div>
-            <div class="autor">
-                <img src="https://via.placeholder.com/100" alt="Foto do Autor 5">
-                <h3>Pedro Viana da Silva</h3>
-                <p>A preencher</p>
-                <a href="#">GitHub</a> | <a href="#">LinkedIn</a>
-            </div>
-            <div class="autor">
-                <img src="https://via.placeholder.com/100" alt="Foto de Vitória Alessandra das Neves">
-                <h3>Vitória Alessandra das Neves</h3>
-                <p>Analista de Redes e Modelos</p>
-                <a href="#">GitHub</a> | <a href="#">LinkedIn</a>
-            </div>
-        </div>
-    </section>
-
-    
-        
-<section id="introducao">
-    <h2>1. Introdução: O Problema do RTT Absoluto</h2>
-
-    <p>
-        No monitoramento tradicional de redes de computadores, ferramentas
-        como o Zabbix permitem configurar limites fixos para métricas de
-        desempenho. Um exemplo seria emitir um alerta quando o RTT
-        (<i>Round-Trip Time</i>), que representa o tempo de ida e volta de
-        um pacote de dados, ultrapassa 200 milissegundos.
-    </p>
-
-    <p>
-        Entretanto, a utilização de limites absolutos apresenta limitações,
-        pois o tempo de resposta considerado normal depende das características
-        da conexão. Em uma rota curta, um RTT de 200 ms pode representar uma
-        degradação significativa. Já em uma rota intercontinental, esse valor
-        pode ser esperado devido à distância e às condições de comunicação.
-        Assim, utilizar o mesmo limite para todas as rotas pode gerar falsos
-        alarmes ou deixar de identificar problemas importantes.
-    </p>
-
-    <p>
-        Uma alternativa é avaliar o RTT em relação ao comportamento histórico
-        de cada conexão. Para isso, podem ser utilizadas métricas estatísticas
-        robustas, como o Desvio Absoluto Mediano
-        (<i>Median Absolute Deviation</i> — MAD), que auxilia na identificação
-        de valores atípicos e apresenta menor sensibilidade a valores extremos.
-    </p>
-
-    <p>
-        Nesse contexto, técnicas de aprendizado de máquina
-        (<i>Machine Learning</i>) podem ser utilizadas para analisar o
-        comportamento das métricas de rede e identificar possíveis anomalias.
-        A comparação entre diferentes algoritmos permite investigar sua
-        capacidade de detectar alterações relevantes e reduzir falsos alarmes.
-    </p>
-
-    <p>
-        Dessa forma, o objetivo é investigar como métricas relativas e técnicas
-        de aprendizado de máquina podem contribuir para um monitoramento mais
-        adaptável às características de cada conexão, utilizando dados de
-        medições de rede, como os disponibilizados pela plataforma RIPE Atlas.
-    </p>
-</section>
-
-<section id="referencias">
-    <h2>Referências</h2>
-
-    <ol>
-        <li>
-            ZABBIX. <i>Triggers</i>. Documentação oficial.
-            Disponível em:
-            <a href="https://www.zabbix.com/documentation/7.2/en/manual/config/triggers"
-               target="_blank" rel="noopener noreferrer">
-                Documentação de triggers do Zabbix
-            </a>.
-        </li>
-
-        <li>
-            RIPE NCC. <i>Introduction — RIPE Atlas REST API Documentation</i>.
-            Disponível em:
-            <a href="https://atlas.ripe.net/docs/apis/rest-api-manual/introduction"
-               target="_blank" rel="noopener noreferrer">
-                Documentação da API do RIPE Atlas
-            </a>.
-        </li>
-
-        <li>
-            NIST/SEMATECH. <i>e-Handbook of Statistical Methods:
-            Detection of Outliers</i>.
-            Disponível em:
-            <a href="https://itl.nist.gov/div898/handbook/eda/section3/eda35h.htm"
-               target="_blank" rel="noopener noreferrer">
-                Métodos estatísticos para detecção de valores atípicos
-            </a>.
-        </li>
-    </ol>
-</section>
-
-<section id="modelos">
-
-        <h2>2. Os Três Gigantes do Aprendizado de Máquina</h2>
-        
-        <!-- Seção 2.1: Árvore de Decisão (Vitória Alessandra) -->
-        <div class="dt-intro">
-            <h3>2.1. Árvore de Decisão: o ponto de partida do aprendizado</h3>
-            <p class="dt-lead">
-                Uma Árvore de Decisão é um modelo de aprendizado supervisionado: aprende com exemplos que já têm
-                uma classificação e depois usa regras lógicas para prever a classe de novos casos. Em vez de "chutar" uma resposta,
-                faz perguntas sequenciais sobre os dados.
-            </p>
-            <p>
-                A imagem mental mais simples é a de um <strong>fluxograma de perguntas de "sim" ou "não"</strong>.
-                No nosso projeto, as entradas são medidas de telemetria do tráfego ou da rota — por exemplo,
-                <code>z_robusto</code>, <code>perda_pct</code>, <code>jitter_relativo</code> e <code>n5_risco</code> — e a saída
-                é uma destas três classes: <strong>OK, RISCO ou FALHA</strong>.
-            </p>
-            <div class="dt-highlight">
-                <strong>Em uma frase:</strong> a árvore transforma dados em uma sequência de perguntas; seguir as respostas leva a uma classificação final.
-            </div>
-        </div>
-
-        <div class="dt-step-box">
-            <h4>Como a árvore funciona: anatomia dos nós</h4>
-            <p>
-                Imagine um fluxo de pacotes de rede. A árvore avalia uma característica, compara seu valor com uma condição
-                e segue pelo ramo correspondente. Em cada etapa, uma nova pergunta pode separar melhor os casos.
-                Quando chega a uma folha, a árvore para e entrega a previsão.
-            </p>
-
-            <table class="dt-anatomy-table">
-                <thead>
-                    <tr>
-                        <th>Parte</th>
-                        <th>O que faz</th>
-                        <th>Exemplo no contexto do projeto</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Raiz</strong></td>
-                        <td>Primeira pergunta da árvore (o teste mais decisivo).</td>
-                        <td><code>z_robusto > 3.0?</code> — desvio em relação ao baseline histórico.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Nó interno</strong></td>
-                        <td>Pergunta intermediária que refina a decisão.</td>
-                        <td><code>n5_risco > 2?</code> — se o primeiro teste indicar anomalia moderada.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Ramo</strong></td>
-                        <td>Caminho escolhido pela resposta à condição.</td>
-                        <td>"Sim" ou "Não" para cada teste lógico.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Folha</strong></td>
-                        <td>Resultado terminal: a previsão final.</td>
-                        <td><strong>OK</strong>, <strong>RISCO</strong> ou <strong>FALHA</strong>.</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h4>Exemplo passo a passo</h4>
-            <div class="dt-diagram" role="img" aria-label="Diagrama da Árvore de Decisão: nó raiz avalia z_robusto > 3.0, ramifica para OK ou para nó interno que avalia n5_risco > 2, resultando em FALHA ou RISCO.">
-                <div class="dt-node">
-                    Nó Raiz: z_robusto > 3.0?
-                    <small>Avalia o desvio robusto da rota em relação ao baseline histórico</small>
-                </div>
-                <div class="dt-branch-row">
-                    <div class="dt-branch">
-                        <strong>Não (Dentro do padrão)</strong><br><br>
-                        <span class="dt-leaf-ok">Folha: OK</span>
-                    </div>
-                    <div class="dt-branch">
-                        <strong>Sim (Desvio detectado)</strong><br><br>
-                        <div class="dt-node" style="width:100%; margin-bottom:12px;">
-                            Nó Interno: n5_risco > 2?
-                            <small>Mais de 2 anomalias nos últimos 5 pacotes?</small>
-                        </div>
-                        <div style="display:flex; justify-content:space-around; gap:8px;">
-                            <div>
-                                <small>Sim</small><br>
-                                <span class="dt-leaf-falha">FALHA</span>
-                            </div>
-                            <div>
-                                <small>Não</small><br>
-                                <span class="dt-leaf-risco">RISCO</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <p class="diagram-caption">
-                O caminho pode ser resumido assim: <strong>pergunta na raiz → escolha do ramo → pergunta intermediária (se houver) → classe na folha</strong>.
-                A árvore não precisa usar todas as métricas em toda previsão; cada caminho avalia apenas os atributos necessários.
-            </p>
-        </div>
-
-        <div class="dt-cards">
-            <div class="dt-card">
-                <h4>📐 Como o algoritmo escolhe as perguntas?</h4>
-                <p>
-                    O algoritmo compara divisões possíveis e prefere aquelas que deixam os grupos resultantes mais homogêneos (por exemplo, um ramo com muitos casos OK e outro com mais casos FALHA). A mistura de classes dentro de um nó é chamada de <strong>impureza</strong>. Uma divisão útil reduz essa mistura, gerando <strong>ganho de informação</strong>.
-                </p>
-                <p style="margin-top:10px;">
-                    <strong>Índice Gini:</strong> mede a mistura das classes (0 indica pureza absoluta).<br>
-                    <strong>Entropia:</strong> mede a desordem em bits (0 também significa nó puro).
-                </p>
-            </div>
-            <div class="dt-card">
-                <h4>⚖️ Vantagem, risco e controle</h4>
-                <p>
-                    <strong>Vantagem (Interpretabilidade):</strong> é um modelo "caixa-branca"; equipes de NOC e infraestrutura conseguem auditar a árvore e entender a razão exata de cada alarme.
-                </p>
-                <p style="margin-top:8px;">
-                    <strong>Risco (Overfitting / Alta Variância):</strong> se a árvore crescer demais, decora os exemplos de treino e falha em tráfego novo.
-                </p>
-                <p style="margin-top:8px;">
-                    <strong>Controles adotados:</strong> <code>max_depth</code> (limita o encadeamento de perguntas) e <strong>Poda (pruning)</strong> para eliminar regras que capturam apenas ruído transitório.
-                </p>
-            </div>
-        </div>
-
-        <!-- Random Forest / Bagging -->
-        <div class="rf-intro">
-            <h3>2.2. Random Forest: quando uma árvore só não é suficiente</h3>
-            <p class="rf-lead">
-                Uma Árvore de Decisão pode ser muito boa para explicar uma regra, mas também pode ser
-                sensível aos dados usados no treinamento. Pequenas mudanças na amostra podem produzir
-                uma árvore diferente e, consequentemente, outra classificação.
-            </p>
-            <p>
-                O <strong>Random Forest</strong> reduz essa dependência de uma única árvore ao combinar
-                várias Árvores de Decisão. Cada árvore é treinada com uma amostra diferente dos dados e
-                também pode analisar subconjuntos diferentes de atributos. Em um problema de classificação,
-                as árvores fazem suas previsões de forma independente e a floresta combina essas respostas,
-                normalmente por votação.
-            </p>
-            <div class="rf-highlight">
-                <strong>Ideia principal:</strong> em vez de confiar em uma única árvore, o Random Forest
-                reúne várias opiniões. Isso tende a tornar a previsão mais estável e a reduzir a
-                <strong>variância</strong> em relação a uma árvore isolada.
-            </div>
-        </div>
-
-        <div class="rf-cards" aria-label="Três ideias centrais do Random Forest">
-            <div class="rf-card">
-                <h4>🌳 Muitas árvores</h4>
-                <p>O modelo é formado por várias Árvores de Decisão, e não por uma única estrutura.</p>
-            </div>
-            <div class="rf-card">
-                <h4>🎲 Aleatoriedade</h4>
-                <p>As árvores recebem amostras diferentes dos dados e podem considerar subconjuntos diferentes de atributos.</p>
-            </div>
-            <div class="rf-card">
-                <h4>🗳️ Votação</h4>
-                <p>Em classificação, as previsões das árvores são agregadas e a classe mais apoiada pelo conjunto tende a ser escolhida.</p>
-            </div>
-        </div>
-
-        <div class="bagging-box">
-            <h4>Como isso acontece? O papel do Bagging</h4>
-            <p>
-                <strong>Bagging</strong> vem de <em>Bootstrap Aggregating</em>. Primeiro são criadas várias
-                amostras do conjunto de treinamento por amostragem com reposição. Depois, um modelo é
-                treinado em cada amostra. No final, as previsões são agregadas.
-            </p>
-
-            <div class="bagging-diagram" role="img"
-                 aria-label="Fluxo do Bagging: dataset original gera amostras bootstrap, que treinam árvores independentes e têm suas previsões combinadas por votação.">
-                <div class="diagram-node">
-                    Dataset original
-                    <small>Um único conjunto de treinamento</small>
-                </div>
-                <div class="diagram-arrow" aria-hidden="true">↓</div>
-                <div class="diagram-node">
-                    Bootstrap
-                    <small>Criação de várias amostras com reposição</small>
-                </div>
-                <div class="diagram-arrow" aria-hidden="true">↓</div>
-                <div class="bootstrap-samples">
-                    <div class="sample">Amostra A<br>1 · 2 · 2 · 5 · 7</div>
-                    <div class="sample">Amostra B<br>1 · 3 · 4 · 4 · 8</div>
-                    <div class="sample">Amostra C<br>2 · 3 · 5 · 6 · 8</div>
-                </div>
-                <div class="diagram-arrow" aria-hidden="true">↓</div>
-                <div class="tree-row">
-                    <div class="tree">Árvore A</div>
-                    <div class="tree">Árvore B</div>
-                    <div class="tree">Árvore C</div>
-                </div>
-                <div class="diagram-arrow" aria-hidden="true">↓</div>
-                <div class="vote-row">
-                    <div class="prediction">OK</div>
-                    <div class="prediction">RISCO</div>
-                    <div class="prediction">OK</div>
-                </div>
-                <div class="diagram-arrow" aria-hidden="true">↓</div>
-                <div class="final-vote">Votação final → OK</div>
-            </div>
-
-            <p class="diagram-caption">
-                Exemplo ilustrativo: as amostras acima servem apenas para mostrar o funcionamento
-                do Bootstrap e da agregação; não representam os dados reais do experimento.
-            </p>
-        </div>
-
-        <!--   Explicação de viés (bias) e variância -->
-        <div class="bias-variance-box">
-            <h4>Por que várias árvores ajudam? Viés e variância</h4>
-
-            <p>
-                Para entender por que o Random Forest costuma ser mais estável que uma única Árvore de Decisão,
-                vale separar dois tipos de erro: <strong>viés (bias)</strong> e <strong>variância (variance)</strong>.
-                Eles descrevem maneiras diferentes de um modelo errar.
-            </p>
-
-            <div class="bias-definition">
-                <div class="definition-card">
-                    <strong>Viés (Bias)</strong>
-                    É a tendência de um modelo errar de forma sistemática porque simplifica demais o problema.
-                    Quando o viés é alto, o modelo pode não aprender relações importantes dos dados, situação
-                    associada ao <em>underfitting</em>.
-                </div>
-
-                <div class="definition-card">
-                    <strong>Variância (Variance)</strong>
-                    É o quanto a resposta do modelo muda quando o conjunto de treinamento muda um pouco.
-                    Uma árvore muito sensível aos exemplos usados no treino pode apresentar alta variância e
-                    sofrer com <em>overfitting</em>.
-                </div>
-            </div>
-
-            <div class="bias-variance-grid" aria-label="Comparação visual entre viés alto, variância alta e equilíbrio">
-                <div class="bias-card">
-                    <h5>Viés alto</h5>
-                    <div class="target high-bias" aria-hidden="true">
-                        <span class="shot s1"></span>
-                        <span class="shot s2"></span>
-                        <span class="shot s3"></span>
-                        <span class="shot s4"></span>
-                        <span class="shot s5"></span>
-                    </div>
-                    <p>
-                        As previsões ficam próximas umas das outras, mas afastadas do resultado ideal:
-                        o modelo erra de maneira consistente.
-                    </p>
-                </div>
-
-                <div class="bias-card">
-                    <h5>Variância alta</h5>
-                    <div class="target high-variance" aria-hidden="true">
-                        <span class="shot s1"></span>
-                        <span class="shot s2"></span>
-                        <span class="shot s3"></span>
-                        <span class="shot s4"></span>
-                        <span class="shot s5"></span>
-                    </div>
-                    <p>
-                        As previsões ficam espalhadas: pequenas mudanças nos dados podem levar o modelo
-                        a respostas muito diferentes.
-                    </p>
-                </div>
-
-                <div class="bias-card">
-                    <h5>Bom equilíbrio</h5>
-                    <div class="target balanced" aria-hidden="true">
-                        <span class="shot s1"></span>
-                        <span class="shot s2"></span>
-                        <span class="shot s3"></span>
-                        <span class="shot s4"></span>
-                        <span class="shot s5"></span>
-                    </div>
-                    <p>
-                        O objetivo é obter previsões que sejam próximas do resultado esperado e também
-                        estáveis quando os dados mudam.
-                    </p>
-                </div>
-            </div>
-
-            <div class="rf-connection">
-                <p>
-                    <strong>E onde entra o Random Forest?</strong>
-                    Árvores de decisão profundas podem ter boa capacidade de se ajustar aos dados, mas também
-                    podem apresentar alta variância. O <strong>Bagging</strong> treina várias árvores com
-                    amostras diferentes e combina suas previsões. Ao agregar essas árvores, erros particulares
-                    de uma árvore tendem a ter menos influência no resultado final, o que ajuda principalmente
-                    a <strong>reduzir a variância</strong>.
-                </p>
-            </div>
-
-            <p class="small-note">
-                Os alvos acima são apenas uma analogia visual para explicar viés e variância; eles não representam
-                medições ou resultados reais do experimento de redes.
-            </p>
-        </div>
-
-        <!-- XGBoost / Boosting -->
-        <div class="xgb-intro">
-            <h3>2.3. XGBoost: aprender corrigindo os erros que ainda restam</h3>
-
-            <p>
-                O <strong>XGBoost</strong> também combina várias árvores, mas segue uma estratégia diferente
-                do Random Forest. Em vez de treinar árvores independentes e depois colocá-las para votar,
-                o modelo é construído <strong>em sequência</strong>: cada nova árvore é adicionada para
-                melhorar o conjunto que já existe.
-            </p>
-
-            <p>
-                Essa ideia pertence à família do <strong>boosting</strong>. A primeira árvore produz uma
-                previsão inicial; depois, o algoritmo identifica onde o conjunto ainda apresenta erro e
-                acrescenta uma nova árvore para reduzir parte desse erro. O processo se repete, formando
-                progressivamente um modelo mais forte.
-            </p>
-
-            <div class="xgb-highlight">
-                <strong>Diferença essencial:</strong> no Random Forest, as árvores trabalham de forma
-                independente e suas respostas são agregadas. No boosting, cada nova árvore depende do que
-                já foi aprendido pelo conjunto anterior.
-            </div>
-        </div>
-
-        <div class="xgb-cards" aria-label="Três ideias centrais do XGBoost">
-            <div class="xgb-card">
-                <h4> Sequencial</h4>
-                <p>
-                    As árvores são acrescentadas uma após a outra, em vez de serem treinadas como
-                    decisões independentes.
-                </p>
-            </div>
-
-            <div class="xgb-card">
-                <h4> Correção progressiva</h4>
-                <p>
-                    Cada etapa busca reduzir os erros que ainda permanecem no conjunto de árvores.
-                </p>
-            </div>
-
-            <div class="xgb-card">
-                <h4> Controle do aprendizado</h4>
-                <p>
-                    Parâmetros como <code>learning_rate</code>, profundidade e número de árvores controlam
-                    o quanto e como o modelo evolui.
-                </p>
-            </div>
-        </div>
-
-        <div class="boosting-box">
-            <h4>Como funciona o Boosting?</h4>
-
-            <p>
-                O esquema abaixo simplifica o processo. As árvores não substituem as anteriores:
-                cada nova contribuição é somada ao modelo que já existe.
-            </p>
-
-            <div class="boosting-flow" role="img"
-                 aria-label="Fluxo de boosting: uma primeira árvore faz uma previsão, uma segunda árvore é adicionada para reduzir o erro restante e uma terceira refina novamente o conjunto.">
-
-                <div class="boost-step">
-                    <div class="tree-icon" aria-hidden="true">🌳</div>
-                    <strong>Árvore 1</strong>
-                    <small>Produz uma primeira aproximação para classificar os dados.</small>
-                    <span class="error-chip">Ainda existem erros</span>
-                </div>
-
-                <div class="boost-arrow" aria-hidden="true">→</div>
-
-                <div class="boost-step">
-                    <div class="tree-icon" aria-hidden="true">🌳</div>
-                    <strong>Árvore 2</strong>
-                    <small>É acrescentada para melhorar pontos em que o conjunto anterior ainda erra.</small>
-                    <span class="error-chip">Erro reduzido</span>
-                </div>
-
-                <div class="boost-arrow" aria-hidden="true">→</div>
-
-                <div class="boost-step">
-                    <div class="tree-icon" aria-hidden="true">🌳</div>
-                    <strong>Árvore 3</strong>
-                    <small>Refina novamente a previsão, contribuindo com uma nova correção.</small>
-                    <span class="error-chip">Novo refinamento</span>
-                </div>
-            </div>
-
-            <div class="xgb-result">
-                Previsão final = contribuição combinada de todas as árvores
-            </div>
-        </div>
-
-        <div class="learning-rate-box">
-            <h4>Learning rate: quanto cada nova árvore pode influenciar?</h4>
-
-            <p>
-                O <code>learning_rate</code> controla o tamanho da contribuição adicionada a cada etapa.
-                Uma taxa maior permite mudanças mais agressivas; uma taxa menor torna o aprendizado mais
-                gradual e, em geral, exige mais etapas para chegar a uma solução semelhante.
-            </p>
-
-            <div class="lr-grid">
-                <div class="lr-card">
-                    <h5>Learning rate maior</h5>
-                    <div class="lr-track lr-high" aria-hidden="true">
-                        <span class="lr-step s1"></span>
-                        <span class="lr-step s2"></span>
-                        <span class="lr-step s3"></span>
-                        <span class="lr-goal"></span>
-                        <span class="lr-goal-label">objetivo</span>
-                    </div>
-                    <p>
-                        Passos maiores: o modelo muda mais a cada árvore. Pode aprender mais rapidamente,
-                        mas exige cuidado para não fazer correções agressivas demais.
-                    </p>
-                </div>
-
-                <div class="lr-card">
-                    <h5>Learning rate menor</h5>
-                    <div class="lr-track lr-low" aria-hidden="true">
-                        <span class="lr-step s1"></span>
-                        <span class="lr-step s2"></span>
-                        <span class="lr-step s3"></span>
-                        <span class="lr-step s4"></span>
-                        <span class="lr-step s5"></span>
-                        <span class="lr-step s6"></span>
-                        <span class="lr-goal"></span>
-                        <span class="lr-goal-label">objetivo</span>
-                    </div>
-                    <p>
-                        Passos menores: cada árvore altera menos o conjunto. O aprendizado fica mais gradual,
-                        normalmente acompanhado por um número maior de árvores.
-                    </p>
-                </div>
-            </div>
-
-            <div class="xgb-note">
-                <p>
-                    <strong>Por que isso importa no experimento?</strong>
-                    Não existe um valor universalmente ideal para <code>learning_rate</code>, profundidade ou
-                    número de árvores. Esses hiperparâmetros precisam ser ajustados de maneira controlada
-                    usando apenas os dados destinados ao treinamento e à validação.
-                </p>
-            </div>
-        </div>
-
-
-
-        <!-- Hiperparâmetros do Random Forest e XGBoost -->
-        <div class="hyperparams-section">
-            <h4>Principais hiperparâmetros: o que podemos ajustar?</h4>
-
-            <p>
-                <strong>Hiperparâmetros</strong> são configurações definidas antes ou durante o processo de
-                treinamento e que controlam como o algoritmo constrói o modelo. Eles não são aprendidos
-                diretamente como as divisões das árvores; precisam ser escolhidos e avaliados durante o
-                ajuste do modelo.
-            </p>
-
-            <div class="hyperparams-grid">
-                <article class="hyper-model">
-                    <div class="hyper-model-header">
-                        <h5>🌲 Random Forest</h5>
-                        <p>Parâmetros que controlam quantidade, complexidade e diversidade das árvores.</p>
-                    </div>
-
-                    <ul class="hyper-list">
-                        <li class="hyper-item">
-                            <span class="hyper-name">n_estimators</span>
-                            <p>
-                                Define quantas árvores formam a floresta.
-                                <span class="hyper-effect">
-                                    Mais árvores podem deixar a previsão mais estável, mas também aumentam o
-                                    tempo de treinamento e o custo de predição.
-                                </span>
-                            </p>
-                        </li>
-
-                        <li class="hyper-item">
-                            <span class="hyper-name">max_depth</span>
-                            <p>
-                                Limita a profundidade máxima de cada árvore.
-                                <span class="hyper-effect">
-                                    Árvores profundas conseguem representar relações mais complexas; profundidade
-                                    excessiva pode aumentar o risco de overfitting.
-                                </span>
-                            </p>
-                        </li>
-
-                        <li class="hyper-item">
-                            <span class="hyper-name">min_samples_leaf</span>
-                            <p>
-                                Define o número mínimo de amostras que uma folha deve conter.
-                                <span class="hyper-effect">
-                                    Valores maiores impedem folhas muito específicas e funcionam como uma forma
-                                    de controlar a complexidade das árvores.
-                                </span>
-                            </p>
-                        </li>
-
-                        <li class="hyper-item">
-                            <span class="hyper-name">max_features</span>
-                            <p>
-                                Controla quantos atributos podem ser considerados ao procurar uma divisão.
-                                <span class="hyper-effect">
-                                    Restringir os atributos disponíveis aumenta a diversidade entre as árvores,
-                                    característica importante do Random Forest.
-                                </span>
-                            </p>
-                        </li>
-                    </ul>
-                </article>
-
-                <article class="hyper-model">
-                    <div class="hyper-model-header">
-                        <h5>⚡ XGBoost</h5>
-                        <p>Parâmetros que controlam ritmo de aprendizado, complexidade e amostragem.</p>
-                    </div>
-
-                    <ul class="hyper-list">
-                        <li class="hyper-item">
-                            <span class="hyper-name">n_estimators</span>
-                            <p>
-                                Define o número de etapas de boosting, isto é, quantas árvores serão adicionadas.
-                                <span class="hyper-effect">
-                                    Mais etapas permitem mais correções, mas também aumentam custo e podem favorecer
-                                    overfitting se o conjunto continuar sendo ajustado além do necessário.
-                                </span>
-                            </p>
-                        </li>
-
-                        <li class="hyper-item">
-                            <span class="hyper-name">max_depth</span>
-                            <p>
-                                Limita a profundidade de cada árvore adicionada ao conjunto.
-                                <span class="hyper-effect">
-                                    Profundidades maiores permitem interações mais complexas, mas tornam cada árvore
-                                    mais especializada.
-                                </span>
-                            </p>
-                        </li>
-
-                        <li class="hyper-item">
-                            <span class="hyper-name">learning_rate</span>
-                            <p>
-                                Controla o tamanho da contribuição de cada nova árvore.
-                                <span class="hyper-effect">
-                                    Taxas menores tornam as correções mais graduais e normalmente são combinadas
-                                    com mais árvores.
-                                </span>
-                            </p>
-                        </li>
-
-                        <li class="hyper-item">
-                            <span class="hyper-name">subsample</span>
-                            <p>
-                                Define a fração das amostras de treinamento usada em cada etapa.
-                                <span class="hyper-effect">
-                                    Usar apenas parte dos dados pode introduzir aleatoriedade e ajudar a controlar
-                                    overfitting, mas valores muito baixos podem descartar informação demais.
-                                </span>
-                            </p>
-                        </li>
-
-                        <li class="hyper-item">
-                            <span class="hyper-name">colsample_bytree</span>
-                            <p>
-                                Define a fração de atributos disponível para cada árvore.
-                                <span class="hyper-effect">
-                                    Reduzir a quantidade de atributos por árvore aumenta a aleatoriedade e pode
-                                    diminuir a dependência de poucas variáveis.
-                                </span>
-                            </p>
-                        </li>
-                    </ul>
-                </article>
-            </div>
-
-            <div class="hyper-handoff">
-                <p>
-                    <strong>Importante para o experimento:</strong> esta seção identifica o que cada
-                    hiperparâmetro controla, mas não escolhe os valores “vencedores”. A grade de valores
-                    testados deve ser definida na etapa experimental, com esforço de ajuste comparável entre
-                    Árvore de Decisão, Random Forest e XGBoost e sem usar o conjunto de teste para escolher
-                    configurações.
-                </p>
-            </div>
-        </div>
-        <!-- Bagging x Boosting -->
-        <div class="ensemble-compare">
-            <h4>Bagging × Boosting: qual é a diferença?</h4>
-
-            <p>
-                Os dois métodos combinam várias árvores, mas a lógica de construção do conjunto é diferente.
-                Este quadro resume apenas a diferença <strong>conceitual</strong>; qual modelo funciona melhor
-                para o nosso problema será decidido no experimento.
-            </p>
-
-            <table class="ensemble-table">
-                <thead>
-                    <tr>
-                        <th>Aspecto</th>
-                        <th>Random Forest — Bagging</th>
-                        <th>XGBoost — Boosting</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Como as árvores são criadas</td>
-                        <td>Várias árvores são treinadas de forma independente, usando amostras diferentes dos dados.</td>
-                        <td>As árvores são acrescentadas em sequência, cada etapa melhorando o conjunto anterior.</td>
-                    </tr>
-                    <tr>
-                        <td>Como as previsões são combinadas</td>
-                        <td>As respostas das árvores são agregadas; em classificação, normalmente por votação.</td>
-                        <td>As contribuições das árvores são somadas progressivamente para formar a previsão final.</td>
-                    </tr>
-                    <tr>
-                        <td>Ideia principal</td>
-                        <td>Diminuir a dependência de uma única árvore e reduzir principalmente a variância.</td>
-                        <td>Reduzir progressivamente o erro que ainda permanece no conjunto.</td>
-                    </tr>
-                    <tr>
-                        <td>Relação entre as árvores</td>
-                        <td>As árvores são independentes entre si durante o treinamento.</td>
-                        <td>As novas árvores dependem do que já foi aprendido anteriormente.</td>
-                    </tr>
-                    <tr>
-                        <td>Controle importante</td>
-                        <td>Número de árvores, profundidade, tamanho mínimo das folhas e quantidade de atributos considerados.</td>
-                        <td>Número de árvores, profundidade, <code>learning_rate</code>, amostragem de linhas e de atributos.</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="compare-summary">
-                <p>
-                    <strong>Em uma frase:</strong> o Bagging pergunta “o que várias árvores independentes acham?”;
-                    o Boosting pergunta “o que ainda precisamos corrigir na previsão que já construímos?”.
-                </p>
-            </div>
-        </div>
-
-        <div class="xgb-transition">
-            <strong>Random Forest ou XGBoost?</strong><br>
-            A teoria mostra estratégias diferentes. A próxima seção testa os modelos sob as mesmas condições
-            para descobrir qual funciona melhor no conjunto de dados de redes.
-        </div>
-
-</section>
-
-    <!-- ===== SEÇÃO 3: METODOLOGIA EXPERIMENTAL JUSTA (Breno Brasil) ===== -->
-    <section id="metodologia">
-        <h2>3. Metodologia Experimental: Disputa Justa e Sem Vazamento</h2>
-        
-        <div class="exp-intro">
-            <h3>3.1. Princípios de Engenharia de Dados para Comparação Honesta</h3>
-            <p>
-                Para comparar <strong>Árvore de Decisão</strong>, <strong>Random Forest</strong> e <strong>XGBoost</strong> de maneira
-                cientificamente válida, estabelecemos um protocolo rígido de blindagem de dados. Em Machine Learning aplicado a redes,
-                o erro mais comum é o <em>Data Leakage</em> (vazamento de dados futuros ou da própria rota), o que gera modelos com
-                desempenho aparentemente perfeito em laboratório, mas inoperantes no tráfego real.
-            </p>
-        </div>
-
-        <div class="exp-cards">
-            <div class="exp-card">
-                <h4>⏳ 1. Divisão Temporal Estrita (Período B)</h4>
-                <p>
-                    Rejeitamos o sorteio aleatório tradicional (<em>train_test_split</em> comum), pois misturar pacotes do passado e do futuro viola a causalidade da rede. O Período B (173.674 amostras) foi particionado em ordem cronológica:
-                </p>
-                <p style="margin-top:8px;">
-                    • <strong>Treino (50%):</strong> 86.822 medições para ajuste dos modelos.<br>
-                    • <strong>Validação (20%):</strong> 34.703 medições para seleção de hiperparâmetros.<br>
-                    • <strong>Teste (30%):</strong> 52.149 medições lacradas para aferição final.
-                </p>
-            </div>
-
-            <div class="exp-card">
-                <h4>🧊 2. Período A Congelado (Baseline Isolado)</h4>
-                <p>
-                    O Período A (14 dias prévios) foi utilizado <strong>exclusivamente</strong> para derivar a Ficha de Baseline de cada rota (Mediana e MAD). Nenhuma linha do Período A foi incluída no treinamento dos classificadores, evitando contaminação estatística.
-                </p>
-            </div>
-
-            <div class="exp-card">
-                <h4>🎲 3. Reprodutibilidade e Semente Fixa</h4>
-                <p>
-                    A semente pseudoaleatória foi rigorosamente fixada em <code>random_state = 42</code> em todos os estimadores, divisões de folds e subamostragens, garantindo que as variações observadas decorram unicamente da arquitetura dos algoritmos.
-                </p>
-            </div>
-
-            <div class="exp-card">
-                <h4>🛡️ 4. Invariância à Distância e Topologia</h4>
-                <p>
-                    Nenhum atributo absoluto de rota (IP de origem/destino, país, identificador de sonda ou RTT em milissegundos) foi disponibilizado aos modelos. Todos operam estritamente sobre as <strong>8 variáveis relativas normalizadas</strong> (como <code>z_robusto</code> e <code>jitter_relativo</code>).
-                </p>
-            </div>
-        </div>
-
-        <h3>3.2. Busca em Grade (GridSearchCV) com F1-Macro</h3>
-        <p>
-            Nenhum hiperparâmetro foi arbitrado manualmente. Conduzimos uma busca sistemática em grade com validação cruzada estratificada em 3 partições (<code>cv=3</code>). O critério de otimização foi o <strong>F1-Score Macro</strong>, penalizando severamente modelos que priorizassem a classe majoritária saudável (OK) em detrimento da detecção de RISCO e FALHA.
-        </p>
-
-        <table class="grid-spec-table">
-            <thead>
-                <tr>
-                    <th>Modelo Avaliado</th>
-                    <th>Espaço de Busca (Hiperparâmetros Testados)</th>
-                    <th>Configuração Vencedora (Melhor Estimador)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>Árvore de Decisão</strong></td>
-                    <td><code>max_depth: [3, 4, 5, 7, 10]</code></td>
-                    <td><span class="badge-pill badge-blue">max_depth = 7</span></td>
-                </tr>
-                <tr>
-                    <td><strong>Random Forest</strong></td>
-                    <td><code>n_estimators: [50, 100]</code>, <code>max_depth: [4, 7]</code></td>
-                    <td><span class="badge-pill badge-blue">n_estimators = 50, max_depth = 7</span></td>
-                </tr>
-                <tr>
-                    <td><strong>XGBoost</strong></td>
-                    <td><code>n_estimators: [50, 100]</code>, <code>learning_rate: [0.05, 0.1]</code>, <code>max_depth: [4, 6]</code></td>
-                    <td><span class="badge-pill badge-green">n_estimators = 100, learning_rate = 0.05, max_depth = 4</span></td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
-
-    <!-- ===== SEÇÃO 4: SHOW ME THE CODE (Breno Brasil) ===== -->
-    <section id="codigo">
-        <h2>4. Show Me The Code: Pipeline de Treinamento e MLOps</h2>
-        <p>
-            Abaixo destacamos os três blocos essenciais da nossa esteira de Machine Learning implementada no notebook 
-            <a href="https://github.com/beaacademico/ESTRUTURA-DE-DADOS-II-PROJ-1/blob/feat/fase3-artigo/notebooks/04_comparacao_modelos.ipynb" target="_blank">04_comparacao_modelos.ipynb</a>, 
-            cobrindo a preparação dos dados, a busca em grade comparativa e o empacotamento do artefato para produção.
-        </p>
-
-        <div class="code-container">
-            <div class="code-header">
-                <span>Passo 1: Seleção de Features Relativas e Mapeamento de Classes</span>
-                <span>Python 3 / Pandas</span>
-            </div>
-            <pre><code>import pandas as pd
-
-# 1. Carregamento do dataset rotulado da Fase 2
-df = pd.read_csv('../data/processed/dataset_rotulado_B_split.csv')
-
-# O XGBoost requer alvo numérico discreto [0, 1, 2]
-mapa_classes = {'OK': 0, 'RISCO': 1, 'FALHA': 2}
-df['classe_num'] = df['classe'].map(mapa_classes)
-
-# 2. Definição estrita das 8 features relativas (sem IPs ou RTT em ms)
-features = [
-    'z_robusto', 'aumento_pct', 'jitter_relativo', 'perda_pct',
-    'timeout_atual', 'n5_timeout', 'n5_aumento80', 'n5_risco'
-]
-target = 'classe_num'
-
-# 3. Isolamento dos conjuntos sem contaminação
-X_treino = df[df['split'] == 'treino'][features].fillna(0)
-y_treino = df[df['split'] == 'treino'][target]
-
-X_val = df[df['split'] == 'validacao'][features].fillna(0)
-y_val = df[df['split'] == 'validacao'][target]</code></pre>
-        </div>
-
-        <div class="code-container">
-            <div class="code-header">
-                <span>Passo 2: Busca Honesta com GridSearchCV e Medição de Tempo</span>
-                <span>Scikit-Learn / XGBoost</span>
-            </div>
-            <pre><code>import time
-from xgboost import XGBClassifier
-from sklearn.model_selection import GridSearchCV
-
-# Grade de busca calibrada para balancear custo de inferência e capacidade preditiva
-params_xgb = {
-    'n_estimators': [50, 100],
-    'learning_rate': [0.05, 0.1],
-    'max_depth': [4, 6]
-}
-
-# Treinamento com 3 folds estratificados avaliados por F1-Macro
-grid_xgb = GridSearchCV(
-    XGBClassifier(random_state=42, eval_metric='mlogloss'),
-    params_xgb, cv=3, scoring='f1_macro', n_jobs=-1
+    <aside class="hero-card" aria-label="Resumo do estudo">
+      <h2>O desafio em uma visão</h2>
+      <div class="signal"><div class="signal-icon">RTT</div><div><strong>Medir o desvio da normalidade</strong><span>Comparar cada medição com uma baseline de referência da própria rota.</span></div></div>
+      <div class="signal"><div class="signal-icon">3×</div><div><strong>Comparar três classificadores</strong><span>Árvore de Decisão, Random Forest e XGBoost.</span></div></div>
+      <div class="signal"><div class="signal-icon">OK</div><div><strong>Classificar o estado da rede</strong><span>Estados-alvo: OK, RISCO e FALHA.</span></div></div>
+    </aside>
+  </section>
+
+  <section class="section" id="problema">
+    <div class="section-head"><span class="kicker">01 · Contexto</span><h2>Por que prever a degradação de uma rede?</h2>
+      <p class="muted">A latência, a variação de atraso (jitter) e a perda de pacotes ajudam a identificar mudanças na qualidade de uma conexão. Porém, o RTT absoluto não conta a história toda: rotas diferentes podem ter tempos de resposta naturalmente diferentes.</p>
+    </div>
+    <div class="grid">
+      <article class="card"><div class="model-symbol">↗</div><h3>O problema do valor absoluto</h3><p>Um RTT alto pode ser normal para uma rota longa e anormal para uma rota curta. Usar um único limite fixo pode gerar alarmes inadequados quando as condições de referência variam.</p></article>
+      <article class="card"><div class="model-symbol">≈</div><h3>Baseline por rota</h3><p>O projeto utiliza uma janela histórica de referência e medidas robustas — mediana e desvio absoluto mediano (MAD) — para caracterizar o comportamento esperado da rota.</p></article>
+      <article class="card"><div class="model-symbol">◎</div><h3>Objetivo do classificador</h3><p>Usar métricas relativas para estimar se o fluxo está em estado <strong>OK</strong>, <strong>RISCO</strong> ou <strong>FALHA</strong>, oferecendo apoio ao monitoramento, não substituindo a análise operacional.</p></article>
+    </div>
+    <div class="callout"><strong>Ideia central:</strong> o modelo deve aprender padrões de degradação, e não simplesmente memorizar qual rota costuma ter RTT maior. Por isso, identificadores de rota, país e IP não devem ser usados como variáveis preditoras se o objetivo é generalizar para rotas diferentes.</div>
+  </section>
+
+  <section class="section" id="modelos">
+    <div class="section-head"><span class="kicker">02 · Modelos avaliados</span><h2>Três abordagens para a mesma tarefa</h2><p class="muted">Todos os modelos resolvem um problema de classificação, mas aprendem de maneiras diferentes. A escolha deve considerar desempenho, estabilidade, custo e facilidade de explicar as decisões.</p></div>
+    <div class="grid">
+      <article class="card">
+        <span class="tag">Modelo individual</span><div class="model-symbol">⑂</div><h3>Árvore de Decisão</h3>
+        <p>Aprende regras hierárquicas do tipo “se esta métrica ultrapassa um limite, siga para este ramo”. Cada caminho da raiz até uma folha corresponde a uma decisão.</p>
+        <div class="tree" role="img" aria-label="Diagrama ilustrativo de uma árvore com nó de decisão e duas folhas"><div class="node">RTT relativo?</div><div class="branches"><div class="branch"><span>baixo</span><div class="node leaf">OK</div></div><div class="branch"><span>alto</span><div class="node">Perda?</div><div class="node leaf">RISCO/FALHA</div></div></div></div>
+        <p class="small muted"><strong>Vantagens:</strong> rápida, interpretável e simples de visualizar. <strong>Limitações:</strong> pode sobreajustar se crescer demais e ser sensível a pequenas mudanças nos dados.</p>
+      </article>
+      <article class="card">
+        <span class="tag">Ensemble · Bagging</span><div class="model-symbol">▥</div><h3>Random Forest</h3>
+        <p>Treina várias árvores com amostras e subconjuntos de atributos diferentes. A previsão final combina as saídas das árvores, normalmente por votação na classificação.</p>
+        <div class="forest" role="img" aria-label="Diagrama ilustrativo de quatro árvores votando em uma previsão"><div class="mini-tree"><span></span><small>Árvore 1</small></div><div class="mini-tree"><span></span><small>Árvore 2</small></div><div class="mini-tree"><span></span><small>Árvore 3</small></div><div class="mini-tree"><span></span><small>Árvore 4</small></div></div>
+        <p class="small muted"><strong>Vantagens:</strong> reduz a variância e costuma ser mais estável que uma árvore única. <strong>Limitações:</strong> consome mais memória e é menos transparente para explicar uma previsão individual.</p>
+      </article>
+      <article class="card">
+        <span class="tag">Ensemble · Boosting</span><div class="model-symbol">⇧</div><h3>XGBoost</h3>
+        <p>Constrói árvores sequencialmente; cada etapa procura melhorar o conjunto atual, reduzindo uma função de perda com regularização e controle da taxa de aprendizado.</p>
+        <div class="boost" role="img" aria-label="Etapas sucessivas de boosting"><span>Árvore 1</span><b>+</b><span>Árvore 2</span><b>+</b><span>Árvore 3</span><b>→</b><span>Modelo</span></div>
+        <p class="small muted"><strong>Vantagens:</strong> alto desempenho em dados tabulares e opções de regularização. <strong>Limitações:</strong> exige ajuste cuidadoso e pode ser mais complexo de interpretar e reproduzir.</p>
+      </article>
+    </div>
+    <div class="two-col" style="margin-top:18px">
+      <article class="card"><h3>Bagging × Boosting</h3><p><strong>Bagging</strong> treina estimadores em paralelo e agrega suas previsões para reduzir variância. <strong>Boosting</strong> adiciona estimadores em sequência, procurando corrigir erros do conjunto atual.</p></article>
+      <article class="card"><h3>Hiperparâmetros importam</h3><p>Profundidade, quantidade de árvores, tamanho mínimo das folhas, taxa de aprendizado e regularização controlam a complexidade. O ajuste deve ocorrer somente nos dados de treino, sem usar o conjunto final de teste.</p></article>
+    </div>
+  </section>
+
+  <section class="section" id="metodologia">
+    <div class="section-head"><span class="kicker">03 · Metodologia</span><h2>Como a comparação deve ser conduzida</h2><p class="muted">Uma comparação justa mantém o mesmo conjunto de dados, as mesmas variáveis de entrada, a mesma separação temporal e a mesma métrica principal para os três algoritmos.</p></div>
+    <div class="steps">
+      <div class="step"><strong>Preparar a baseline</strong><p class="small muted">Usar o Período A como janela histórica de referência, calculando estatísticas robustas por rota.</p></div>
+      <div class="step"><strong>Gerar atributos relativos</strong><p class="small muted">Transformar medições do Período B em variáveis que descrevem o desvio em relação à baseline.</p></div>
+      <div class="step"><strong>Separar por tempo</strong><p class="small muted">Manter a ordem temporal entre treino, validação e teste, evitando que observações futuras influenciem o passado.</p></div>
+      <div class="step"><strong>Ajustar e avaliar</strong><p class="small muted">Ajustar hiperparâmetros no treino/validação e reservar o teste para uma avaliação final independente.</p></div>
+    </div>
+    <div class="metrics">
+      <div class="metric"><span class="value">14 dias</span><span class="label">Janela de referência indicada para o Período A</span></div>
+      <div class="metric"><span class="value">8</span><span class="label">Atributos relativos descritos na versão do experimento</span></div>
+      <div class="metric"><span class="value">42</span><span class="label">Semente indicada para reprodutibilidade</span></div>
+      <div class="metric"><span class="value">3 classes</span><span class="label">OK · RISCO · FALHA</span></div>
+    </div>
+    <div class="notice"><strong>Nota de rigor metodológico:</strong> a versão do artigo informa <code>GridSearchCV(cv=3)</code>. Para dados temporais, o <code>cv=3</code> padrão não garante validação temporal. A validação cruzada deve ser configurada para respeitar a ordem cronológica (por exemplo, <code>TimeSeriesSplit</code>, quando apropriado) ou substituída por janelas temporais explícitas. Antes de tratar os resultados como definitivos, também é necessário confirmar que não há atributos calculados com informação futura e que a mesma amostra não aparece em treino e avaliação.</div>
+    <h3 style="margin-top:28px">Configuração informada no experimento</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Elemento</th><th>Valor informado</th><th>Observação</th></tr></thead>
+      <tbody>
+        <tr><td>Período A</td><td>14 dias de referência</td><td>Usado para estimar o comportamento normal por rota.</td></tr>
+        <tr><td>Período B</td><td>173.674 amostras</td><td>Quantidade informada na versão do artigo; confirmar com o arquivo processado final.</td></tr>
+        <tr><td>Treino</td><td>86.822 amostras</td><td>O corte precisa respeitar o tempo e ser reproduzível.</td></tr>
+        <tr><td>Validação</td><td>34.703 amostras</td><td>Usada para comparação na tabela de resultados reportados.</td></tr>
+        <tr><td>Teste</td><td>52.149 amostras</td><td>Deve permanecer isolado até a avaliação final.</td></tr>
+        <tr><td>Busca de hiperparâmetros</td><td><code>GridSearchCV</code>, <code>cv=3</code>, <code>f1_macro</code></td><td>Reconfigurar a validação para não misturar passado e futuro.</td></tr>
+        <tr><td>Variáveis excluídas</td><td>País, IP e rota</td><td>Evita que o modelo dependa diretamente da identidade da rota, conforme o objetivo declarado.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small muted" style="margin-top:12px">As quantidades acima foram preservadas do material do projeto. A soma das partições deve ser conferida no pipeline; os números apresentados totalizam 173.674 amostras.</p>
+  </section>
+
+  <section class="section" id="codigo">
+    <div class="section-head"><span class="kicker">04 · Reprodutibilidade</span><h2>Exemplo de pipeline em Python</h2><p class="muted">O trecho abaixo é um exemplo didático de avaliação com divisão temporal. Os nomes das colunas devem ser ajustados ao conjunto de dados real; ele não substitui a execução e a validação do notebook do projeto.</p></div>
+    <div class="codebox">
+      <div class="codehead"><span>Python · exemplo de avaliação temporal</span><button class="copy" type="button" data-copy="code1">Copiar código</button></div>
+      <pre><code id="code1">import pandas as pd
+from sklearn.model_selection import TimeSeriesSplit, GridSearchCV
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import classification_report, confusion_matrix, f1_score
+
+# O DataFrame deve estar ordenado cronologicamente antes do corte.
+df = pd.read_csv("data/processed/dataset_rotulado.csv")
+df = df.sort_values("timestamp").reset_index(drop=True)
+
+# Exclua identificadores e qualquer coluna que revele a resposta.
+colunas_excluidas = ["timestamp", "label", "pais", "ip", "rota"]
+X = df.drop(columns=[c for c in colunas_excluidas if c in df.columns])
+y = df["label"]
+
+# Exemplo simples de corte temporal: primeiros 70% para treino,
+# últimos 30% para avaliação. Ajuste os limites ao protocolo do projeto.
+corte = int(len(df) * 0.70)
+X_treino, X_teste = X.iloc[:corte], X.iloc[corte:]
+y_treino, y_teste = y.iloc[:corte], y.iloc[corte:]
+
+modelo = DecisionTreeClassifier(random_state=42)
+grade = {"max_depth": [3, 5, 7, 10], "min_samples_leaf": [1, 5, 10]}
+
+# A validação temporal ocorre apenas dentro do bloco de treino.
+cv_temporal = TimeSeriesSplit(n_splits=3)
+busca = GridSearchCV(
+    modelo, grade, cv=cv_temporal,
+    scoring="f1_macro", n_jobs=-1
 )
+busca.fit(X_treino, y_treino)
 
-t0 = time.time()
-grid_xgb.fit(X_treino, y_treino)
-tempo_treino = time.time() - t0
+# O bloco de teste é usado apenas depois do ajuste.
+pred = busca.best_estimator_.predict(X_teste)
+print("Melhores parâmetros:", busca.best_params_)
+print("F1 macro:", f1_score(y_teste, pred, average="macro"))
+print(classification_report(y_teste, pred, zero_division=0))
+print(confusion_matrix(y_teste, pred))</code></pre>
+    </div>
+    <div class="codebox">
+      <div class="codehead"><span>Python · comparação de métricas</span><button class="copy" type="button" data-copy="code2">Copiar código</button></div>
+      <pre><code id="code2">from time import perf_counter
+from sklearn.metrics import f1_score, precision_score, recall_score
 
-melhor_xgb = grid_xgb.best_estimator_
-print(f"Melhores parâmetros: {grid_xgb.best_params_}")
-print(f"Tempo de treino: {tempo_treino:.2f}s")</code></pre>
-        </div>
+def avaliar_modelo(nome, modelo, X_treino, y_treino, X_avaliacao, y_avaliacao):
+    inicio = perf_counter()
+    modelo.fit(X_treino, y_treino)
+    tempo_treino = perf_counter() - inicio
 
-        <div class="code-container">
-            <div class="code-header">
-                <span>Passo 3: MLOps — Empacotamento do Modelo Campeão em Produção</span>
-                <span>Joblib / OS</span>
-            </div>
-            <pre><code>import joblib, os
+    inicio = perf_counter()
+    previsoes = modelo.predict(X_avaliacao)
+    tempo_predicao = perf_counter() - inicio
 
-# Persistência do modelo final para consumo em APIs de inferência em tempo real
-os.makedirs('../producao/modelo', exist_ok=True)
-caminho_artefato = '../producao/modelo/modelo_final.joblib'
+    return {
+        "modelo": nome,
+        "precision_macro": precision_score(
+            y_avaliacao, previsoes, average="macro", zero_division=0
+        ),
+        "recall_macro": recall_score(
+            y_avaliacao, previsoes, average="macro", zero_division=0
+        ),
+        "f1_macro": f1_score(
+            y_avaliacao, previsoes, average="macro", zero_division=0
+        ),
+        "tempo_treino_s": round(tempo_treino, 4),
+        "tempo_predicao_s": round(tempo_predicao, 4),
+    }
 
-joblib.dump(melhor_xgb, caminho_artefato)
-print(f"Modelo serializado com sucesso em: {caminho_artefato} (Tamanho: ~372 KB)")</code></pre>
-        </div>
-    </section>
+# Use os mesmos X_treino, y_treino e bloco de avaliação para cada modelo.
+# Registre também versão das bibliotecas, data do experimento e parâmetros.</code></pre>
+    </div>
+    <div class="callout">O notebook referenciado pelo projeto é a fonte para conferir a execução real: <a href="https://github.com/beaacademico/ESTRUTURA-DE-DADOS-II-PROJ-1/blob/feat/fase3-artigo/notebooks/04_comparacao_modelos.ipynb" target="_blank" rel="noopener noreferrer">04_comparacao_modelos.ipynb ↗</a>.</div>
+  </section>
 
-    <!-- ===== SEÇÃO 5: RESULTADOS E COMPARAÇÃO ===== -->
-    <section id="experimento">
-        <h2>5. Resultados do Experimento e Matriz de Confusão</h2>
-        <p>Abaixo consolidamos o desempenho dos três modelos avaliados sobre o conjunto de validação independente (34.703 amostras):</p>
-        
-        <table class="tabela-comparativa">
-            <thead>
-                <tr>
-                    <th>Modelo</th>
-                    <th>F1-Score (Macro)</th>
-                    <th>Tempo de Treino</th>
-                    <th>Latência de Inferência (34k pacotes)</th>
-                    <th>Interpretabilidade</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>Árvore de Decisão</strong> (depth=7)</td>
-                    <td>1.0000</td>
-                    <td>3.69s</td>
-                    <td>0.012s</td>
-                    <td>Alta (Caixa-Branca)</td>
-                </tr>
-                <tr>
-                    <td><strong>Random Forest</strong> (50 árvores)</td>
-                    <td>0.9996</td>
-                    <td>22.29s</td>
-                    <td>0.145s</td>
-                    <td>Média (Ensemble Paralelo)</td>
-                </tr>
-                <tr>
-                    <td><strong>XGBoost (Campeão)</strong> (100 árvores)</td>
-                    <td>1.0000</td>
-                    <td>9.58s</td>
-                    <td>0.076s</td>
-                    <td>Baixa/Média (Ensemble Sequencial)</td>
-                </tr>
-            </tbody>
-        </table>
+  <section class="section" id="resultados">
+    <div class="section-head"><span class="kicker">05 · Resultados reportados</span><h2>Desempenho e custo computacional</h2><p class="muted">A tabela reproduz os números informados na versão atual do artigo para o conjunto de validação de 34.703 amostras. Eles precisam ser conferidos no notebook antes de serem apresentados como resultados finais.</p></div>
+    <div class="notice"><strong>Importante:</strong> F1 Macro igual a 1,0000 é um resultado perfeito. Pode ocorrer em dados muito separáveis, mas também pode indicar vazamento de dados, rótulos derivados de variáveis preditoras ou avaliação feita no conjunto errado. Por isso, estes números são apresentados como <em>reportados</em>, não como uma auditoria independente do experimento.</div>
+    <div class="metrics">
+      <div class="metric"><span class="value">1,0000</span><span class="label">F1 Macro reportado · Árvore de Decisão</span></div>
+      <div class="metric"><span class="value">1,0000</span><span class="label">F1 Macro reportado · XGBoost</span></div>
+      <div class="metric"><span class="value">3,69 s</span><span class="label">Treino reportado · Árvore de Decisão</span></div>
+      <div class="metric"><span class="value">0,012 s</span><span class="label">Predição reportada · Árvore de Decisão</span></div>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Modelo</th><th>Configuração reportada</th><th>F1 Macro</th><th>Treinamento</th><th>Predição</th><th>Leitura</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Árvore de Decisão</strong></td><td>Profundidade 7</td><td class="num">1,0000</td><td class="num">3,69 s</td><td class="num">0,012 s</td><td><span class="pill">Mais rápida</span></td></tr>
+        <tr><td><strong>Random Forest</strong></td><td>50 árvores</td><td class="num">0,9996</td><td class="num">22,29 s</td><td class="num">0,145 s</td><td>Maior custo reportado</td></tr>
+        <tr><td><strong>XGBoost</strong></td><td>100 árvores</td><td class="num">1,0000</td><td class="num">9,58 s</td><td class="num">0,076 s</td><td>F1 igual ao da árvore</td></tr>
+      </tbody>
+    </table></div>
+    <h3 style="margin-top:28px">O que os números sugerem — se forem confirmados</h3>
+    <div class="grid">
+      <article class="card"><h3>Árvore de Decisão</h3><p>Apresenta o menor tempo de treino e de predição entre os valores reportados, além de F1 Macro de 1,0000. É uma candidata forte quando simplicidade e resposta rápida são prioridades.</p></article>
+      <article class="card"><h3>Random Forest</h3><p>O F1 Macro reportado é muito próximo dos demais, mas com maior tempo de treino e predição. A vantagem potencial é a estabilidade obtida pela combinação de várias árvores.</p></article>
+      <article class="card"><h3>XGBoost</h3><p>Iguala o F1 Macro reportado da árvore individual, com custo intermediário. A complexidade adicional só se justifica se testes independentes demonstrarem ganhos relevantes.</p></article>
+    </div>
+    <p class="small muted" style="margin-top:16px"><strong>Matriz de confusão:</strong> ela não foi incluída aqui porque as contagens reais por classe não constam nos dados que embasaram esta versão do artigo. Não seria correto inventar valores. Gere a matriz diretamente das previsões finais de teste e inclua a imagem/contagens antes da entrega final.</p>
+  </section>
 
-        <!-- Matriz de Confusão do XGBoost -->
-        <div style="text-align:center; margin:24px 0;">
-            <img src="matriz_xgboost.png" alt="Matriz de Confusão do XGBoost na validação" class="imagem-responsiva">
-            <p class="diagram-caption">Matriz de Confusão do XGBoost na validação: separação perfeita das classes sem confusão entre tráfego normal e falhas críticas.</p>
-        </div>
-    </section>
+  <section class="section" id="conclusao">
+    <div class="section-head"><span class="kicker">06 · Conclusão</span><h2>O melhor modelo é o que entrega desempenho confiável com custo adequado</h2></div>
+    <div class="card">
+      <p>Com base exclusivamente nos resultados reportados, a <strong>Árvore de Decisão é a recomendação preliminar</strong>: ela alcança F1 Macro de 1,0000, assim como o XGBoost, e apresenta os menores tempos de treinamento e predição. Além disso, suas regras são mais fáceis de explicar para uma equipe que precisa entender por que um fluxo foi classificado como OK, RISCO ou FALHA.</p>
+      <p>Essa recomendação ainda não deve ser considerada definitiva. A pontuação perfeita exige uma auditoria de vazamento de dados e uma nova avaliação que respeite a ordem temporal. Se o desempenho permanecer alto em um teste futuro, separado e independente, a árvore poderá ser defendida como a solução mais simples e eficiente para o cenário estudado.</p>
+      <p>A Random Forest continua sendo uma alternativa quando a estabilidade entre árvores for importante; o XGBoost merece ser escolhido se uma avaliação rigorosa demonstrar uma melhoria que compense seu custo e sua maior complexidade.</p>
+    </div>
+    <div class="two-col" style="margin-top:16px">
+      <article class="card"><h3>Limitações do estudo</h3><ul class="checklist"><li>Os resultados precisam ser reproduzidos a partir dos arquivos e do notebook final.</li><li>É necessário documentar as classes e apresentar precision, recall, F1 por classe e matriz de confusão.</li><li>O desempenho pode mudar com novas rotas, períodos ou padrões de tráfego.</li><li>O tempo medido depende do hardware, da versão das bibliotecas e do tamanho do lote.</li></ul></article>
+      <article class="card"><h3>Próximas etapas</h3><ul class="checklist"><li>Validar o corte temporal e verificar vazamento entre baseline, atributos e rótulos.</li><li>Executar novamente os três modelos com protocolo idêntico.</li><li>Salvar parâmetros, versões, métricas e matriz de confusão em artefatos reproduzíveis.</li><li>Testar em um intervalo futuro e monitorar data drift após a implantação.</li></ul></article>
+    </div>
+  </section>
 
-    <section id="conclusao">
-        <h2>5. Recomendação e Limitações (Data Drift)</h2>
-        <p><strong>Recomendação:</strong> [Aqui o grupo justificará o vencedor com base no tempo vs acurácia].</p>
-        <p><strong>Limitação:</strong> Redes de computadores sofrem de <i>Data Drift</i>. Um rompimento de fibra óptica amanhã pode mudar o padrão de latência da rede, tornando nosso modelo obsoleto. Na vida real, seria necessário re-treinar o modelo periodicamente usando dados novos.</p>
-    </section>
+  <section class="section" id="equipe">
+    <div class="section-head"><span class="kicker">07 · Equipe</span><h2>Integrantes e contribuições</h2><p class="muted">Integrantes e atribuições conforme descrito no README do repositório do projeto.</p></div>
+    <div class="team">
+      <article class="card person"><div class="avatar" aria-hidden="true">BB</div><div><h3>Breno Brasil de Souza</h3><p>Scrum Master: organização do pipeline Git, estrutura de pastas e execução.</p><a href="https://github.com/beaacademico/ESTRUTURA-DE-DADOS-II-PROJ-1" target="_blank" rel="noopener noreferrer">Repositório do projeto ↗</a></div></article>
+      <article class="card person"><div class="avatar" aria-hidden="true">BG</div><div><h3>Beatriz Gonçalves da Silva</h3><p>Analista: parametrização das janelas de referência no arquivo de configuração.</p><a href="https://github.com/beaacademico/ESTRUTURA-DE-DADOS-II-PROJ-1" target="_blank" rel="noopener noreferrer">Repositório do projeto ↗</a></div></article>
+      <article class="card person"><div class="avatar" aria-hidden="true">EM</div><div><h3>Enzo Moraes Sousa</h3><p>QA: validação do dataset final e relatórios de qualidade.</p><a href="https://github.com/beaacademico/ESTRUTURA-DE-DADOS-II-PROJ-1" target="_blank" rel="noopener noreferrer">Repositório do projeto ↗</a></div></article>
+      <article class="card person"><div class="avatar" aria-hidden="true">NG</div><div><h3>Natsumi Goto</h3><p>Desenvolvimento: requisições HTTP para a API RIPE Atlas nos Períodos A e B.</p><a href="https://github.com/beaacademico/ESTRUTURA-DE-DADOS-II-PROJ-1" target="_blank" rel="noopener noreferrer">Repositório do projeto ↗</a></div></article>
+      <article class="card person"><div class="avatar" aria-hidden="true">PV</div><div><h3>Pedro Viana da Silva</h3><p>Engenharia de dados: DataFrame, identificação de fluxos e extração de jitter/perda.</p><a href="https://github.com/beaacademico/ESTRUTURA-DE-DADOS-II-PROJ-1" target="_blank" rel="noopener noreferrer">Repositório do projeto ↗</a></div></article>
+      <article class="card person"><div class="avatar" aria-hidden="true">VA</div><div><h3>Vitória Alessandra das Neves</h3><p>Análise de redes: pesquisa de rotas do Anchoring Mesh, incluindo caminhos curtos e longos.</p><a href="https://github.com/beaacademico/ESTRUTURA-DE-DADOS-II-PROJ-1" target="_blank" rel="noopener noreferrer">Repositório do projeto ↗</a></div></article>
+    </div>
+    <p class="small muted" style="margin-top:16px">As contribuições acima foram resumidas a partir do README do repositório. Os links levam ao projeto compartilhado, pois perfis individuais não foram verificados. Fotos pessoais não foram inventadas; os avatares com iniciais mantêm o layout sem usar imagens falsas.</p>
+  </section>
 
-    <footer>
-        <p><small>Licença MIT | Código Fonte no <a href="#">Repositório GitHub</a> | Atualizado em: 10/10/2026</small></p>
-    </footer>
+  <section class="section" id="referencias">
+    <div class="section-head"><span class="kicker">08 · Referências</span><h2>Fontes para consulta e reprodução</h2><p class="muted">Documentação técnica e fontes citadas no projeto.</p></div>
+    <ol class="refs">
+      <li><strong>RIPE NCC.</strong> <a href="https://atlas.ripe.net/docs/" target="_blank" rel="noopener noreferrer">RIPE Atlas — documentação oficial</a>. Plataforma para medições distribuídas de conectividade e desempenho de rede.</li>
+      <li><strong>RIPE NCC.</strong> <a href="https://atlas.ripe.net/docs/getting-started/" target="_blank" rel="noopener noreferrer">RIPE Atlas — Getting started</a>. Introdução à criação e ao uso de medições.</li>
+      <li><strong>Scikit-learn developers.</strong> <a href="https://scikit-learn.org/stable/modules/tree.html" target="_blank" rel="noopener noreferrer">Decision Trees</a>. Documentação de árvores de decisão e seus parâmetros.</li>
+      <li><strong>Scikit-learn developers.</strong> <a href="https://scikit-learn.org/stable/modules/ensemble.html#forest" target="_blank" rel="noopener noreferrer">Ensemble methods — Random Forests</a>. Métodos de conjunto e florestas aleatórias.</li>
+      <li><strong>Scikit-learn developers.</strong> <a href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html" target="_blank" rel="noopener noreferrer">TimeSeriesSplit</a>. Validação cruzada para dados ordenados no tempo.</li>
+      <li><strong>Chen, T.; Guestrin, C.</strong> (2016). <a href="https://doi.org/10.1145/2939672.2939785" target="_blank" rel="noopener noreferrer">XGBoost: A Scalable Tree Boosting System</a>. Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining.</li>
+      <li><strong>XGBoost developers.</strong> <a href="https://xgboost.readthedocs.io/" target="_blank" rel="noopener noreferrer">XGBoost documentation</a>. Documentação oficial da biblioteca.</li>
+      <li><strong>Projeto Preditor de Redes.</strong> <a href="https://github.com/beaacademico/ESTRUTURA-DE-DADOS-II-PROJ-1" target="_blank" rel="noopener noreferrer">Repositório do projeto</a>. Código, dados, tarefas e documentação.</li>
+      <li><strong>Projeto Preditor de Redes.</strong> <a href="https://github.com/beaacademico/ESTRUTURA-DE-DADOS-II-PROJ-1/blob/feat/fase3-artigo/notebooks/04_comparacao_modelos.ipynb" target="_blank" rel="noopener noreferrer">Notebook de comparação de modelos</a>. Referência para reproduzir os resultados reportados.</li>
+    </ol>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div><strong>Preditor de Redes</strong><br>Artigo técnico acadêmico · Estruturas de Dados II</div>
+    <div>Conteúdo técnico para fins acadêmicos. Resultados numéricos devem ser conferidos no experimento reproduzível.<br><a href="https://github.com/beaacademico/ESTRUTURA-DE-DADOS-II-PROJ-1" target="_blank" rel="noopener noreferrer">Código-fonte no GitHub ↗</a></div>
+    <a class="backtop" href="#inicio">Voltar ao topo ↑</a>
+  </div>
+</footer>
+<script>
+  document.querySelectorAll("[data-copy]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const target = document.getElementById(button.dataset.copy);
+      if (!target) return;
+      try {
+        await navigator.clipboard.writeText(target.innerText);
+        button.textContent = "Copiado!";
+        window.setTimeout(() => button.textContent = "Copiar código", 1600);
+      } catch (error) {
+        button.textContent = "Selecione o código";
+      }
+    });
+  });
+</script>
 </body>
 </html>
