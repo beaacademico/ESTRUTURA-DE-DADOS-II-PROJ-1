@@ -1,8 +1,22 @@
-# Ignorar arquivos de sistema e cache Python
-.ipynb_checkpoints/
-__pycache__/
-*.pyc
-.env
+# Ambientes virtuais
+.venv/
+.venv*/
+env/
+venv/
 
-# Guias e PDFs locais de estudo
+# Cache Python e compilação
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.ipynb_checkpoints/
+
+# Variáveis de ambiente e IDEs
+.env
+.vscode/
+.idea/
+
+# Arquivos temporários e logs
+*.log
+*.tmp
 *.pdf

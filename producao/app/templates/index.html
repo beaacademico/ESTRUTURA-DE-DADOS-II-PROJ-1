@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NOC Inteligente · Preditor de Degradação de Rede</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070d18;
+      --card-bg: rgba(16, 26, 44, 0.75);
+      --card-border: rgba(97, 228, 239, 0.15);
+      --text-main: #f0f6fc;
+      --text-muted: #8b9bb4;
+      --cyan: #00f2fe;
+      --blue: #4facfe;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --font-main: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      background-image: radial-gradient(circle at 10% 20%, rgba(0, 242, 254, 0.05) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(79, 172, 254, 0.05) 0%, transparent 40%);
+      color: var(--text-main);
+      font-family: var(--font-main);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .container { max-width: 1300px; margin: 0 auto; }
+
+    /* Top Bar */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 28px;
+    }
+
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand-logo {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      border-radius: 12px;
+      display: grid; place-items: center;
+      color: #040b14; font-size: 22px; font-weight: 800;
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
+    }
+    .brand h1 { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; }
+    .brand p { font-size: 0.82rem; color: var(--text-muted); }
+
+    .status-pill {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 6px 14px; border-radius: 999px;
+      font-size: 0.8rem; font-weight: 600; color: var(--green);
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px; margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px; padding: 20px;
+      backdrop-filter: blur(12px);
+    }
+    .stat-label { font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.05em; }
+    .stat-val { font-size: 1.8rem; font-weight: 800; margin: 8px 0 4px; font-family: var(--font-mono); }
+    .stat-desc { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* Main Dashboard Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+    }
+    @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 26px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+    }
+    .panel-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 22px; padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .panel-head h2 { font-size: 1.15rem; font-weight: 700; }
+    .kicker { font-size: 0.72rem; color: var(--cyan); text-transform: uppercase; font-weight: 800; letter-spacing: 0.1em; }
+
+    /* Form Controls */
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: flex; justify-content: space-between;
+      font-size: 0.84rem; font-weight: 600; margin-bottom: 8px; color: var(--text-main);
+    }
+    .val-badge { font-family: var(--font-mono); color: var(--cyan); }
+    select, input[type="range"] {
+      width: 100%; padding: 12px 14px;
+      background: #0d1624; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; color: var(--text-main); font-size: 0.9rem;
+      outline: none; transition: border 0.2s;
+    }
+    select:focus { border-color: var(--cyan); }
+    input[type="range"] { padding: 0; height: 8px; accent-color: var(--cyan); cursor: pointer; }
+
+    /* Diagnosis Result Card */
+    .result-box {
+      background: #091321;
+      border: 2px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      margin-top: 20px;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .result-box.status-OK { border-color: var(--green); box-shadow: 0 0 30px rgba(16, 185, 129, 0.15); }
+    .result-box.status-RISCO { border-color: var(--amber); box-shadow: 0 0 30px rgba(245, 158, 11, 0.15); }
+    .result-box.status-FALHA { border-color: var(--red); box-shadow: 0 0 30px rgba(239, 68, 68, 0.2); }
+
+    .badge-status {
+      display: inline-block;
+      padding: 8px 24px;
+      border-radius: 999px;
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+      font-family: var(--font-mono);
+    }
+    .status-OK .badge-status { background: rgba(16, 185, 129, 0.2); color: var(--green); }
+    .status-RISCO .badge-status { background: rgba(245, 158, 11, 0.2); color: var(--amber); }
+    .status-FALHA .badge-status { background: rgba(239, 68, 68, 0.2); color: var(--red); }
+
+    /* Probability Bars */
+    .prob-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 10px; margin-top: 18px; text-align: left;
+    }
+    .prob-item {
+      background: #0d1726; padding: 10px; border-radius: 10px;
+      font-size: 0.78rem;
+    }
+    .prob-bar-wrap {
+      height: 6px; background: rgba(255,255,255,0.06);
+      border-radius: 999px; margin-top: 6px; overflow: hidden;
+    }
+    .prob-bar { height: 100%; border-radius: 999px; transition: width 0.4s ease; }
+    .bar-ok { background: var(--green); }
+    .bar-risco { background: var(--amber); }
+    .bar-falha { background: var(--red); }
+
+    /* Features Grid Mini */
+    .feat-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 10px; margin-top: 18px; font-size: 0.8rem;
+    }
+    .feat-item {
+      background: rgba(255,255,255,0.02);
+      padding: 8px 12px; border-radius: 8px;
+      display: flex; justify-content: space-between;
+      border-left: 2px solid var(--card-border);
+    }
+    .feat-item span { color: var(--text-muted); }
+    .feat-item strong { font-family: var(--font-mono); color: var(--text-main); }
+
+    /* Action Buttons */
+    .btn {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      border: none; border-radius: 12px;
+      color: #040d18; font-weight: 750; font-size: 0.95rem;
+      cursor: pointer; transition: transform 0.15s, opacity 0.15s;
+      margin-top: 10px;
+    }
+    .btn:hover { opacity: 0.92; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn-secondary {
+      background: rgba(255,255,255,0.06); color: var(--text-main);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+    /* Live Table */
+    .table-wrap { overflow-x: auto; max-height: 480px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    th {
+      text-align: left; padding: 12px; background: #0b1523;
+      color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;
+      position: sticky; top: 0; z-index: 10;
+    }
+    td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.04); font-family: var(--font-mono); }
+    tr:hover { background: rgba(255,255,255,0.02); }
+    .badge-mini {
+      display: inline-block; padding: 3px 8px; border-radius: 6px;
+      font-size: 0.72rem; font-weight: 700;
+    }
+    .mini-OK { background: rgba(16, 185, 129, 0.15); color: var(--green); }
+    .mini-RISCO { background: rgba(245, 158, 11, 0.15); color: var(--amber); }
+    .mini-FALHA { background: rgba(239, 68, 68, 0.15); color: var(--red); }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="brand-logo">⌁</div>
+        <div>
+          <h1>NOC Inteligente · Monitor de Redes</h1>
+          <p>Motor de Predição em Tempo Real com XGBoost Campeão (372 KB) & RIPE Atlas</p>
+          <p style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:3px;">
+            SHA-256: <span style="color:var(--cyan)">{{ modelo_sha256[:16] }}...</span> · 
+            <a href="/api/saude" target="_blank" style="color:var(--green); text-decoration:none;">[Healthcheck]</a> · 
+            <a href="/api/modelo" target="_blank" style="color:var(--blue); text-decoration:none;">[Metadados API]</a>
+          </p>
+        </div>
+      </div>
+      <div class="status-pill">
+        <div class="status-dot"></div>
+        <span>SISTEMA ATIVO (PRODUÇÃO)</span>
+      </div>
+    </header>
+
+    <!-- Stats Bar -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Fluxos Catalogados</div>
+        <div class="stat-val" id="stat-fluxos">69</div>
+        <div class="stat-desc">Anchoring Mesh Global</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Modelo Serializado</div>
+        <div class="stat-val" style="color:var(--cyan)">XGBoost</div>
+        <div class="stat-desc">100 estimadores · 372 KB</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Latência de Inferência</div>
+        <div class="stat-val" id="stat-latencia" style="color:var(--green)">0.08 ms</div>
+        <div class="stat-desc">Tempo de CPU por predição</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Atributos Relativos</div>
+        <div class="stat-val" style="color:var(--blue)">8 Features</div>
+        <div class="stat-desc">Z-score, Jitter, Janelas móveis</div>
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="dashboard-grid">
+      
+      <!-- Panel 1: Playground de Diagnóstico -->
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <span class="kicker">Simulador Operacional</span>
+            <h2>Diagnosticar Rota em Tempo Real</h2>
+          </div>
+          <button class="btn btn-secondary" style="width:auto; padding:6px 12px; font-size:0.8rem" onclick="sortearFluxo()">Sortear Rota</button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Fluxo / Rota Monitorada (Probe ➔ Destino):</label>
+          <select id="select-fluxo" onchange="atualizarBaselineInfo()"></select>
+        </div>
+
+        <div class="feat-grid" style="margin-bottom:18px;">
+          <div class="feat-item"><span>Mediana Histórica:</span> <strong id="lbl-mediana">-- ms</strong></div>
+          <div class="feat-item"><span>MAD Histórico:</span> <strong id="lbl-mad">-- ms</strong></div>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">
+            <span>RTT Medido Atual:</span>
+            <span class="val-badge" id="lbl-rtt">30.0 ms</span>
+          </div>
+          <input type="range" id="rng-rtt" min="0.1" max="400" step="0.5" value="30" oninput="executarDiagnostico()">
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">
+            <span>Perda de Pacotes:</span>
+            <span class="val-badge" id="lbl-perda">0.0%</span>
+          </div>
+          <input type="range" id="rng-perda" min="0" max="100" step="5" value="0" oninput="executarDiagnostico()">
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">
+            <span>Jitter de Rajada (Oscilação):</span>
+            <span class="val-badge" id="lbl-jitter">1.0 ms</span>
+          </div>
+          <input type="range" id="rng-jitter" min="0.1" max="30" step="0.5" value="1.0" oninput="executarDiagnostico()">
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">
+            <span>Simulador de Estresse / Ruído Estocástico (Data Drift):</span>
+            <span class="val-badge" id="lbl-ruido" style="color:var(--amber)">0%</span>
+          </div>
+          <input type="range" id="rng-ruido" min="0" max="50" step="5" value="0" oninput="executarDiagnostico()">
+        </div>
+
+        <!-- Result Box -->
+        <div class="result-box status-OK" id="box-resultado">
+          <div class="badge-status" id="badge-classe">OK</div>
+          <p style="font-size:0.85rem; color:var(--text-muted)">Confiança do Modelo: <strong id="lbl-confianca" style="color:#fff">99.8%</strong></p>
+
+          <div class="prob-grid">
+            <div class="prob-item">
+              <div style="display:flex; justify-content:space-between"><span>OK</span><strong id="prob-ok">99%</strong></div>
+              <div class="prob-bar-wrap"><div class="prob-bar bar-ok" id="bar-ok" style="width:99%"></div></div>
+            </div>
+            <div class="prob-item">
+              <div style="display:flex; justify-content:space-between"><span>RISCO</span><strong id="prob-risco">1%</strong></div>
+              <div class="prob-bar-wrap"><div class="prob-bar bar-risco" id="bar-risco" style="width:1%"></div></div>
+            </div>
+            <div class="prob-item">
+              <div style="display:flex; justify-content:space-between"><span>FALHA</span><strong id="prob-falha">0%</strong></div>
+              <div class="prob-bar-wrap"><div class="prob-bar bar-falha" id="bar-falha" style="width:0%"></div></div>
+            </div>
+          </div>
+
+          <div class="feat-grid" style="margin-top:16px;">
+            <div class="feat-item"><span>Z-Score Robusto:</span> <strong id="res-z">0.0</strong></div>
+            <div class="feat-item"><span>Aumento Relativo:</span> <strong id="res-aumento">0.0%</strong></div>
+            <div class="feat-item"><span>Jitter Relativo:</span> <strong id="res-jitter-rel">1.0x</strong></div>
+            <div class="feat-item"><span>Tempo Inferência:</span> <strong id="res-latencia">0.05 ms</strong></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Panel 2: Live RIPE Atlas Stream -->
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <span class="kicker">Dados Vivos da Internet</span>
+            <h2>RIPE Atlas API Ao Vivo</h2>
+          </div>
+        </div>
+
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
+          Clique abaixo para consultar a API global do RIPE Atlas agora mesmo, capturar pings das últimas horas e passar pelo XGBoost em produção.
+        </p>
+
+        <button class="btn" id="btn-ripe" onclick="coletarDadosRIPE()">
+          📡 Consultar API RIPE Atlas ao Vivo
+        </button>
+
+        <div style="margin-top:20px;">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fluxo</th>
+                  <th>RTT</th>
+                  <th>Z-Score</th>
+                  <th>Status IA</th>
+                  <th>Confiança</th>
+                </tr>
+              </thead>
+              <tbody id="tbl-ripe-corpo">
+                <tr>
+                  <td colspan="5" style="text-align:center; color:var(--text-muted); padding:30px;">
+                    Nenhuma medição ao vivo capturada ainda. Clique no botão acima para testar!
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let fluxosData = [];
+
+    // Carrega a lista de fluxos ao abrir
+    async function inicializar() {
+      try {
+        const res = await fetch("/api/fluxos");
+        fluxosData = await res.json();
+        
+        const sel = document.getElementById("select-fluxo");
+        sel.innerHTML = "";
+        fluxosData.forEach((f, idx) => {
+          const opt = document.createElement("option");
+          opt.value = idx;
+          opt.textContent = `Probe ${f.probe_id} ➔ ${f.dst_addr} (Mediana: ${f.mediana} ms)`;
+          sel.appendChild(opt);
+        });
+
+        atualizarBaselineInfo();
+        executarDiagnostico();
+      } catch (e) {
+        console.error("Erro ao carregar fluxos:", e);
+      }
+    }
+
+    function atualizarBaselineInfo() {
+      const idx = document.getElementById("select-fluxo").value;
+      const f = fluxosData[idx];
+      if (!f) return;
+      document.getElementById("lbl-mediana").textContent = `${f.mediana} ms`;
+      document.getElementById("lbl-mad").textContent = `${f.mad} ms`;
+
+      // Seta o RTT slider inicialmente próximo à mediana
+      const rng = document.getElementById("rng-rtt");
+      rng.max = Math.max(400, f.mediana * 3);
+      rng.value = f.mediana;
+      document.getElementById("lbl-rtt").textContent = `${f.mediana} ms`;
+      executarDiagnostico();
+    }
+
+    function sortearFluxo() {
+      if (fluxosData.length === 0) return;
+      const randIdx = Math.floor(Math.random() * fluxosData.length);
+      document.getElementById("select-fluxo").value = randIdx;
+      atualizarBaselineInfo();
+    }
+
+    async function executarDiagnostico() {
+      const idx = document.getElementById("select-fluxo").value;
+      const f = fluxosData[idx];
+      if (!f) return;
+
+      const rtt = parseFloat(document.getElementById("rng-rtt").value);
+      const perda = parseFloat(document.getElementById("rng-perda").value);
+      const jitter = parseFloat(document.getElementById("rng-jitter").value);
+      const ruido = parseFloat(document.getElementById("rng-ruido").value);
+
+      document.getElementById("lbl-rtt").textContent = `${rtt.toFixed(1)} ms`;
+      document.getElementById("lbl-perda").textContent = `${perda.toFixed(0)}%`;
+      document.getElementById("lbl-jitter").textContent = `${jitter.toFixed(1)} ms`;
+      document.getElementById("lbl-ruido").textContent = `${ruido.toFixed(0)}%`;
+
+      try {
+        const res = await fetch("/api/diagnosticar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            probe_id: f.probe_id,
+            dst_addr: f.dst_addr,
+            rtt_ms: rtt,
+            perda_pct: perda,
+            jitter_ms: jitter,
+            ruido_pct: ruido
+          })
+        });
+        const d = await res.json();
+        atualizarVisualizacao(d);
+      } catch (e) {
+        console.error("Erro no diagnóstico:", e);
+      }
+    }
+
+    function atualizarVisualizacao(d) {
+      const box = document.getElementById("box-resultado");
+      box.className = `result-box status-${d.classe}`;
+
+      document.getElementById("badge-classe").textContent = d.classe;
+      document.getElementById("lbl-confianca").textContent = `${d.confianca_pct}%`;
+      document.getElementById("stat-latencia").textContent = `${d.latencia_ms.toFixed(2)} ms`;
+
+      // Probabilidades
+      document.getElementById("prob-ok").textContent = `${d.probabilidades.OK}%`;
+      document.getElementById("prob-risco").textContent = `${d.probabilidades.RISCO}%`;
+      document.getElementById("prob-falha").textContent = `${d.probabilidades.FALHA}%`;
+
+      document.getElementById("bar-ok").style.width = `${d.probabilidades.OK}%`;
+      document.getElementById("bar-risco").style.width = `${d.probabilidades.RISCO}%`;
+      document.getElementById("bar-falha").style.width = `${d.probabilidades.FALHA}%`;
+
+      // Features
+      document.getElementById("res-z").textContent = d.z_robusto;
+      document.getElementById("res-aumento").textContent = `${d.aumento_pct}%`;
+      document.getElementById("res-jitter-rel").textContent = `${d.jitter_relativo}x`;
+      document.getElementById("res-latencia").textContent = `${d.latencia_ms} ms`;
+    }
+
+    async function coletarDadosRIPE() {
+      const btn = document.getElementById("btn-ripe");
+      btn.disabled = true;
+      btn.textContent = "⏳ Consultando API da RIPE Atlas...";
+
+      try {
+        const res = await fetch("/api/coletar_ripe_ao_vivo", { method: "POST" });
+        const data = await res.json();
+        
+        const tbody = document.getElementById("tbl-ripe-corpo");
+        tbody.innerHTML = "";
+
+        if (!data.diagnosticos || data.diagnosticos.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhuma medição encontrada para as nossas sondas nesta janela.</td></tr>`;
+          return;
+        }
+
+        data.diagnosticos.forEach(d => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><strong>${d.probe_id}</strong> ➔ ${d.dst_addr.substring(0, 16)}...</td>
+            <td>${d.rtt_ms} ms</td>
+            <td>${d.z_robusto}</td>
+            <td><span class="badge-mini mini-${d.classe}">${d.classe}</span></td>
+            <td>${d.confianca_pct}%</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        alert("Erro ao consultar a API da RIPE: " + e);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "📡 Consultar API RIPE Atlas ao Vivo";
+      }
+    }
+
+    window.onload = inicializar;
+  </script>
+
+</body>
+</html>

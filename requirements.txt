@@ -1,4 +1,17 @@
-requests
-pandas
-pyyaml
-jupyter
+# Manipulação de dados e computação científica
+pandas>=2.0.0
+numpy>=1.24.0
+pyyaml>=6.0
+
+# Machine Learning e Serialização
+scikit-learn>=1.3.0
+xgboost>=2.0.0
+joblib>=1.3.0
+
+# API e Dashboard Operacional (NOC)
+flask>=3.0.0
+requests>=2.31.0
+
+# Notebooks e visualização
+jupyter>=1.0.0
+matplotlib>=3.7.0
