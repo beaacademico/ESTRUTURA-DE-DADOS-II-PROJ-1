@@ -1,0 +1,1198 @@
+{
+  "projeto": "CypherNet: Vigia de Redes",
+  "grupo": "Grupo 05",
+  "integrantes": [
+    {
+      "nome": "Beatriz Gonçalves da Silva",
+      "ra": "2400909"
+    },
+    {
+      "nome": "Breno Brasil de Souza",
+      "ra": "2401483"
+    },
+    {
+      "nome": "Enzo Moraes Sousa",
+      "ra": "2401685"
+    },
+    {
+      "nome": "Natsumi Goto",
+      "ra": "2401999"
+    },
+    {
+      "nome": "Pedro Viana da Silva",
+      "ra": "2400956"
+    },
+    {
+      "nome": "Vitória Alessandra das Neves",
+      "ra": "2401781"
+    }
+  ],
+  "1_identificacao_modelo": {
+    "nome_modelo": "CypherNet DecisionTree Classifier (Profundidade 7)",
+    "familia": "arvore_decisao",
+    "classe_python": "sklearn.tree.DecisionTreeClassifier",
+    "versao_modelo": "2.0.0",
+    "data_geracao": "2026-11-04T14:28:54Z",
+    "arquivo_serializado": "modelo.joblib",
+    "formato_serializacao": "joblib (dict contendo chaves 'modelo', 'features', 'familia', 'params')",
+    "sha256_modelo_joblib": "7b2adb789fbe119ef36f08a87e3cbe3d53016aa77614063adb63dd0b5807cd7c",
+    "sha256_baseline_csv": "e359eaa9a34a5fae948197397b67215850d8e9d59e6fce90955ecaf2c22c9d3f",
+    "justificativa_escolha": "A Árvore de Decisão (max_depth=7, 15 folhas no modo diagnóstico T=0 e max_depth=6 no modo proativo T+1) foi selecionada como modelo principal por oferecer interpretabilidade total (regras if-then auditáveis por operadores NOC), latência de inferência sub-milissegundo (~0.25 ms), suporte nativo a valores ausentes (NaN em timeouts ICMP no scikit-learn >= 1.4) e desempenho estatisticamente equivalente aos ensembles (Random Forest e XGBoost)."
+  },
+  "2_ambiente_software": {
+    "python_version": "3.14.6",
+    "scikit_learn_version": "1.9.1",
+    "xgboost_version": "3.4.1",
+    "pandas_version": "3.0.6",
+    "numpy_version": "2.5.3",
+    "joblib_version": "1.6.0",
+    "matplotlib_version": "3.11.2"
+  },
+  "3_atributos_entrada": {
+    "features_modo_diagnostico_t0": [
+      "z_robusto",
+      "aumento_pct",
+      "jitter_relativo",
+      "perda_pct",
+      "timeout_atual",
+      "n5_timeout",
+      "n5_aumento80",
+      "n5_risco"
+    ],
+    "features_modo_proativo_t1": [
+      "z_robusto",
+      "aumento_pct",
+      "jitter_relativo",
+      "perda_pct",
+      "timeout_atual",
+      "n5_timeout",
+      "n5_aumento80",
+      "n5_risco",
+      "z_max5",
+      "z_tendencia5",
+      "perda_media5"
+    ],
+    "descricao_detalhada": [
+      {
+        "ordem": 1,
+        "nome": "z_robusto",
+        "tipo": "float64 (admite NaN quando timeout_atual == 1)",
+        "unidade": "adimensional (escores Z robustos)",
+        "descricao": "Desvio da latência média (avg) em relação à mediana histórica do fluxo, escalado pelo MAD corrigido (1.4826 * MAD)."
+      },
+      {
+        "ordem": 2,
+        "nome": "aumento_pct",
+        "tipo": "float64 (admite NaN quando timeout_atual == 1)",
+        "unidade": "percentual (%)",
+        "descricao": "Variação percentual da latência atual em relação à mediana histórica da baseline do fluxo."
+      },
+      {
+        "ordem": 3,
+        "nome": "jitter_relativo",
+        "tipo": "float64 (admite NaN quando jitter é NaN)",
+        "unidade": "razão adimensional",
+        "descricao": "Razão entre o jitter observado na medição (max - min) e o jitter_tipico da baseline do fluxo."
+      },
+      {
+        "ordem": 4,
+        "nome": "perda_pct",
+        "tipo": "float64",
+        "unidade": "percentual (0.0 a 100.0)",
+        "descricao": "Percentual de pacotes ICMP perdidos na medição atual: ((sent - rcvd) / sent) * 100."
+      },
+      {
+        "ordem": 5,
+        "nome": "timeout_atual",
+        "tipo": "int64 (0 ou 1)",
+        "unidade": "binário",
+        "descricao": "Indicador de blackout/timeout severo na medição atual: 1 se rcvd == 0 ou avg is NaN, caso contrário 0."
+      },
+      {
+        "ordem": 6,
+        "nome": "n5_timeout",
+        "tipo": "float64 (0.0 a 5.0)",
+        "unidade": "contagem em janela",
+        "descricao": "Soma de ocorrências de timeout_atual nas últimas 5 medições consecutivas do mesmo fluxo (~20 min)."
+      },
+      {
+        "ordem": 7,
+        "nome": "n5_aumento80",
+        "tipo": "float64 (0.0 a 5.0)",
+        "unidade": "contagem em janela",
+        "descricao": "Quantidade de medições nas últimas 5 do mesmo fluxo em que aumento_pct >= 80%."
+      },
+      {
+        "ordem": 8,
+        "nome": "n5_risco",
+        "tipo": "float64 (0.0 a 5.0)",
+        "unidade": "contagem em janela",
+        "descricao": "Quantidade de medições nas últimas 5 do mesmo fluxo que apresentaram sinal pontual de risco (2 <= z_robusto < 3.5 ou 30 <= aumento_pct <= 80 ou jitter_relativo >= 3)."
+      },
+      {
+        "ordem": 9,
+        "nome": "z_max5",
+        "tipo": "float64 (usada no modo proativo T+1 / H3)",
+        "unidade": "adimensional",
+        "descricao": "Valor máximo de z_robusto observado nas últimas 5 medições do fluxo (preenchido com 0.0 se todas forem NaN)."
+      },
+      {
+        "ordem": 10,
+        "nome": "z_tendencia5",
+        "tipo": "float64 (usada no modo proativo T+1 / H3)",
+        "unidade": "adimensional",
+        "descricao": "Diferença entre o z_robusto atual e a média móvel de z_robusto nas últimas 5 medições (captura aceleração de degradação)."
+      },
+      {
+        "ordem": 11,
+        "nome": "perda_media5",
+        "tipo": "float64 (usada no modo proativo T+1 / H3)",
+        "unidade": "percentual (%)",
+        "descricao": "Média móvel de perda_pct nas últimas 5 medições do fluxo."
+      }
+    ]
+  },
+  "4_formulas_calculo_features": {
+    "fluxo_id": "f'{int(probe_id)}|{dst_addr}'",
+    "perda_pct": "((sent - rcvd) / sent) * 100.0 if sent > 0 else np.nan",
+    "jitter": "(max - min) if (rcvd > 0 and max is not None and min is not None) else np.nan",
+    "timeout_atual": "1 if (rcvd == 0 or pd.isna(avg)) else 0",
+    "z_robusto": "(avg - mediana) / (1.4826 * MAD) if MAD > 0 else (0.0 if avg == mediana else np.nan)",
+    "aumento_pct": "((avg - mediana) / mediana) * 100.0 if mediana > 0 else np.nan",
+    "jitter_relativo": "jitter / jitter_tipico if jitter_tipico > 0 else (1.0 if jitter == 0 else 3.0)",
+    "cond_risco_pontual": "1 if ((2.0 <= z_robusto < 3.5) or (30.0 <= aumento_pct <= 80.0) or (jitter_relativo >= 3.0)) else 0",
+    "cond_aumento80": "1 if (aumento_pct >= 80.0) else 0",
+    "n5_timeout": "rolling(window=5, min_periods=1).sum() de timeout_atual agrupado por fluxo_id",
+    "n5_aumento80": "rolling(window=5, min_periods=1).sum() de cond_aumento80 agrupado por fluxo_id",
+    "n5_risco": "rolling(window=5, min_periods=1).sum() de cond_risco_pontual agrupado por fluxo_id",
+    "z_max5": "rolling(window=5, min_periods=1).max() de z_robusto agrupado por fluxo_id (fillna(0.0))",
+    "z_tendencia5": "(z_robusto - rolling(window=5, min_periods=1).mean() de z_robusto).fillna(0.0)",
+    "perda_media5": "rolling(window=5, min_periods=1).mean() de perda_pct agrupado por fluxo_id (fillna(0.0))"
+  },
+  "5_tratamento_valores_ausentes_e_divisao_por_zero": {
+    "valores_ausentes_nan": "Quando ocorre perda total de pacotes (rcvd == 0, timeout_atual == 1), o RTT médio (avg) e o jitter não existem (NaN). Nesse caso, z_robusto, aumento_pct e jitter_relativo permanecem estritamente como np.nan (NUNCA são substituídos por 0 nem pela mediana, pois isso mascararia o blackout como latência normal). O DecisionTreeClassifier do scikit-learn >= 1.4 e o XGBoost aprendem nativamente o ramo ótimo para valores NaN durante o treinamento.",
+    "divisao_por_zero_mad": "Se MAD == 0 na baseline de um fluxo ultra-estável: retorna z_robusto = 0.0 quando avg == mediana, e np.nan quando avg != mediana.",
+    "divisao_por_zero_jitter_tipico": "Se jitter_tipico == 0 na baseline: retorna jitter_relativo = 1.0 quando jitter == 0 (comportamento idêntico ao basal), e jitter_relativo = 3.0 quando jitter > 0 (sinalizando anomalia de variação).",
+    "divisao_por_zero_mediana": "Validado na baseline que todas as 69 rotas possuem mediana > 0 ms."
+  },
+  "6_classes_saida": {
+    "ordem_classes": [
+      "OK",
+      "RISCO",
+      "FALHA"
+    ],
+    "mapeamento_inteiro_para_rotulo": {
+      "0": "OK",
+      "1": "RISCO",
+      "2": "FALHA"
+    },
+    "mapeamento_rotulo_para_inteiro": {
+      "OK": 0,
+      "RISCO": 1,
+      "FALHA": 2
+    },
+    "significado_operacional": {
+      "OK": "Operação normal do enlace; latência, jitter e perda dentro do comportamento histórico esperado da rota.",
+      "RISCO": "Degradação intermediária ou instabilidade persistente (elevação moderada de RTT/jitter, perda parcial ou acúmulo na janela móvel n5); requer atenção preventiva do NOC.",
+      "FALHA": "Indisponibilidade severa, timeout completo (blackout ICMP), perda crítica (>= 34%) ou anomalia extrema de latência (z_robusto >= 3.5 ou aumento_pct > 80% persistente)."
+    }
+  },
+  "7_horizonte_predicao": {
+    "intervalo_amostragem_mediano_segundos": 240,
+    "modos_suportados": {
+      "modo_principal_T0": {
+        "horizonte": "T=0 (Diagnóstico Instantâneo em Tempo Real)",
+        "descricao": "Classifica o estado operacional corrente do fluxo a partir das 8 features base sem utilizar o rótulo heurístico como entrada.",
+        "metricas_teste": {
+          "accuracy": 1.0,
+          "f1_macro": 1.0,
+          "f1_weighted": 1.0,
+          "por_classe": {
+            "OK": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "RISCO": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "FALHA": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              44916,
+              0,
+              0
+            ],
+            [
+              0,
+              4261,
+              0
+            ],
+            [
+              0,
+              0,
+              2972
+            ]
+          ]
+        }
+      },
+      "modo_proativo_T1": {
+        "horizonte": "T+1 (Previsão Proativa do próximo ciclo de medição, ~4 minutos à frente)",
+        "descricao": "Prediz o estado operacional futuro no instante t+1 usando apenas as 11 features observadas até o instante t (excluindo classe_atual de X, conforme notebook de referência da disciplina).",
+        "metricas_teste_arvore": {
+          "accuracy": 0.883775,
+          "f1_macro": 0.569926,
+          "f1_weighted": 0.860767,
+          "por_classe": {
+            "OK": {
+              "precision": 0.897553,
+              "recall": 0.982593,
+              "f1": 0.93815
+            },
+            "RISCO": {
+              "precision": 0.689703,
+              "recall": 0.234658,
+              "f1": 0.350175
+            },
+            "FALHA": {
+              "precision": 0.622442,
+              "recall": 0.318581,
+              "f1": 0.421453
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              44086,
+              323,
+              458
+            ],
+            [
+              3141,
+              998,
+              114
+            ],
+            [
+              1891,
+              126,
+              943
+            ]
+          ]
+        },
+        "metricas_teste_random_forest": {
+          "accuracy": 0.888018,
+          "f1_macro": 0.582361,
+          "f1_weighted": 0.865158,
+          "por_classe": {
+            "OK": {
+              "precision": 0.899374,
+              "recall": 0.985869,
+              "f1": 0.940637
+            },
+            "RISCO": {
+              "precision": 0.745401,
+              "recall": 0.238185,
+              "f1": 0.361012
+            },
+            "FALHA": {
+              "precision": 0.651072,
+              "recall": 0.338514,
+              "f1": 0.445432
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              44233,
+              228,
+              406
+            ],
+            [
+              3109,
+              1013,
+              131
+            ],
+            [
+              1840,
+              118,
+              1002
+            ]
+          ]
+        },
+        "metricas_teste_xgboost": {
+          "accuracy": 0.891436,
+          "f1_macro": 0.574819,
+          "f1_weighted": 0.865148,
+          "por_classe": {
+            "OK": {
+              "precision": 0.895717,
+              "recall": 0.993759,
+              "f1": 0.942195
+            },
+            "RISCO": {
+              "precision": 0.796163,
+              "recall": 0.234188,
+              "f1": 0.361919
+            },
+            "FALHA": {
+              "precision": 0.802093,
+              "recall": 0.284797,
+              "f1": 0.420344
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              44587,
+              140,
+              140
+            ],
+            [
+              3189,
+              996,
+              68
+            ],
+            [
+              2002,
+              115,
+              843
+            ]
+          ]
+        }
+      },
+      "modo_alerta_antecipado_H3": {
+        "horizonte": "T+1..T+3 (Pior estado nos próximos 3 ciclos, ~12 minutos à frente)",
+        "descricao": "Prediz a ocorrência de degradação (RISCO ou FALHA) na janela futura de 12 minutos.",
+        "metricas_teste_arvore": {
+          "accuracy": 0.727966,
+          "f1_macro": 0.511295,
+          "f1_weighted": 0.688765,
+          "por_classe": {
+            "OK": {
+              "precision": 0.757469,
+              "recall": 0.931798,
+              "f1": 0.835638
+            },
+            "RISCO": {
+              "precision": 0.479955,
+              "recall": 0.289891,
+              "f1": 0.361461
+            },
+            "FALHA": {
+              "precision": 0.726581,
+              "recall": 0.219194,
+              "f1": 0.336786
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              33746,
+              2198,
+              272
+            ],
+            [
+              5914,
+              2538,
+              303
+            ],
+            [
+              4891,
+              552,
+              1528
+            ]
+          ]
+        },
+        "metricas_teste_random_forest": {
+          "accuracy": 0.737746,
+          "f1_macro": 0.505798,
+          "f1_weighted": 0.689987,
+          "por_classe": {
+            "OK": {
+              "precision": 0.754109,
+              "recall": 0.957753,
+              "f1": 0.843818
+            },
+            "RISCO": {
+              "precision": 0.548456,
+              "recall": 0.233352,
+              "f1": 0.327404
+            },
+            "FALHA": {
+              "precision": 0.716344,
+              "recall": 0.228231,
+              "f1": 0.346171
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              34686,
+              1241,
+              289
+            ],
+            [
+              6371,
+              2043,
+              341
+            ],
+            [
+              4939,
+              441,
+              1591
+            ]
+          ]
+        }
+      }
+    }
+  },
+  "8_requisitos_historico_janela_movel": {
+    "tamanho_janela_medicoes": 5,
+    "duracao_aproximada_janela_minutos": 20,
+    "agrupamento": "Por fluxo_id (probe_id|dst_addr), ordenado cronologicamente por timestamp.",
+    "tratamento_inicio_de_serie_cold_start": "Utiliza rolling(window=5, min_periods=1), permitindo inferência imediata desde a 1ª medição (cold-start) e atingindo maturidade completa a partir da 5ª medição consecutiva do fluxo."
+  },
+  "9_regras_uso_baseline": {
+    "arquivo_baseline": "baseline.csv",
+    "chave_primaria": "fluxo_id (formato 'probe_id|dst_addr', ex.: '6251|193.0.0.164')",
+    "total_fluxos_cadastrados": 69,
+    "periodo_referencia_calculo": {
+      "inicio_utc": "2026-09-06T07:32:31Z",
+      "fim_utc": "2026-09-13T07:32:31Z",
+      "duracao_dias": 7
+    },
+    "criterios_validade_fluxo": {
+      "min_amostras_validas": 1500,
+      "prop_minima_resposta": 0.7,
+      "fluxos_validos_no_arquivo": 67
+    },
+    "politica_fluxo_desconhecido": "Se um fluxo_id não constar em baseline.csv, a API pode rejeitar com erro 404 explicativo ou, se solicitado modo fallback, estimar a baseline provisória com as primeiras medições válidas."
+  },
+  "10_importancia_features": {
+    "arvore_diagnostico_t0": {
+      "z_robusto": 0.506027,
+      "aumento_pct": 0.028307,
+      "jitter_relativo": 0.178645,
+      "perda_pct": 0.001979,
+      "timeout_atual": 0.0,
+      "n5_timeout": 0.0,
+      "n5_aumento80": 0.025757,
+      "n5_risco": 0.259285
+    },
+    "arvore_proativa_t1": {
+      "z_robusto": 0.064148,
+      "aumento_pct": 0.377165,
+      "jitter_relativo": 0.008671,
+      "perda_pct": 0.0,
+      "timeout_atual": 0.0,
+      "n5_timeout": 0.0,
+      "n5_aumento80": 0.081827,
+      "n5_risco": 0.231279,
+      "z_max5": 0.131332,
+      "z_tendencia5": 0.105578,
+      "perda_media5": 0.0
+    }
+  },
+  "11_exemplo_real_entrada_saida": {
+    "contexto_amostra": {
+      "fluxo_id": "6251|193.0.0.164",
+      "probe_id": 6251,
+      "dst_addr": "193.0.0.164",
+      "timestamp": 1789721093,
+      "avg_rtt_ms": 28.830828333333333,
+      "sent": 3,
+      "rcvd": 3
+    },
+    "entrada_features_t0": {
+      "z_robusto": 2.39934,
+      "aumento_pct": 2.071312,
+      "jitter_relativo": 1.333942,
+      "perda_pct": 0.0,
+      "timeout_atual": 0.0,
+      "n5_timeout": 0.0,
+      "n5_aumento80": 0.0,
+      "n5_risco": 2.0
+    },
+    "saida_modo_diagnostico_t0": {
+      "classe_inteiro": 1,
+      "classe_rotulo": "RISCO",
+      "probabilidades": {
+        "OK": 0.0,
+        "RISCO": 1.0,
+        "FALHA": 0.0
+      }
+    },
+    "saida_modo_proativo_t1_4min": {
+      "classe_inteiro": 0,
+      "classe_rotulo": "OK",
+      "probabilidades": {
+        "OK": 0.6511,
+        "RISCO": 0.21,
+        "FALHA": 0.139
+      }
+    }
+  },
+  "12_comparativo_completo_benchmarks": {
+    "modo_diagnostico_t0": {
+      "arvore_decisao_prof7": {
+        "validacao": {
+          "accuracy": 0.999971,
+          "f1_macro": 0.999933,
+          "f1_weighted": 0.999971,
+          "por_classe": {
+            "OK": {
+              "precision": 1.0,
+              "recall": 0.999966,
+              "f1": 0.999983
+            },
+            "RISCO": {
+              "precision": 0.99963,
+              "recall": 1.0,
+              "f1": 0.999815
+            },
+            "FALHA": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              29674,
+              1,
+              0
+            ],
+            [
+              0,
+              2701,
+              0
+            ],
+            [
+              0,
+              0,
+              2327
+            ]
+          ]
+        },
+        "teste": {
+          "accuracy": 1.0,
+          "f1_macro": 1.0,
+          "f1_weighted": 1.0,
+          "por_classe": {
+            "OK": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "RISCO": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "FALHA": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              44916,
+              0,
+              0
+            ],
+            [
+              0,
+              4261,
+              0
+            ],
+            [
+              0,
+              0,
+              2972
+            ]
+          ]
+        },
+        "profundidade_real": 7,
+        "n_folhas": 16
+      },
+      "random_forest": {
+        "validacao": {
+          "accuracy": 0.999827,
+          "f1_macro": 0.999586,
+          "f1_weighted": 0.999827,
+          "por_classe": {
+            "OK": {
+              "precision": 0.999966,
+              "recall": 0.999832,
+              "f1": 0.999899
+            },
+            "RISCO": {
+              "precision": 0.998152,
+              "recall": 1.0,
+              "f1": 0.999075
+            },
+            "FALHA": {
+              "precision": 1.0,
+              "recall": 0.99957,
+              "f1": 0.999785
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              29670,
+              5,
+              0
+            ],
+            [
+              0,
+              2701,
+              0
+            ],
+            [
+              1,
+              0,
+              2326
+            ]
+          ]
+        },
+        "teste": {
+          "accuracy": 0.999885,
+          "f1_macro": 0.999674,
+          "f1_weighted": 0.999885,
+          "por_classe": {
+            "OK": {
+              "precision": 0.999978,
+              "recall": 0.999911,
+              "f1": 0.999944
+            },
+            "RISCO": {
+              "precision": 0.998828,
+              "recall": 1.0,
+              "f1": 0.999414
+            },
+            "FALHA": {
+              "precision": 1.0,
+              "recall": 0.999327,
+              "f1": 0.999663
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              44912,
+              4,
+              0
+            ],
+            [
+              0,
+              4261,
+              0
+            ],
+            [
+              1,
+              1,
+              2970
+            ]
+          ]
+        }
+      },
+      "xgboost": {
+        "validacao": {
+          "accuracy": 0.998473,
+          "f1_macro": 0.995357,
+          "f1_weighted": 0.998476,
+          "por_classe": {
+            "OK": {
+              "precision": 0.999966,
+              "recall": 0.998753,
+              "f1": 0.999359
+            },
+            "RISCO": {
+              "precision": 0.990044,
+              "recall": 0.994076,
+              "f1": 0.992056
+            },
+            "FALHA": {
+              "precision": 0.989371,
+              "recall": 1.0,
+              "f1": 0.994657
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              29638,
+              27,
+              10
+            ],
+            [
+              1,
+              2685,
+              15
+            ],
+            [
+              0,
+              0,
+              2327
+            ]
+          ]
+        },
+        "teste": {
+          "accuracy": 0.998869,
+          "f1_macro": 0.995627,
+          "f1_weighted": 0.998871,
+          "por_classe": {
+            "OK": {
+              "precision": 1.0,
+              "recall": 0.999377,
+              "f1": 0.999688
+            },
+            "RISCO": {
+              "precision": 0.996467,
+              "recall": 0.992959,
+              "f1": 0.99471
+            },
+            "FALHA": {
+              "precision": 0.985406,
+              "recall": 0.999664,
+              "f1": 0.992484
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              44888,
+              14,
+              14
+            ],
+            [
+              0,
+              4231,
+              30
+            ],
+            [
+              0,
+              1,
+              2971
+            ]
+          ]
+        }
+      }
+    },
+    "modo_proativo_t1_4min": {
+      "arvore_decisao_proativa": {
+        "hiperparametros": {
+          "max_depth": 8,
+          "min_samples_leaf": 10,
+          "class_weight": "{0: 1.0, 1: 2.0, 2: 3.0}"
+        },
+        "profundidade_real": 8,
+        "n_folhas": 148,
+        "validacao": {
+          "accuracy": 0.879165,
+          "f1_macro": 0.578187,
+          "f1_weighted": 0.855782,
+          "por_classe": {
+            "OK": {
+              "precision": 0.893955,
+              "recall": 0.979233,
+              "f1": 0.934653
+            },
+            "RISCO": {
+              "precision": 0.567916,
+              "recall": 0.179829,
+              "f1": 0.273162
+            },
+            "FALHA": {
+              "precision": 0.719612,
+              "recall": 0.415411,
+              "f1": 0.526747
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              28999,
+              320,
+              295
+            ],
+            [
+              2131,
+              485,
+              81
+            ],
+            [
+              1309,
+              49,
+              965
+            ]
+          ]
+        },
+        "teste": {
+          "accuracy": 0.883775,
+          "f1_macro": 0.569926,
+          "f1_weighted": 0.860767,
+          "por_classe": {
+            "OK": {
+              "precision": 0.897553,
+              "recall": 0.982593,
+              "f1": 0.93815
+            },
+            "RISCO": {
+              "precision": 0.689703,
+              "recall": 0.234658,
+              "f1": 0.350175
+            },
+            "FALHA": {
+              "precision": 0.622442,
+              "recall": 0.318581,
+              "f1": 0.421453
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              44086,
+              323,
+              458
+            ],
+            [
+              3141,
+              998,
+              114
+            ],
+            [
+              1891,
+              126,
+              943
+            ]
+          ]
+        }
+      },
+      "random_forest_proativo": {
+        "hiperparametros": {
+          "max_depth": 10,
+          "class_weight": "{0: 1.0, 1: 2.0, 2: 3.0}"
+        },
+        "validacao": {
+          "accuracy": 0.882774,
+          "f1_macro": 0.587309,
+          "f1_weighted": 0.859117,
+          "por_classe": {
+            "OK": {
+              "precision": 0.895002,
+              "recall": 0.982103,
+              "f1": 0.936532
+            },
+            "RISCO": {
+              "precision": 0.607868,
+              "recall": 0.177605,
+              "f1": 0.274892
+            },
+            "FALHA": {
+              "precision": 0.748889,
+              "recall": 0.435213,
+              "f1": 0.550504
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              29084,
+              272,
+              258
+            ],
+            [
+              2137,
+              479,
+              81
+            ],
+            [
+              1275,
+              37,
+              1011
+            ]
+          ]
+        },
+        "teste": {
+          "accuracy": 0.888018,
+          "f1_macro": 0.582361,
+          "f1_weighted": 0.865158,
+          "por_classe": {
+            "OK": {
+              "precision": 0.899374,
+              "recall": 0.985869,
+              "f1": 0.940637
+            },
+            "RISCO": {
+              "precision": 0.745401,
+              "recall": 0.238185,
+              "f1": 0.361012
+            },
+            "FALHA": {
+              "precision": 0.651072,
+              "recall": 0.338514,
+              "f1": 0.445432
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              44233,
+              228,
+              406
+            ],
+            [
+              3109,
+              1013,
+              131
+            ],
+            [
+              1840,
+              118,
+              1002
+            ]
+          ]
+        }
+      },
+      "xgboost_proativo": {
+        "validacao": {
+          "accuracy": 0.884795,
+          "f1_macro": 0.578839,
+          "f1_weighted": 0.8578,
+          "por_classe": {
+            "OK": {
+              "precision": 0.890659,
+              "recall": 0.989127,
+              "f1": 0.937314
+            },
+            "RISCO": {
+              "precision": 0.626277,
+              "recall": 0.159066,
+              "f1": 0.253696
+            },
+            "FALHA": {
+              "precision": 0.869934,
+              "recall": 0.397331,
+              "f1": 0.545508
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              29292,
+              218,
+              104
+            ],
+            [
+              2234,
+              429,
+              34
+            ],
+            [
+              1362,
+              38,
+              923
+            ]
+          ]
+        },
+        "teste": {
+          "accuracy": 0.891436,
+          "f1_macro": 0.574819,
+          "f1_weighted": 0.865148,
+          "por_classe": {
+            "OK": {
+              "precision": 0.895717,
+              "recall": 0.993759,
+              "f1": 0.942195
+            },
+            "RISCO": {
+              "precision": 0.796163,
+              "recall": 0.234188,
+              "f1": 0.361919
+            },
+            "FALHA": {
+              "precision": 0.802093,
+              "recall": 0.284797,
+              "f1": 0.420344
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              44587,
+              140,
+              140
+            ],
+            [
+              3189,
+              996,
+              68
+            ],
+            [
+              2002,
+              115,
+              843
+            ]
+          ]
+        }
+      }
+    },
+    "modo_alerta_antecipado_h3_12min": {
+      "arvore_decisao_h3_12min": {
+        "validacao": {
+          "accuracy": 0.726171,
+          "f1_macro": 0.52433,
+          "f1_weighted": 0.686375,
+          "por_classe": {
+            "OK": {
+              "precision": 0.747598,
+              "recall": 0.936637,
+              "f1": 0.831508
+            },
+            "RISCO": {
+              "precision": 0.498729,
+              "recall": 0.268055,
+              "f1": 0.348695
+            },
+            "FALHA": {
+              "precision": 0.773831,
+              "recall": 0.26319,
+              "f1": 0.392787
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              22173,
+              1299,
+              201
+            ],
+            [
+              4106,
+              1570,
+              181
+            ],
+            [
+              3380,
+              279,
+              1307
+            ]
+          ]
+        },
+        "teste": {
+          "accuracy": 0.727966,
+          "f1_macro": 0.511295,
+          "f1_weighted": 0.688765,
+          "por_classe": {
+            "OK": {
+              "precision": 0.757469,
+              "recall": 0.931798,
+              "f1": 0.835638
+            },
+            "RISCO": {
+              "precision": 0.479955,
+              "recall": 0.289891,
+              "f1": 0.361461
+            },
+            "FALHA": {
+              "precision": 0.726581,
+              "recall": 0.219194,
+              "f1": 0.336786
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              33746,
+              2198,
+              272
+            ],
+            [
+              5914,
+              2538,
+              303
+            ],
+            [
+              4891,
+              552,
+              1528
+            ]
+          ]
+        }
+      },
+      "random_forest_h3_12min": {
+        "validacao": {
+          "accuracy": 0.735708,
+          "f1_macro": 0.526424,
+          "f1_weighted": 0.691057,
+          "por_classe": {
+            "OK": {
+              "precision": 0.748304,
+              "recall": 0.955223,
+              "f1": 0.839197
+            },
+            "RISCO": {
+              "precision": 0.564792,
+              "recall": 0.23664,
+              "f1": 0.333534
+            },
+            "FALHA": {
+              "precision": 0.756994,
+              "recall": 0.27789,
+              "f1": 0.40654
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              22613,
+              845,
+              215
+            ],
+            [
+              4243,
+              1386,
+              228
+            ],
+            [
+              3363,
+              223,
+              1380
+            ]
+          ]
+        },
+        "teste": {
+          "accuracy": 0.737746,
+          "f1_macro": 0.505798,
+          "f1_weighted": 0.689987,
+          "por_classe": {
+            "OK": {
+              "precision": 0.754109,
+              "recall": 0.957753,
+              "f1": 0.843818
+            },
+            "RISCO": {
+              "precision": 0.548456,
+              "recall": 0.233352,
+              "f1": 0.327404
+            },
+            "FALHA": {
+              "precision": 0.716344,
+              "recall": 0.228231,
+              "f1": 0.346171
+            }
+          },
+          "matriz_confusao_3x3": [
+            [
+              34686,
+              1241,
+              289
+            ],
+            [
+              6371,
+              2043,
+              341
+            ],
+            [
+              4939,
+              441,
+              1591
+            ]
+          ]
+        }
+      }
+    }
+  }
+}

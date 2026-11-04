@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NOC Inteligente · Preditor de Degradação de Rede</title>
+  <title>CypherNet: Vigia de Redes · NOC Inteligente</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -233,12 +233,13 @@
       <div class="brand">
         <div class="brand-logo">⌁</div>
         <div>
-          <h1>NOC Inteligente · Monitor de Redes</h1>
-          <p>Motor de Predição em Tempo Real com XGBoost Campeão (372 KB) & RIPE Atlas</p>
+          <h1>CypherNet: Vigia de Redes · NOC Inteligente</h1>
+          <p>Motor de Diagnóstico (T=0) e Previsão Proativa (T+1 / +4 min) com Árvore de Decisão (Profundidade 7) & RIPE Atlas</p>
           <p style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:3px;">
             SHA-256: <span style="color:var(--cyan)">{{ modelo_sha256[:16] }}...</span> · 
             <a href="/api/saude" target="_blank" style="color:var(--green); text-decoration:none;">[Healthcheck]</a> · 
-            <a href="/api/modelo" target="_blank" style="color:var(--blue); text-decoration:none;">[Metadados API]</a>
+            <a href="/api/modelo" target="_blank" style="color:var(--blue); text-decoration:none;">[Metadados API]</a> · 
+            <a href="/api/previsoes" target="_blank" style="color:var(--amber); text-decoration:none;">[Histórico Previsões]</a>
           </p>
         </div>
       </div>
@@ -256,19 +257,19 @@
         <div class="stat-desc">Anchoring Mesh Global</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Modelo Serializado</div>
-        <div class="stat-val" style="color:var(--cyan)">XGBoost</div>
-        <div class="stat-desc">100 estimadores · 372 KB</div>
+        <div class="stat-label">Modelo Canônico</div>
+        <div class="stat-val" style="color:var(--cyan)">Árvore (d=7)</div>
+        <div class="stat-desc">16 folhas · T=0 & T+1 (+4 min)</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Latência de Inferência</div>
-        <div class="stat-val" id="stat-latencia" style="color:var(--green)">0.08 ms</div>
+        <div class="stat-val" id="stat-latencia" style="color:var(--green)">0.15 ms</div>
         <div class="stat-desc">Tempo de CPU por predição</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Atributos Relativos</div>
-        <div class="stat-val" style="color:var(--blue)">8 Features</div>
-        <div class="stat-desc">Z-score, Jitter, Janelas móveis</div>
+        <div class="stat-label">Atributos de Engenharia</div>
+        <div class="stat-val" style="color:var(--blue)">8 + 3 Features</div>
+        <div class="stat-desc">Z-Robusto (1.4826·MAD) + Tendência n5</div>
       </div>
     </div>
 
@@ -352,6 +353,8 @@
             <div class="feat-item"><span>Aumento Relativo:</span> <strong id="res-aumento">0.0%</strong></div>
             <div class="feat-item"><span>Jitter Relativo:</span> <strong id="res-jitter-rel">1.0x</strong></div>
             <div class="feat-item"><span>Tempo Inferência:</span> <strong id="res-latencia">0.05 ms</strong></div>
+            <div class="feat-item"><span>Previsão T+1 (+4m):</span> <strong id="res-t1">OK</strong></div>
+            <div class="feat-item"><span>Alerta H3 (+12m):</span> <strong id="res-h3">OK</strong></div>
           </div>
         </div>
 
@@ -503,9 +506,15 @@
 
       // Features
       document.getElementById("res-z").textContent = d.z_robusto;
-      document.getElementById("res-aumento").textContent = `${d.aumento_pct}%`;
-      document.getElementById("res-jitter-rel").textContent = `${d.jitter_relativo}x`;
+      document.getElementById("res-aumento").textContent = d.aumento_pct === "NaN" ? "NaN" : `${d.aumento_pct}%`;
+      document.getElementById("res-jitter-rel").textContent = d.jitter_relativo === "NaN" ? "NaN" : `${d.jitter_relativo}x`;
       document.getElementById("res-latencia").textContent = `${d.latencia_ms} ms`;
+      if (d.predicao_proativa_t1) {
+        document.getElementById("res-t1").textContent = `${d.predicao_proativa_t1.classe} (${d.predicao_proativa_t1.confianca_pct}%)`;
+      }
+      if (d.predicao_alerta_h3) {
+        document.getElementById("res-h3").textContent = `${d.predicao_alerta_h3.classe} (${d.predicao_alerta_h3.confianca_pct}%)`;
+      }
     }
 
     async function coletarDadosRIPE() {

@@ -1,110 +1,117 @@
-# 🌐 Preditor de Degradação de Redes com RTT Normalizado
+# 👁️‍🗨️ CypherNet: Vigia de Redes — Diagnóstico e Predição Proativa de Degradação com RIPE Atlas
 
-[![Status: Em Produção](https://img.shields.io/badge/Status-Produção%20%26%20Evolução-10b981.svg)](#)
-[![Modelo: XGBoost](https://img.shields.io/badge/Campeão-XGBoost%20(372%20KB)-00f2fe.svg)](#)
+[![Status: Em Produção](https://img.shields.io/badge/Status-Mostra%20de%20Tecnologia%202026-10b981.svg)](#)
+[![Modelo Principal: Árvore de Decisão](https://img.shields.io/badge/Modelo%20Canônico-Árvore%20de%20Decisão%20(Prof.%207)-00f2fe.svg)](#)
 [![Artigo Técnico](https://img.shields.io/badge/Artigo-GitHub%20Pages-blue.svg)](https://beaacademico.github.io/ESTRUTURA-DE-DADOS-II-PROJ-1/)
-[![Licença: Acadêmica](https://img.shields.io/badge/Disciplina-Estruturas%20de%20Dados%20II-orange.svg)](#)
+[![Página da Mostra](https://img.shields.io/badge/Feira-CypherNet%20Showcase-0f766e.svg)](https://beaacademico.github.io/ESTRUTURA-DE-DADOS-II-PROJ-1/feira/)
+[![Disciplina](https://img.shields.io/badge/Disciplina-Estruturas%20de%20Dados%20II%20(Grupo%2005)-orange.svg)](#)
 
-Sistema de observabilidade e Inteligência Artificial para classificação e predição de degradação em caminhos de rede geograficamente distribuídos, utilizando medições ativas do **RIPE Atlas (Anchoring Mesh)** e variáveis relativas adimensionais (Mediana e MAD).
+**CypherNet: Vigia de Redes** é um sistema de observabilidade e aprendizado de máquina para detecção em tempo real ($T=0$) e predição proativa ($T+1 = +4\text{ min}$ e $H3 = +12\text{ min}$) de degradação e falhas em enlaces de Internet geograficamente distribuídos, utilizando telemetria ativa do **RIPE Atlas (Anchoring Mesh, `msm_id=9333345`)** e normalização estatística robusta por fluxo (`Mediana` e `1.4826 * MAD`).
 
 ---
 
 ## 🎯 Objetivo do Projeto
 
-Detectar e antecipar falhas de rede nos estados **OK, RISCO e FALHA** sem recorrer a limiares absolutos de latência e sem aprender atalhos geográficos (como IPs, ASNs ou países). 
+Classificar e antecipar o estado operacional de rotas de rede em **OK, RISCO e FALHA** sem depender de limiares fixos de RTT em milissegundos e sem vazar variáveis de identidade topológica (como IP, ASN ou país).
 
-O sistema avalia cada rota contra a sua própria régua de normalidade histórica (Período A - 14 dias), isolando anomalias sutis conhecidas na literatura de engenharia de redes como **Gray Failures** (*falhas cinzentas e parciais que monitoramentos tradicionais não captam*).
+Cada fluxo (`probe_id|dst_addr`) é avaliado contra a sua própria **baseline histórica de 7 dias** (`06/09/2026` a `13/09/2026`), permitindo isolar tanto *blackouts* severos quanto degradações progressivas (*Gray Failures*) em **173.674 medições reais** de **69 rotas globais**.
 
 ---
 
-## 🏗️ Arquitetura Reorganizada do Repositório
+## 🏗️ Arquitetura do Repositório
 
 ```text
 ESTRUTURA-DE-DADOS-II-PROJ-1/
-├── config/                      # Configurações de coleta e parâmetros (config.yaml)
-├── data/                        # Esteira de dados segregada
-│   ├── raw/                     # Medições brutas JSON do RIPE Atlas (Períodos A e B)
-│   ├── interim/                 # Tabelas intermediárias processadas
-│   └── processed/               # Baseline histórica (Mediana/MAD) e Dataset Rotulado Split
-├── notebooks/                   # Pipeline completo de Ciência de Dados
-│   ├── 01_coleta_bruta.ipynb    # Ingestão via API RIPE Atlas
-│   ├── 02_baseline_rotulagem.ipynb # Engenharia de features e split temporal 50/20/30
-│   ├── 03_arvore_inicial.ipynb  # Árvore inicial rasa (max_depth=4)
-│   └── 04_comparacao_modelos.ipynb # GridSearchCV, Random Forest vs XGBoost
-├── producao/                    # Ambiente operacional de microsserviço
-│   ├── modelo/                  # Artefato serializado oficial (modelo_final.joblib - 372 KB)
-│   └── app/                     # Servidor de Produção REST & Dashboard NOC
-│       ├── server.py            # Backend Flask com SHA-256 e endpoints /api/saude
-│       └── templates/index.html # Frontend visual de monitoramento interativo
-├── scripts/                     # Scripts de teste, estresse e validação ao vivo
-│   ├── 01_teste_estresse_ruido.py      # Injeção de ruído e simulação de Data Drift
-│   ├── 02_simulador_producao_tempo_real.py # Streaming com buffer circular de janelas
-│   └── 03_teste_dados_reais_hoje.py    # Validação ao vivo consultando a API do RIPE
-├── docs/                        # Documentação técnica e publicação
-│   ├── index.html               # Artigo Técnico Web publicado no GitHub Pages
-│   ├── PLANO_DE_MELHORIAS_PROJETO.md # Plano de evolução e auditoria pós-apresentação
-│   └── GUIA_APRESENTACAO_BRENO.md    # Roteiro técnico e defesa metodológica
-├── tarefas/                     # Relatórios das entregas parciais (Tarefas 1 a 6)
-├── legado/                      # Histórico da Fase 1 do projeto
-└── requirements.txt             # Dependências padronizadas do ecossistema
+├── src/cyphernet/               # Fonte única da verdade (Engenharia de Features e Janela Móvel)
+│   ├── __init__.py
+│   └── features.py              # Fórmulas exatas (1.4826*MAD, preservação de NaN, JanelaFluxo)
+├── dist/                        # Pacote Canônico para submissão no Blackboard
+│   ├── Grupo05/                 # modelo.joblib, metadados.json e baseline.csv
+│   └── Grupo05.zip              # Arquivo ZIP validado pronto para entrega (27.9 KB)
+├── producao/                    # Microsserviço REST & Dashboard Operacional NOC
+│   ├── modelo/                  # Artefatos ativos em produção (modelo_final.joblib, metadados.json, baseline.csv)
+│   └── app/
+│       ├── server.py            # API Flask (/api/saude, /api/modelo, /api/previsoes, /api/diagnosticar)
+│       └── templates/index.html # Painel interativo com simulador T=0 / T+1 e stream RIPE Atlas ao vivo
+├── feira/                       # Página oficial da Mostra de Tecnologia (CypherNet Showcase)
+│   └── index.html               # Relatório interativo e simulador publicado no GitHub Pages
+├── docs/                        # Documentação técnica, artigo web e guias de defesa
+│   ├── index.html               # Artigo Técnico completo
+│   ├── logo_nomedoprojeto.png   # Logotipo oficial 500x500 px (CypherNet: Vigia de Redes)
+│   ├── INSTRUCOES_INSCRICAO_BLACKBOARD.md # Textos oficiais de inscrição na Mostra
+│   └── GUIA_ARGUICAO_INDIVIDUAL_05_11.md  # Guia completo para a arguição individual (05/11)
+├── scripts/                     # Automação de treino, auditoria de paridade e testes de estresse
+│   ├── validar_paridade_features.py       # Verifica 0 divergências nas 173.674 linhas do dataset
+│   ├── treinar_e_empacotar_blackboard.py  # Treina modelos T=0, T+1 e H3 e gera dist/Grupo05.zip
+│   ├── validar_entrega_blackboard_e_api.py# Suite de testes end-to-end do ZIP e das rotas Flask
+│   ├── 01_teste_estresse_ruido.py         # Simulação de Data Drift (ruído estocástico)
+│   ├── 02_simulador_producao_tempo_real.py# Streaming com buffer circular de janelas
+│   └── 03_teste_dados_reais_hoje.py       # Consulta ao vivo à API global do RIPE Atlas
+├── notebooks/                   # Notebooks do pipeline (Coleta, Baseline, Árvore e Comparativo)
+├── data/processed/              # Dataset rotulado com split temporal 50/20/30 e baseline por fluxo
+└── requirements.txt             # Dependências padronizadas do projeto
 ```
 
 ---
 
-## ⚡ Como Executar em Modo Produção
+## 📊 Resultados Experimentais: Diagnóstico ($T=0$) vs. Horizonte Proativo ($T+1$ e $H3$)
+
+Avaliação sobre o conjunto de **Teste Temporal (52.149 medições)**, comparando a **Árvore de Decisão** (modelo principal recomendado pela transparência de suas regras `SE-ENTÃO`) com **Random Forest** e **XGBoost**:
+
+| Modo Operacional | Modelo | Accuracy (Teste) | F1 Macro (Validação) | F1 Macro (Teste) | Recall `FALHA` (Teste) |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **$T=0$ (Diagnóstico Instantâneo — 8 features)** | **Árvore de Decisão (`d=7`, 16 folhas)** | **100,00%** | **0,9999** | **1,0000** | **100,00%** |
+| $T=0$ (Diagnóstico Instantâneo — 8 features) | Random Forest (`100` árvores, `d=7`) | 99,99% | 0,9996 | 0,9997 | 99,93% |
+| $T=0$ (Diagnóstico Instantâneo — 8 features) | XGBoost (`100` árvores, `d=4`) | 99,90% | 0,9954 | 0,9956 | 99,87% |
+| **$T+1$ (Previsão Proativa +4 min — 11 features)** | **Árvore Proativa (`d=8`, pesos `1:2:3`)** | **88,38%** | **0,5782** | **0,5699** | **31,86%** |
+| $T+1$ (Previsão Proativa +4 min — 11 features) | Random Forest Proativo (`d=10`, pesos `1:2:3`) | 88,80% | 0,5873 | 0,5824 | 33,85% |
+| $T+1$ (Previsão Proativa +4 min — 11 features) | XGBoost Proativo (`d=5`, `lr=0.05`) | 89,14% | 0,5788 | 0,5748 | 28,48% |
+| **$H3$ (Alerta Antecipado +12 min — 11 features)** | **Árvore Alerta (`d=7`, pesos `1:1.5:2`)** | **72,80%** | **0,5243** | **0,5113** | **21,92%** |
+
+---
+
+## ⚡ Como Executar e Validar
 
 ### 1. Instalar Dependências
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Iniciar o Dashboard Operacional (NOC Telecom)
-Inicia o servidor de microsserviço na porta `5000` com endpoints REST, healthcheck e playground de diagnóstico:
+### 2. Iniciar o Servidor Flask e Dashboard Operacional NOC
 ```bash
 python producao/app/server.py
 ```
 Acesse no navegador: **`http://127.0.0.1:5000`**
+* Endpoints REST disponíveis:
+  * `GET /api/saude` — *Healthcheck* e verificação SHA-256 do modelo
+  * `GET /api/modelo` — Metadados de governança e atributos do pacote `modelo.joblib`
+  * `GET /api/fluxos` — Catálogo das 69 rotas e baselines históricas
+  * `POST /api/diagnosticar` — Diagnóstico instantâneo ($T=0$) + previsão proativa ($T+1$ e $H3$)
+  * `POST /api/previsoes` e `GET /api/previsoes` — Contrato OpenAPI canônico do Edital Final (suporta envio unitário ou em lote e consulta ao histórico de previsões)
+  * `POST /api/coletar_ripe_ao_vivo` — Coleta e classificação ao vivo da API do RIPE Atlas
 
-### 3. Rodar os Scripts de Validação e Estresse
-* **Simulação de Data Drift (Ruído de 0% a 50%):**
-  ```bash
-  python scripts/01_teste_estresse_ruido.py
-  ```
-* **Simulador de Streaming em Tempo Real (Buffer de Janelas):**
-  ```bash
-  python scripts/02_simulador_producao_tempo_real.py
-  ```
-* **Teste com Dados Vivos da API do RIPE Atlas Hoje:**
-  ```bash
-  python scripts/03_teste_dados_reais_hoje.py
-  ```
+### 3. Executar a Suite de Auditoria e Validação Automatizada
+```bash
+# Verifica 100% de paridade matemática das features nas 173.674 linhas do dataset
+python scripts/validar_paridade_features.py
 
----
-
-## 📊 Governança e Rastreabilidade de Modelo
-
-| Elemento | Especificação de Produção |
-| :--- | :--- |
-| **Algoritmo Campeão** | **XGBoost Classifier** (100 estimadores, regularizado) |
-| **Tamanho em Disco** | **~372 KB** (`modelo_final.joblib`) |
-| **Latência de Inferência** | **< 0,1 milissegundos** por amostra |
-| **Variáveis de Entrada** | **8 métricas relativas adimensionais** (sem IP, país ou RTT absoluto) |
-| **Integridade Criptográfica**| Hash SHA-256 verificado dinamicamente no boot da API |
-| **Healthcheck** | Endpoint `GET /api/saude` (Liveness probe Cloud-Native) |
+# Valida o pacote dist/Grupo05.zip (descompactação isolada + NaN nativo) e todos os endpoints da API
+python scripts/validar_entrega_blackboard_e_api.py
+```
 
 ---
 
-## 👥 Equipe (Grupo 5)
+## 👥 Equipe — Grupo 05
 
-| Integrante | Papel Técnico no Projeto |
-| :--- | :--- |
-| **Breno Brasil de Souza** | **Scrum Master**: Ajuste da Árvore pelo Erro (Tarefa 4), Pipeline de Reprodutibilidade, Backend Flask e MLOps. |
-| **Beatriz Gonçalves da Silva** | **Analista**: Parametrização de janelas (14 dias), Redação da Tarefa 6 e Deploy no GitHub Pages. |
-| **Enzo Moraes Sousa** | **QA**: Auditoria do dataset, validação de integridade e relatórios de métricas comparativas. |
-| **Natsumi Goto** | **Desenvolvedora**: Ingestão e requisições HTTP fatiadas para a API do RIPE Atlas (Períodos A e B). |
-| **Pedro Viana da Silva** | **Engenheiro de Dados**: Extração de métricas relativas, cálculo de jitter e geração dos DataFrames. |
-| **Vitória Alessandra das Neves** | **Analista de Redes**: Mapeamento da Anchoring Mesh (rotas curtas e longas) e Baseline (Tarefa 2). |
+| Integrante | RA | Papel Técnico no Projeto |
+| :--- | :---: | :--- |
+| **Beatriz Gonçalves da Silva** | 2400909 | Parametrização de janelas, documentação científica e publicação GitHub Pages. |
+| **Breno Brasil de Souza** | 2401483 | **Scrum Master**: Modelagem preditiva, engenharia MLOps, API Flask e empacotamento Blackboard. |
+| **Enzo Moraes Sousa** | 2401685 | **QA**: Auditoria estatística do dataset, validação de paridade e métricas comparativas. |
+| **Natsumi Goto** | 2401999 | Coleta fatiada RIPE Atlas, análise de árvore de decisão e desenvolvimento da página da Mostra (`feira/`). |
+| **Pedro Viana da Silva** | 2400956 | Engenharia de atributos relativos, cálculo de jitter/perda e estruturação dos DataFrames. |
+| **Vitória Alessandra das Neves** | 2401781 | Mapeamento da Anchoring Mesh, análise de rotas e construção da baseline histórica. |
 
 ---
 
-*Para consultar os planos de expansão do modelo com horizonte preditivo (Lead Time de 15 min) e aprendizado sensível a custo, veja [docs/PLANO_DE_MELHORIAS_PROJETO.md](docs/PLANO_DE_MELHORIAS_PROJETO.md).*
+📖 **Preparação para a Arguição Individual (05/11):** consulte [`docs/GUIA_ARGUICAO_INDIVIDUAL_05_11.md`](docs/GUIA_ARGUICAO_INDIVIDUAL_05_11.md).
