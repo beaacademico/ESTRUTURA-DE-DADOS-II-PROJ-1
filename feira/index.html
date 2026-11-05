@@ -2146,6 +2146,409 @@ a {
 }
 </style>
 
+
+<style id="cyphernet-learning-sections">
+.learning-section,
+.training-section {
+  scroll-margin-top: 72px;
+}
+
+.model-explain-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin-top: 30px;
+  background: var(--line-dark);
+  border: 1px solid var(--line-dark);
+}
+
+.model-explain-card {
+  min-width: 0;
+  padding: 28px;
+  background: var(--surface);
+}
+
+.model-explain-card.featured-model {
+  background: #e7f8fa;
+}
+
+.model-explain-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.model-number {
+  color: var(--accent-dark);
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+
+.model-type {
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.model-explain-card h3 {
+  margin: 0 0 14px;
+  color: var(--navy);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.45rem;
+}
+
+.model-explain-card p {
+  margin: 0;
+}
+
+.model-note {
+  margin-top: 20px !important;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: .92rem;
+}
+
+.mini-flow {
+  margin-top: 22px;
+  min-height: 86px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.58);
+  font: .78rem/1.4 Arial, Helvetica, sans-serif;
+}
+
+.tree-flow {
+  text-align: center;
+}
+
+.mini-node {
+  display: inline-block;
+  padding: 7px 12px;
+  border: 1px solid #70c8cf;
+  color: var(--navy);
+  font-weight: 700;
+}
+
+.mini-branches {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 13px;
+  color: var(--muted);
+}
+
+.forest-flow,
+.boosting-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.forest-flow span,
+.boosting-flow span {
+  padding: 7px 9px;
+  border: 1px solid var(--line-dark);
+  background: var(--surface-2);
+  color: var(--navy);
+  font-weight: 700;
+}
+
+.forest-flow strong,
+.boosting-flow b {
+  color: var(--accent-dark);
+}
+
+.training-section {
+  background: var(--paper-2);
+}
+
+.training-shell {
+  width: min(960px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.training-steps {
+  margin-top: 32px;
+  border-top: 1px solid var(--line-dark);
+}
+
+.training-step {
+  display: grid;
+  grid-template-columns: 62px 1fr;
+  gap: 22px;
+  padding: 27px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.training-index {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: var(--navy);
+  color: var(--accent);
+  font: 800 1rem/1 Arial, Helvetica, sans-serif;
+}
+
+.training-step h3 {
+  margin: 0 0 9px;
+  color: var(--navy);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.3rem;
+}
+
+.training-step p {
+  margin: 0;
+}
+
+.training-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.training-features code {
+  padding: 5px 8px;
+  border: 1px solid #a9d8dc;
+  background: #f8ffff;
+  color: #075f6a;
+  font-size: .82rem;
+}
+
+.depth-strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  max-width: 460px;
+  margin-top: 18px;
+  border: 1px solid var(--line-dark);
+}
+
+.depth-strip span {
+  padding: 11px 8px;
+  border-right: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  font: 700 .9rem/1 Arial, Helvetica, sans-serif;
+  text-align: center;
+}
+
+.depth-strip span:last-child {
+  border-right: 0;
+}
+
+.depth-strip .best-depth {
+  background: var(--navy);
+  color: var(--accent);
+}
+
+.training-caveat {
+  margin-top: 14px !important;
+  color: var(--muted);
+  font-size: .88rem;
+}
+
+.training-result {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin: 15px 0 17px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.training-result div {
+  padding: 15px;
+  background: var(--surface);
+}
+
+.training-result strong {
+  display: block;
+  color: var(--navy);
+  font: 800 .95rem/1.3 Arial, Helvetica, sans-serif;
+}
+
+.training-result span {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font: .76rem/1.35 Arial, Helvetica, sans-serif;
+}
+
+.training-summary {
+  display: flex;
+  gap: 16px;
+  margin-top: 28px;
+  padding: 18px 20px;
+  border-left: 4px solid var(--accent);
+  background: var(--navy);
+  color: #d9e7ed;
+}
+
+.training-summary strong {
+  flex: 0 0 auto;
+  color: #fff;
+}
+
+@media (max-width: 900px) {
+  .model-explain-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .training-result {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .training-shell {
+    width: min(100% - 28px, 960px);
+  }
+
+  .training-step {
+    grid-template-columns: 42px 1fr;
+    gap: 14px;
+  }
+
+  .training-index {
+    width: 36px;
+    height: 36px;
+  }
+
+  .depth-strip {
+    grid-template-columns: repeat(5, minmax(0,1fr));
+  }
+
+  .training-summary {
+    display: block;
+  }
+
+  .training-summary span {
+    display: block;
+    margin-top: 7px;
+  }
+}
+</style>
+
+
+<style id="cyphernet-diagrams-and-results">
+/* Model diagrams */
+.decision-tree-diagram,
+.forest-diagram,
+.boost-diagram {
+  margin-top: 22px;
+  min-height: 132px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.66);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.decision-tree-diagram { text-align:center; }
+.tree-root {
+  display:inline-block;
+  padding:8px 12px;
+  border:1px solid var(--accent-dark);
+  background:var(--surface-2);
+  color:var(--navy);
+  font-weight:800;
+  font-size:.82rem;
+}
+.tree-split-lines { position:relative; height:30px; max-width:220px; margin:0 auto; }
+.tree-split-lines::before { content:""; position:absolute; top:0; left:50%; height:13px; border-left:1px solid var(--line-dark); }
+.tree-split-lines i { position:absolute; top:13px; width:50%; border-top:1px solid var(--line-dark); }
+.tree-split-lines i:first-child { right:50%; transform:skewY(-14deg); transform-origin:right top; }
+.tree-split-lines i:last-child { left:50%; transform:skewY(14deg); transform-origin:left top; }
+.tree-children { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.tree-children span,
+.forest-trees span,
+.forest-votes span,
+.boost-diagram > span {
+  padding:7px 8px;
+  border:1px solid var(--line-dark);
+  background:var(--surface-2);
+  color:var(--navy);
+  font-size:.76rem;
+  font-weight:700;
+}
+.state-ok { color:#128253 !important; border-color:#76c7a2 !important; }
+.state-risk { color:#9b6a00 !important; border-color:#deb95f !important; }
+.forest-trees, .forest-votes { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+.diagram-arrow { margin:7px 0; text-align:center; color:var(--muted); }
+.forest-final { display:block; padding:8px; text-align:center; background:var(--navy); color:#fff; font-size:.8rem; }
+.boost-diagram { display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:8px; }
+.boost-diagram b { color:var(--accent-dark); }
+.boost-diagram small { flex-basis:100%; margin-top:7px; color:var(--muted); text-align:center; }
+
+/* Bias / variance concept carried from the project study page */
+.bias-variance-box {
+  margin-top:36px;
+  padding:28px;
+  border:1px solid var(--line-dark);
+  background:var(--paper-2);
+}
+.bias-copy { max-width:760px; }
+.bias-copy h3 { margin:7px 0 12px; color:var(--navy); font-family:Georgia,"Times New Roman",serif; font-size:1.5rem; }
+.eyebrow-inline { display:inline-block; color:var(--accent-dark); font:800 .72rem/1 Arial,Helvetica,sans-serif; text-transform:uppercase; letter-spacing:.08em; }
+.bias-targets { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; margin-top:24px; background:var(--line-dark); border:1px solid var(--line-dark); }
+.bias-targets article { padding:20px; background:var(--surface); text-align:center; }
+.bias-targets h4 { margin:0 0 14px; color:var(--navy); font-size:.92rem; }
+.bias-targets p { margin:12px 0 0; color:var(--muted); font-size:.82rem; }
+.target { position:relative; width:118px; height:118px; margin:0 auto; border-radius:50%; border:1px solid var(--line-dark); background:radial-gradient(circle at center, transparent 0 18%, #cad9dd 19% 20%, transparent 21% 38%, #cad9dd 39% 40%, transparent 41% 59%, #cad9dd 60% 61%, transparent 62%); }
+.target::before,.target::after { content:""; position:absolute; background:#b9c9cd; }
+.target::before { left:50%; top:7px; bottom:7px; width:1px; }
+.target::after { top:50%; left:7px; right:7px; height:1px; }
+.target i { position:absolute; width:8px; height:8px; border-radius:50%; background:var(--accent-dark); box-shadow:0 0 0 2px rgba(8,221,234,.14); }
+.target-bias i:nth-child(1){left:72%;top:23%}.target-bias i:nth-child(2){left:78%;top:29%}.target-bias i:nth-child(3){left:68%;top:33%}.target-bias i:nth-child(4){left:75%;top:38%}.target-bias i:nth-child(5){left:64%;top:25%}
+.target-variance i:nth-child(1){left:20%;top:20%}.target-variance i:nth-child(2){left:72%;top:25%}.target-variance i:nth-child(3){left:28%;top:70%}.target-variance i:nth-child(4){left:67%;top:68%}.target-variance i:nth-child(5){left:48%;top:43%}
+.target-balanced i:nth-child(1){left:46%;top:43%}.target-balanced i:nth-child(2){left:52%;top:48%}.target-balanced i:nth-child(3){left:42%;top:51%}.target-balanced i:nth-child(4){left:49%;top:55%}.target-balanced i:nth-child(5){left:55%;top:42%}
+.diagram-caption { margin:18px 0 0; color:var(--muted); font-size:.82rem; }
+
+/* Training details */
+.depth-strip .best-depth small { display:block; margin-top:4px; font-size:.62rem; color:#fff; }
+
+/* Results chart */
+.results-chart-block {
+  display:grid;
+  grid-template-columns:minmax(220px,.75fr) minmax(360px,1.25fr);
+  gap:34px;
+  margin:32px 0 8px;
+  padding:28px;
+  border:1px solid rgba(255,255,255,.18);
+  background:var(--navy-2);
+}
+.results-chart-block h3 { margin:7px 0 12px; color:#fff; font-family:Georgia,"Times New Roman",serif; font-size:1.45rem; }
+.results-chart-block p { color:#b9cbd5; }
+.section-dark .results-chart-block .eyebrow-inline { color:var(--accent); }
+.time-chart { align-self:center; }
+.time-row { display:grid; grid-template-columns:150px 1fr 66px; gap:12px; align-items:center; margin:15px 0; }
+.time-row > span { color:#dce8ed; font:700 .78rem/1.2 Arial,Helvetica,sans-serif; }
+.time-row > strong { color:#fff; font:800 .8rem/1 Arial,Helvetica,sans-serif; text-align:right; }
+.time-track { height:18px; background:rgba(255,255,255,.10); overflow:hidden; }
+.time-track i { display:block; min-width:8px; height:100%; }
+.time-tree { background:var(--accent); }
+.time-xgb { background:#efb52b; }
+.time-rf { background:#e95762; }
+.chart-caption { grid-column:1/-1; margin:0; padding-top:12px; border-top:1px solid rgba(255,255,255,.12); font-size:.78rem; }
+
+@media (max-width:900px){
+  .bias-targets{grid-template-columns:1fr}
+  .results-chart-block{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .time-row{grid-template-columns:110px 1fr 58px; gap:8px}
+  .bias-variance-box{padding:20px 16px}
+}
+</style>
+
 </head>
 <body>
   <header class="site-header" id="inicio">
@@ -2154,13 +2557,14 @@ a {
       <span>CypherNet</span>
     </a>
     <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-nav">Menu</button>
-    <nav class="main-nav" id="main-nav" aria-label="Navegação principal">
+    <nav class="main-nav" aria-label="Navegação principal">
       <a href="#problema">Problema</a>
       <a href="#pipeline">Pipeline</a>
+      <a href="#modelos">Modelos</a>
+      <a href="#treinamento">Treinamento</a>
       <a href="#resultados">Resultados</a>
       <a href="#demo">Demonstração</a>
       <a href="#pitch">Pitch</a>
-      <a href="#equipe">Equipe</a>
     </nav>
   </header>
 
@@ -2240,6 +2644,89 @@ a {
       </div>
     </section>
 
+
+    <section class="section section-shell learning-section" id="modelos">
+      <div class="section-heading">
+        <h2>Três modelos, três formas de decidir.</h2>
+        <p>Antes da escolha final, o projeto comparou três algoritmos baseados em árvores. A diferença principal está em como cada um constrói e combina suas decisões.</p>
+      </div>
+
+      <div class="model-explain-grid">
+        <article class="model-explain-card featured-model">
+          <div class="model-explain-top"><span class="model-number">01</span><span class="model-type">Modelo individual</span></div>
+          <h3>Árvore de Decisão</h3>
+          <p>Cria uma sequência de perguntas sobre as features. Cada resposta direciona a amostra para um novo ramo até chegar a uma folha com a classe prevista.</p>
+          <div class="decision-tree-diagram" aria-label="Diagrama simplificado de uma árvore de decisão">
+            <div class="tree-root">z_robusto &gt; limite?</div>
+            <div class="tree-split-lines" aria-hidden="true"><i></i><i></i></div>
+            <div class="tree-children"><span class="state-ok">não → OK</span><span>sim → nova pergunta</span></div>
+          </div>
+          <p class="model-note"><strong>Ponto forte:</strong> rápida e interpretável. <strong>Cuidado:</strong> árvores muito profundas podem sofrer overfitting.</p>
+        </article>
+
+        <article class="model-explain-card">
+          <div class="model-explain-top"><span class="model-number">02</span><span class="model-type">Bagging</span></div>
+          <h3>Random Forest</h3>
+          <p>Treina várias árvores com amostras e subconjuntos de features diferentes. Cada árvore prevê de forma independente e a floresta agrega as respostas por votação.</p>
+          <div class="forest-diagram" aria-label="Diagrama simplificado do Random Forest">
+            <div class="forest-trees"><span>Árvore A</span><span>Árvore B</span><span>Árvore C</span></div>
+            <div class="diagram-arrow">↓</div>
+            <div class="forest-votes"><span class="state-ok">OK</span><span class="state-risk">RISCO</span><span class="state-ok">OK</span></div>
+            <div class="diagram-arrow">↓</div>
+            <strong class="forest-final">Votação final → OK</strong>
+          </div>
+          <p class="model-note"><strong>Ponto forte:</strong> tende a ser mais estável que uma única árvore. <strong>Custo:</strong> reduz a interpretabilidade e aumenta o trabalho computacional.</p>
+        </article>
+
+        <article class="model-explain-card">
+          <div class="model-explain-top"><span class="model-number">03</span><span class="model-type">Boosting</span></div>
+          <h3>XGBoost</h3>
+          <p>Constrói árvores em sequência. Cada nova etapa tenta reduzir os erros que ainda permanecem, e as contribuições das árvores são combinadas no modelo final.</p>
+          <div class="boost-diagram" aria-label="Diagrama simplificado do XGBoost">
+            <span>Árvore 1</span><b>→</b><span>Árvore 2</span><b>→</b><span>Árvore 3</span>
+            <small>cada etapa reduz o erro restante</small>
+          </div>
+          <p class="model-note"><strong>Ponto forte:</strong> grande capacidade de ajuste. <strong>Custo:</strong> maior complexidade e mais hiperparâmetros.</p>
+        </article>
+      </div>
+
+      <div class="bias-variance-box">
+        <div class="bias-copy">
+          <span class="eyebrow-inline">Conceito da aula</span>
+          <h3>Por que várias árvores podem ajudar? Viés e variância.</h3>
+          <p><strong>Viés</strong> é a tendência de errar de forma sistemática por simplificar demais o problema. <strong>Variância</strong> é o quanto a resposta muda quando os dados de treinamento mudam um pouco.</p>
+          <p>No Random Forest, o bagging combina várias árvores treinadas de formas diferentes. Isso ajuda principalmente a reduzir a variância de uma árvore isolada.</p>
+        </div>
+        <div class="bias-targets" aria-label="Analogia visual de viés e variância">
+          <article><h4>Viés alto</h4><div class="target target-bias"><i></i><i></i><i></i><i></i><i></i></div><p>Previsões agrupadas, mas afastadas do centro.</p></article>
+          <article><h4>Variância alta</h4><div class="target target-variance"><i></i><i></i><i></i><i></i><i></i></div><p>Previsões muito espalhadas.</p></article>
+          <article><h4>Bom equilíbrio</h4><div class="target target-balanced"><i></i><i></i><i></i><i></i><i></i></div><p>Previsões próximas e estáveis.</p></article>
+        </div>
+        <p class="diagram-caption"><strong>Analogia didática:</strong> os alvos acima explicam o conceito de viés e variância; não representam medições reais do experimento de redes.</p>
+      </div>
+    </section>
+
+    <section class="section section-alt training-section" id="treinamento">
+      <div class="section-shell training-shell">
+        <div class="section-heading">
+          <h2>Como a Árvore de Decisão foi treinada.</h2>
+          <p>O treinamento usa o dataset rotulado do Período B e somente features relativas ao comportamento de cada fluxo. Identificadores da rota e RTT absoluto não entram no modelo.</p>
+        </div>
+
+        <div class="training-steps">
+          <article class="training-step"><span class="training-index">1</span><div><h3>Separação temporal</h3><p>O Período B contém <strong>173.674 amostras</strong>. O split externo foi feito temporalmente: <strong>86.822</strong> para treino, <strong>34.703</strong> para validação e <strong>52.149</strong> para teste.</p></div></article>
+
+          <article class="training-step"><span class="training-index">2</span><div><h3>Oito features de entrada</h3><p>A árvore recebe as mesmas oito variáveis relativas usadas na comparação dos modelos:</p><div class="training-features"><code>z_robusto</code><code>aumento_pct</code><code>jitter_relativo</code><code>perda_pct</code><code>timeout_atual</code><code>n5_timeout</code><code>n5_aumento80</code><code>n5_risco</code></div></div></article>
+
+          <article class="training-step"><span class="training-index">3</span><div><h3>GridSearchCV testa a profundidade</h3><p>Foram testados <code>max_depth = [3, 4, 5, 7, 10]</code>, com <code>cv=3</code> e <code>f1_macro</code> como critério de seleção.</p><div class="depth-strip" aria-label="Profundidades testadas"><span>3</span><span>4</span><span>5</span><span class="best-depth">7 <small>melhor</small></span><span>10</span></div><p class="training-caveat">O corte externo treino/validação/teste é temporal. O <code>cv=3</code> interno usado pelo GridSearchCV nessa execução não equivale a um <code>TimeSeriesSplit</code>.</p></div></article>
+
+          <article class="training-step"><span class="training-index">4</span><div><h3>Configuração selecionada</h3><div class="training-result"><div><strong>max_depth = 7</strong><span>profundidade escolhida</span></div><div><strong>random_state = 42</strong><span>reprodutibilidade</span></div><div><strong>F1 Macro</strong><span>métrica de seleção</span></div></div><p>Limitar a profundidade controla o crescimento da árvore. A configuração de profundidade 7 foi a vencedora na grade testada.</p></div></article>
+        </div>
+
+        <div class="training-summary"><strong>Fluxo do treinamento</strong><span>dados temporais → 8 features relativas → GridSearchCV → profundidade 7 → comparação final.</span></div>
+      </div>
+    </section>
+
     <section class="section section-dark" id="resultados">
       <div class="section-shell">
         <div class="section-heading"><h2>A Árvore de Decisão apresentou o melhor equilíbrio para o projeto.</h2><p>O GridSearchCV comparou configurações dos três algoritmos usando F1 Macro como critério. Os tempos abaixo correspondem às buscas registradas no notebook.</p></div>
@@ -2248,7 +2735,21 @@ a {
           <article class="model-card"><span class="model-name">Random Forest</span><strong>22,29 s</strong><small>50 árvores · profundidade 7</small></article>
           <article class="model-card"><span class="model-name">XGBoost</span><strong>9,58 s</strong><small>100 árvores · profundidade 4 · learning rate 0,05</small></article>
         </div>
-        
+
+        <div class="results-chart-block">
+          <div class="chart-copy">
+            <span class="eyebrow-inline">Resultado do experimento</span>
+            <h3>Tempo de busca/treino registrado</h3>
+            <p>Como Árvore de Decisão e XGBoost tiveram F1 Macro reportado de 1,0000, o custo computacional ajuda a explicar a escolha do modelo mais simples.</p>
+          </div>
+          <div class="time-chart" role="img" aria-label="Gráfico de barras: Árvore de Decisão 3,69 segundos, XGBoost 9,58 segundos, Random Forest 22,29 segundos">
+            <div class="time-row"><span>Árvore de Decisão</span><div class="time-track"><i class="time-tree" style="width:16.55%"></i></div><strong>3,69 s</strong></div>
+            <div class="time-row"><span>XGBoost</span><div class="time-track"><i class="time-xgb" style="width:42.98%"></i></div><strong>9,58 s</strong></div>
+            <div class="time-row"><span>Random Forest</span><div class="time-track"><i class="time-rf" style="width:100%"></i></div><strong>22,29 s</strong></div>
+          </div>
+          <p class="chart-caption">Menor é melhor neste gráfico. Os valores são os tempos registrados para as buscas/configurações comparadas no notebook.</p>
+        </div>
+
         <div class="results-layout">
           <div class="result-copy">
             <h3>Por que a Árvore de Decisão?</h3>
@@ -2263,8 +2764,6 @@ a {
             <h3>Leitura da comparação</h3>
             <p>A Random Forest ficou muito próxima em F1 Macro, porém com maior custo. O XGBoost também atingiu F1 Macro reportado de 1,0000, mas exigiu mais tempo e possui menor interpretabilidade.</p>
             <p><strong>Recomendação do artigo:</strong> priorizar a solução mais simples quando ela entrega desempenho equivalente, resposta mais rápida e regras que podem ser auditadas.</p>
-          </div>
-        </div>
           </div>
         </div>
       </div>
