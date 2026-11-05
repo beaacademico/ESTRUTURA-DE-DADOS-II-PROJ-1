@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="CypherNet: Vigia de Redes — projeto acadêmico que analisa dados do RIPE Atlas e classifica fluxos de rede em OK, RISCO ou FALHA.">
@@ -2549,6 +2550,46 @@ a {
 }
 </style>
 
+
+<style id="cyphernet-final-clarifications">
+.results-clarification {
+  margin: 0 0 28px;
+  padding: 18px 20px;
+  border-left: 4px solid var(--accent);
+  background: rgba(255,255,255,.06);
+  color: #d9e7ed;
+}
+.results-clarification strong { color:#fff; }
+.results-clarification p { margin:6px 0 0; color:#b9cbd5; }
+.section-dark code { color:#bdf7fb; }
+.academic-meta {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:1px;
+  margin:26px 0 34px;
+  border:1px solid var(--line);
+  background:var(--line);
+}
+.academic-meta > div {
+  padding:16px 18px;
+  background:var(--surface);
+}
+.academic-meta span,
+.academic-meta strong { display:block; }
+.academic-meta span {
+  margin-bottom:5px;
+  color:var(--muted);
+  font:700 .72rem/1.3 Arial,Helvetica,sans-serif;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+.academic-meta strong { color:var(--navy); font-size:.98rem; }
+a.pitch-placeholder.pitch-ready { text-decoration:none; }
+@media (max-width:700px){
+  .academic-meta{grid-template-columns:1fr}
+}
+</style>
+
 </head>
 <body>
   <header class="site-header" id="inicio">
@@ -2729,41 +2770,50 @@ a {
 
     <section class="section section-dark" id="resultados">
       <div class="section-shell">
-        <div class="section-heading"><h2>A Árvore de Decisão apresentou o melhor equilíbrio para o projeto.</h2><p>O GridSearchCV comparou configurações dos três algoritmos usando F1 Macro como critério. Os tempos abaixo correspondem às buscas registradas no notebook.</p></div>
+        <div class="section-heading">
+          <h2>A Árvore de Decisão apresentou o melhor equilíbrio para o projeto.</h2>
+          <p>Os números abaixo são os resultados <strong>reportados no conjunto de validação de 34.703 amostras</strong>. Eles não correspondem ao conjunto de teste de 52.149 amostras.</p>
+        </div>
+
+        <div class="results-clarification" role="note">
+          <strong>Qual conjunto foi avaliado?</strong>
+          <p>Árvore de Decisão, Random Forest e XGBoost foram comparados no bloco de <strong>validação</strong>. Portanto, os F1 Macro 1,0000 / 0,9996 / 1,0000 apresentados nesta página são métricas de validação. O conjunto de teste permaneceu separado e estes valores não devem ser apresentados como F1 do teste.</p>
+        </div>
+
         <div class="model-grid">
-          <article class="model-card featured"><span class="model-name">Árvore de Decisão · recomendada</span><strong>3,69 s</strong><small>Profundidade 7 · F1 Macro reportado 1,0000</small></article>
-          <article class="model-card"><span class="model-name">Random Forest</span><strong>22,29 s</strong><small>50 árvores · profundidade 7</small></article>
-          <article class="model-card"><span class="model-name">XGBoost</span><strong>9,58 s</strong><small>100 árvores · profundidade 4 · learning rate 0,05</small></article>
+          <article class="model-card featured"><span class="model-name">Árvore de Decisão · recomendada</span><strong>F1 1,0000</strong><small>Validação · 34.703 amostras · profundidade 7</small></article>
+          <article class="model-card"><span class="model-name">Random Forest</span><strong>F1 0,9996</strong><small>Validação · 34.703 amostras · 50 árvores · profundidade 7</small></article>
+          <article class="model-card"><span class="model-name">XGBoost</span><strong>F1 1,0000</strong><small>Validação · 34.703 amostras · 100 árvores · profundidade 4</small></article>
         </div>
 
         <div class="results-chart-block">
           <div class="chart-copy">
-            <span class="eyebrow-inline">Resultado do experimento</span>
-            <h3>Tempo de busca/treino registrado</h3>
-            <p>Como Árvore de Decisão e XGBoost tiveram F1 Macro reportado de 1,0000, o custo computacional ajuda a explicar a escolha do modelo mais simples.</p>
+            <span class="eyebrow-inline">Custo da busca de hiperparâmetros</span>
+            <h3>Tempo cronometrado do GridSearchCV</h3>
+            <p>O cronômetro envolve a execução de <code>GridSearchCV.fit(...)</code>. Portanto, estes valores representam a <strong>busca de hiperparâmetros com os ajustes internos da validação cruzada</strong>, e não apenas um único treinamento do estimador final.</p>
           </div>
-          <div class="time-chart" role="img" aria-label="Gráfico de barras: Árvore de Decisão 3,69 segundos, XGBoost 9,58 segundos, Random Forest 22,29 segundos">
+          <div class="time-chart" role="img" aria-label="Gráfico de barras: tempo do GridSearchCV, Árvore de Decisão 3,69 segundos, XGBoost 9,58 segundos, Random Forest 22,29 segundos">
             <div class="time-row"><span>Árvore de Decisão</span><div class="time-track"><i class="time-tree" style="width:16.55%"></i></div><strong>3,69 s</strong></div>
             <div class="time-row"><span>XGBoost</span><div class="time-track"><i class="time-xgb" style="width:42.98%"></i></div><strong>9,58 s</strong></div>
             <div class="time-row"><span>Random Forest</span><div class="time-track"><i class="time-rf" style="width:100%"></i></div><strong>22,29 s</strong></div>
           </div>
-          <p class="chart-caption">Menor é melhor neste gráfico. Os valores são os tempos registrados para as buscas/configurações comparadas no notebook.</p>
+          <p class="chart-caption">Menor é melhor neste gráfico. Os valores medem a busca/configuração comparativa registrada no experimento.</p>
         </div>
 
         <div class="results-layout">
           <div class="result-copy">
-            <h3>Por que a Árvore de Decisão?</h3>
-            <p>No artigo, a Árvore de Decisão foi recomendada porque apresentou <strong>F1 Macro reportado de 1,0000</strong>, igualando o XGBoost, mas com menor custo computacional e maior interpretabilidade.</p>
+            <h3>O que significa 0,012 s?</h3>
+            <p>Para a Árvore de Decisão, <strong>0,012 s é o tempo registrado para executar <code>predict</code> sobre o lote inteiro de validação</strong>, com aproximadamente 34,7 mil medições. Não é o tempo de uma única amostra.</p>
             <div class="metric-list">
-              <div><strong>3,69 s</strong><span>tempo de busca/treino reportado</span></div>
-              <div><strong>0,012 s</strong><span>tempo de predição reportado</span></div>
-              <div><strong>Profundidade 7</strong><span>melhor configuração registrada</span></div>
+              <div><strong>3,69 s</strong><span>GridSearchCV: busca + ajustes internos</span></div>
+              <div><strong>0,012 s</strong><span>inferência do lote de validação (34.703 amostras)</span></div>
+              <div><strong>1,0000</strong><span>F1 Macro no conjunto de validação</span></div>
             </div>
           </div>
           <div class="result-copy">
-            <h3>Leitura da comparação</h3>
-            <p>A Random Forest ficou muito próxima em F1 Macro, porém com maior custo. O XGBoost também atingiu F1 Macro reportado de 1,0000, mas exigiu mais tempo e possui menor interpretabilidade.</p>
-            <p><strong>Recomendação do artigo:</strong> priorizar a solução mais simples quando ela entrega desempenho equivalente, resposta mais rápida e regras que podem ser auditadas.</p>
+            <h3>Por que a Árvore de Decisão?</h3>
+            <p>Na validação, a Árvore de Decisão igualou o F1 Macro reportado do XGBoost e apresentou menor tempo na busca e na inferência do lote, além de ser mais fácil de interpretar.</p>
+            <p><strong>Leitura correta:</strong> esses números sustentam a comparação na validação. Eles não substituem uma métrica final calculada separadamente sobre o conjunto de teste.</p>
           </div>
         </div>
       </div>
@@ -2834,27 +2884,33 @@ a {
     <section class="section section-shell pitch-section" id="pitch">
       <div class="section-heading pitch-heading">
         <h2>O projeto em 90 segundos.</h2>
-        <p>Uma síntese do problema, da solução proposta e do funcionamento do CypherNet.</p>
+        <p>Uma síntese visual do problema, da solução proposta, do treinamento e do funcionamento do CypherNet.</p>
       </div>
 
       <div class="pitch-stage" id="pitch-stage">
         <div class="pitch-card" id="pitch-container" data-pitch-video>
-          <div class="pitch-placeholder">
+          <a class="pitch-placeholder pitch-ready" href="https://youtu.be/hQZbYfQTvro" target="_blank" rel="noopener noreferrer" aria-label="Assistir ao pitch do CypherNet no YouTube">
             <span class="pitch-play" aria-hidden="true">▶</span>
             <div>
-              <strong>Vídeo ainda não configurado</strong>
-              <p>Quando o pitch for publicado como “não listado” no YouTube, basta inserir o ID em <code>assets/js/config.js</code>.</p>
+              <strong>Assistir ao pitch do CypherNet</strong>
+              <p>O player do YouTube será carregado aqui. Em pré-visualização local, o vídeo abre diretamente no YouTube.</p>
             </div>
-          </div>
+          </a>
         </div>
       </div>
 
-      <p class="pitch-caption">Pitch do projeto · duração máxima prevista: 90 segundos.</p>
+      <p class="pitch-caption">Pitch oficial do projeto · vídeo incorporado do YouTube.</p>
     </section>
 
     <section class="section section-alt" id="equipe">
       <div class="section-shell">
-        <div class="section-heading"><h2>Grupo 5 · Ciência da Computação</h2><p>Projeto acadêmico desenvolvido para Estruturas de Dados II.</p></div>
+        <div class="section-heading"><h2>Equipe e contexto acadêmico.</h2><p>Projeto desenvolvido pelo Grupo 5 para a disciplina de Estruturas de Dados II.</p></div>
+        <div class="academic-meta" aria-label="Informações acadêmicas do projeto">
+          <div><span>Curso</span><strong>Ciência da Computação</strong></div>
+          <div><span>Disciplina</span><strong>Estruturas de Dados II</strong></div>
+          <div><span>Instituição</span><strong>Centro Universitário Braz Cubas</strong></div>
+          <div><span>Professor/Orientador</span><strong>Andrea Ono Sakai</strong></div>
+        </div>
         <div class="team-grid">
           <article><div class="avatar">BB</div><h3>Breno Brasil de Souza</h3><p>Scrum Master · pipeline, backend Flask e MLOps</p></article>
           <article><div class="avatar">BG</div><h3>Beatriz Gonçalves da Silva</h3><p>Parametrização, documentação e publicação</p></article>
@@ -2920,7 +2976,7 @@ window.EMBEDDED_BASELINE = [{"fluxo_id": "6251|193.0.0.164", "mediana": "28.2457
 // a origem sem barra final, por exemplo: "https://seu-backend.exemplo.com".
 window.PROJECT_CONFIG = {
   apiBaseUrl: "",
-  youtubeVideoId: ""
+  youtubeVideoId: "hQZbYfQTvro"
 };
 
 </script>
@@ -3135,9 +3191,14 @@ window.PROJECT_CONFIG = {
       const preview = container.querySelector('.pitch-thumbnail');
 
       const openVideo = () => {
+        if (!/^https?:$/.test(window.location.protocol)) {
+          window.open(`https://youtu.be/${id}`, '_blank', 'noopener');
+          return;
+        }
         container.innerHTML = `<iframe
-          src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1"
+          src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0"
           title="Vídeo pitch do projeto"
+          referrerpolicy="strict-origin-when-cross-origin"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen></iframe>`;
       };
