@@ -6,13 +6,13 @@ Roteiro sincronizado com os slides [`apresentacao_feira.html`](apresentacao_feir
 
 ## 🧩 Visão Rápida da Divisão
 
-| Parte | Tema | Slides | Sugestão de Integrante |
+| Parte | Tema | Slides | Integrante |
 | :---: | :--- | :---: | :--- |
-| **Parte 1** | Abertura e o Problema (*Gray Failures* & Limite Fixo) | Slides 1 e 2 | Vitória / Beatriz |
-| **Parte 2** | A Solução CypherNet e os Dados Reais (RIPE Atlas) | Slides 3 e 4 | Natsumi |
-| **Parte 3** | Baseline Robusta, Features e Tratamento de `NaN` | Slide 5 | Pedro |
-| **Parte 4** | Modelo Escolhido (Árvore `max_depth=7`) e Comparação | Slide 6 | Enzo |
-| **Parte 5** | Resultados ($T=0$ vs. Previsão Proativa $T+1$) | Slide 7 | Beatriz / Vitória |
+| **Parte 1** | Abertura e o Problema (*Gray Failures* & Limite Fixo) | Slides 1 e 2 | _________________ |
+| **Parte 2** | A Solução CypherNet e os Dados Reais (RIPE Atlas) | Slides 3 e 4 | _________________ |
+| **Parte 3** | Baseline Robusta, Features e Tratamento de `NaN` | Slide 5 | _________________ |
+| **Parte 4** | Modelo Escolhido (Árvore `max_depth=7`) e Comparação | Slide 6 | _________________ |
+| **Parte 5** | Resultados ($T=0$ vs. Previsão Proativa $T+1$) | Slide 7 | _________________ |
 | **Parte 6** | Arquitetura MLOps, Demo ao Vivo e QR Code | Slides 8, 9 e 10 | Breno |
 
 ---
