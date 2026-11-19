@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CypherNet: Vigia de Redes — Apresentação Mostra de Tecnologia 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070d18;
+      --bg-2: #0c1626;
+      --panel: rgba(15, 25, 43, 0.88);
+      --border: rgba(0, 242, 254, 0.2);
+      --border-soft: rgba(255, 255, 255, 0.08);
+      --text: #f0f6fc;
+      --muted: #94a3b8;
+      --cyan: #00f2fe;
+      --blue: #4facfe;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      overflow: hidden;
+    }
+
+    body {
+      background-image:
+        radial-gradient(circle at 12% 18%, rgba(0, 242, 254, 0.08) 0%, transparent 42%),
+        radial-gradient(circle at 88% 82%, rgba(79, 172, 254, 0.08) 0%, transparent 42%),
+        linear-gradient(rgba(0, 242, 254, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 242, 254, 0.025) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 44px 44px, 44px 44px;
+    }
+
+    .deck {
+      position: relative;
+      width: 100vw;
+      height: calc(100vh - 58px);
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 40px 64px 28px;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 24px;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .slide-inner {
+      max-width: 1220px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--cyan);
+    }
+
+    .kicker::before {
+      content: "";
+      width: 18px;
+      height: 2px;
+      background: var(--cyan);
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 4.2vw, 3.6rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+
+    h2 {
+      font-size: clamp(1.7rem, 3vw, 2.5rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .lead {
+      font-size: clamp(1rem, 1.45vw, 1.25rem);
+      color: #cbd5e1;
+      line-height: 1.55;
+      max-width: 920px;
+    }
+
+    .accent { color: var(--cyan); }
+    .ok-c { color: var(--green); }
+    .risk-c { color: var(--amber); }
+    .fail-c { color: var(--red); }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border-soft);
+      border-radius: 18px;
+      padding: 22px 24px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+    }
+
+    .card.highlight {
+      border-color: var(--border);
+      box-shadow: 0 0 28px rgba(0, 242, 254, 0.08);
+    }
+
+    .card p, .card li {
+      color: #cbd5e1;
+      font-size: 0.96rem;
+      line-height: 1.55;
+    }
+
+    .card ul {
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .stat-num {
+      font-family: var(--font-mono);
+      font-size: clamp(1.8rem, 2.8vw, 2.5rem);
+      font-weight: 800;
+      margin: 6px 0 4px;
+      color: var(--cyan);
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .pill-ok { background: rgba(16, 185, 129, 0.16); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.35); }
+    .pill-risk { background: rgba(245, 158, 11, 0.16); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.35); }
+    .pill-fail { background: rgba(239, 68, 68, 0.16); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.35); }
+    .pill-cyan { background: rgba(0, 242, 254, 0.12); color: var(--cyan); border: 1px solid rgba(0, 242, 254, 0.32); }
+
+    /* Cover Layout */
+    .cover-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 0.65fr;
+      gap: 36px;
+      align-items: center;
+    }
+
+    .logo-frame {
+      background: radial-gradient(circle, rgba(0, 242, 254, 0.14), rgba(11, 19, 30, 0.9));
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      padding: 22px;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    }
+
+    .logo-frame img {
+      width: 100%;
+      max-width: 300px;
+      border-radius: 18px;
+      display: block;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px 14px;
+      background: rgba(0, 242, 254, 0.08);
+      color: var(--cyan);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      color: #e2e8f0;
+    }
+
+    tr.row-win td {
+      background: rgba(16, 185, 129, 0.08);
+      font-weight: 700;
+    }
+
+    .mono { font-family: var(--font-mono); }
+
+    /* Flow steps */
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .step {
+      background: var(--panel);
+      border: 1px solid var(--border-soft);
+      border-top: 3px solid var(--cyan);
+      border-radius: 14px;
+      padding: 18px;
+      position: relative;
+    }
+
+    .step-num {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--cyan);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    /* Formula box */
+    .formula {
+      background: #060b14;
+      border: 1px solid rgba(0, 242, 254, 0.25);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--cyan);
+      margin-top: 10px;
+    }
+
+    /* QR Stand Layout */
+    .stand-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .qr-box {
+      background: #ffffff;
+      padding: 18px;
+      border-radius: 24px;
+      border: 4px solid var(--cyan);
+      display: inline-block;
+      box-shadow: 0 0 40px rgba(0, 242, 254, 0.22);
+    }
+
+    .qr-box img {
+      width: 290px;
+      height: 290px;
+      display: block;
+    }
+
+    /* Bottom Navigation Bar */
+    .nav-bar {
+      height: 58px;
+      background: rgba(7, 13, 24, 0.95);
+      border-top: 1px solid var(--border-soft);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      position: relative;
+    }
+
+    .progress-track {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), var(--blue));
+      width: 10%;
+      transition: width 0.25s ease;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-nav {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 7px 14px;
+      font-family: var(--font-sans);
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .btn-nav:hover {
+      background: rgba(0, 242, 254, 0.14);
+      border-color: var(--cyan);
+    }
+
+    .btn-nav.primary {
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      color: #04101c;
+      border: none;
+      font-weight: 700;
+    }
+
+    .slide-counter {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--cyan);
+      min-width: 60px;
+      text-align: center;
+    }
+
+    @media (max-width: 960px) {
+      .slide { padding: 24px 20px; }
+      .cover-grid, .stand-grid, .grid-2, .grid-3, .grid-4, .pipeline {
+        grid-template-columns: 1fr;
+      }
+      .logo-frame img { max-width: 180px; }
+      .qr-box img { width: 210px; height: 210px; }
+    }
+
+    /* Export to PDF support */
+    @media print {
+      @page { size: landscape; margin: 0; }
+      html, body { height: auto; overflow: visible; background: #070d18 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .deck { height: auto; }
+      .slide {
+        position: static;
+        display: flex !important;
+        opacity: 1 !important;
+        page-break-after: always;
+        min-height: 100vh;
+        overflow: visible;
+      }
+      .nav-bar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="deck" id="deck">
+
+    <!-- SLIDE 1: CAPA -->
+    <section class="slide active" data-title="Capa">
+      <div class="slide-inner cover-grid">
+        <div style="display:flex; flex-direction:column; gap:18px;">
+          <span class="kicker">Mostra de Tecnologia 2026 · Grupo 05</span>
+          <h1>CypherNet:<br><span class="accent">Vigia de Redes</span></h1>
+          <p class="lead">
+            Como usar <strong>Inteligência Artificial</strong> e dados reais da Internet para detectar lentidão invisível e antecipar quedas de conexão antes que o usuário perceba.
+          </p>
+          <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:6px;">
+            <span class="pill pill-cyan">RIPE Atlas · Dados Reais</span>
+            <span class="pill pill-ok">Árvore de Decisão (Prof. 7)</span>
+            <span class="pill pill-risk">Diagnóstico T=0 &amp; Previsão T+1</span>
+          </div>
+          <p style="font-size:0.9rem; color:var(--muted); margin-top:10px;">
+            <strong>Equipe:</strong> Beatriz Gonçalves · Breno Brasil · Enzo Moraes · Natsumi Goto · Pedro Viana · Vitória Alessandra
+          </p>
+        </div>
+        <div class="logo-frame">
+          <img src="logo_nomedoprojeto.png" alt="Logo oficial CypherNet: Vigia de Redes">
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: O PROBLEMA -->
+    <section class="slide" data-title="O Problema">
+      <div class="slide-inner">
+        <span class="kicker">01 · O Problema no Mundo Real</span>
+        <h2>Por que a Internet trava antes de "cair" de vez?</h2>
+        <p class="lead">
+          Na maioria das vezes, uma rede não morre de repente — ela começa a dar sinais silenciosos chamados de <strong>Gray Failures</strong> (falhas cinzentas): pacotes oscilando e filas enchendo.
+        </p>
+        <div class="grid-2">
+          <div class="card">
+            <h3>❌ O jeito antigo (Limites Fixos)</h3>
+            <p>
+              Sistemas tradicionais disparam alerta quando a latência (RTT) passa de um número fixo, como <span class="mono">100 ms</span>.
+            </p>
+            <ul style="margin-top:12px;">
+              <li><strong>Rota local (2 ms):</strong> se subir para <span class="mono">40 ms</span>, já está <strong>20× pior</strong> e o alarme nem toca!</li>
+              <li><strong>Rota intercontinental (180 ms):</strong> está saudável, mas dispara falso alarme toda hora.</li>
+            </ul>
+          </div>
+          <div class="card highlight">
+            <h3>✅ A ideia do CypherNet (Por Rota)</h3>
+            <p>
+              Em vez de usar uma régua única para o planeta inteiro, o CypherNet aprende qual é o <strong>comportamento normal de cada rota</strong>.
+            </p>
+            <ul style="margin-top:12px;">
+              <li><strong>Analogia médica:</strong> febre de <span class="mono">38°C</span> é igual para todos, mas pressão arterial ou batimento cardíaco depende do histórico de cada paciente.</li>
+              <li>Comparamos o <strong>agora</strong> com o <strong>histórico da própria conexão</strong>.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: A SOLUÇÃO CYPHERNET -->
+    <section class="slide" data-title="A Solução">
+      <div class="slide-inner">
+        <span class="kicker">02 · A Solução</span>
+        <h2>Classificação em 3 Estados Operacionais</h2>
+        <p class="lead">
+          Inspirado na vigilância contínua, o CypherNet observa cada conexão e traduz métricas técnicas em três alertas claros para o operador:
+        </p>
+        <div class="grid-3">
+          <div class="card" style="border-top: 4px solid var(--green);">
+            <span class="pill pill-ok">OK · Operação Normal</span>
+            <h3 style="margin-top:14px;">Link Saudável</h3>
+            <p>Latência, oscilação (jitter) e entrega de pacotes estão dentro do padrão histórico esperado para aquela rota específica.</p>
+          </div>
+          <div class="card" style="border-top: 4px solid var(--amber);">
+            <span class="pill pill-risk">RISCO · Degradação</span>
+            <h3 style="margin-top:14px;">Alerta Preventivo</h3>
+            <p>Atraso moderado ou oscilação elevada persistiu por pelo menos 2 das últimas 5 medições (~20 min). Hora de agir antes da queda.</p>
+          </div>
+          <div class="card" style="border-top: 4px solid var(--red);">
+            <span class="pill pill-fail">FALHA · Crítico</span>
+            <h3 style="margin-top:14px;">Indisponibilidade</h3>
+            <p>Perda severa de pacotes (&ge; 10%), timeouts repetidos ou disparo extremo de latência fora da curva normal da rota.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: DADOS REAIS RIPE ATLAS -->
+    <section class="slide" data-title="Dados Reais">
+      <div class="slide-inner">
+        <span class="kicker">03 · Dados Reais da Internet</span>
+        <h2>Telemetria Global do RIPE Atlas (<span class="mono accent">msm_id = 9333345</span>)</h2>
+        <p class="lead">
+          Não usamos dados inventados: coletamos medições reais da rede de sondas globais do <strong>RIPE Atlas (Anchoring Mesh)</strong>, com disparos de 3 pacotes ICMP (ping) a cada 4 minutos.
+        </p>
+        <div class="grid-4">
+          <div class="card">
+            <div class="stat-label">Fluxos Monitorados</div>
+            <div class="stat-num">69</div>
+            <p>Rotas únicas (<span class="mono">probe|destino</span>) distribuídas globalmente.</p>
+          </div>
+          <div class="card">
+            <div class="stat-label">Dataset Supervisionado</div>
+            <div class="stat-num">173.674</div>
+            <p>Medições reais rotuladas após 7 dias exclusivos de baseline.</p>
+          </div>
+          <div class="card">
+            <div class="stat-label">Intervalo de Coleta</div>
+            <div class="stat-num">4 min</div>
+            <p><span class="mono">Δt = 240s</span> com leitura de RTT (<span class="mono">min, avg, max</span>) e perda.</p>
+          </div>
+          <div class="card">
+            <div class="stat-label">Split Temporal (Sem Vazamento)</div>
+            <div class="stat-num">50/20/30</div>
+            <p>Ordem cronológica estrita: Treino &rarr; Validação &rarr; Teste futuro.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: ENGENHARIA DE FEATURES -->
+    <section class="slide" data-title="Features e Baseline">
+      <div class="slide-inner">
+        <span class="kicker">04 · Inteligência nos Dados</span>
+        <h2>Baseline Robusta &amp; Engenharia de Atributos</h2>
+        <div class="grid-2">
+          <div class="card highlight">
+            <h3>1. Régua Histórica de 7 Dias (Mediana &amp; MAD)</h3>
+            <p>
+              Usamos <strong>Mediana</strong> e <strong>MAD</strong> (Desvio Absoluto Mediano) em vez de média e desvio padrão para que picos isolados não contaminem o "normal" da rota.
+            </p>
+            <div class="formula">z_robusto = (RTT_atual − Mediana) / (1,4826 × MAD)</div>
+            <p style="margin-top:12px;">
+              <strong>Segredo técnico:</strong> em apagões (100% de perda), o RTT não existe (<span class="mono">NaN</span>). <strong>Nunca</strong> preenchemos com zero ou mediana para não mascarar uma queda como link normal!
+            </p>
+          </div>
+          <div class="card">
+            <h3>2. O que entra no modelo (8 Base + 3 Tendência)</h3>
+            <ul>
+              <li><strong>Instantâneas (5):</strong> <span class="mono">z_robusto</span>, <span class="mono">aumento_pct</span>, <span class="mono">jitter_relativo</span>, <span class="mono">perda_pct</span>, <span class="mono">timeout_atual</span>.</li>
+              <li><strong>Memória Curta — Janela de 5 (~20 min):</strong> <span class="mono">n5_timeout</span>, <span class="mono">n5_aumento80</span>, <span class="mono">n5_risco</span>.</li>
+              <li><strong>Tendência Proativa T+1 (3):</strong> <span class="mono">z_max5</span>, <span class="mono">z_tendencia5</span> (aceleração da fila) e <span class="mono">perda_media5</span>.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: MODELO ESCOLHIDO -->
+    <section class="slide" data-title="Modelo Escolhido">
+      <div class="slide-inner">
+        <span class="kicker">05 · Escolha do Algoritmo</span>
+        <h2>Por que escolhemos a Árvore de Decisão (<span class="mono accent">max_depth = 7</span>)?</h2>
+        <p class="lead">
+          Comparamos três famílias clássicas de Machine Learning. A Árvore de Decisão empatou em desempenho com os ensembles e venceu em transparência operacional.
+        </p>
+        <div class="grid-3">
+          <div class="card highlight" style="border-color: var(--cyan);">
+            <span class="pill pill-cyan">Modelo Principal · Canônico</span>
+            <h3 style="margin-top:12px;">Árvore de Decisão (CART)</h3>
+            <ul>
+              <li><strong>Caixa-Branca:</strong> gera 16 regras <span class="mono">SE ... ENTÃO</span> auditáveis pela equipe de redes.</li>
+              <li><strong>Ultra-leve:</strong> apenas <span class="mono">45,6 KB</span> e resposta em <span class="mono">~0,2 ms</span>.</li>
+              <li><strong>Gini + <span class="mono">NaN</span> nativo:</strong> trata timeouts sem gambiarra.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <span class="pill pill-ok">Ensemble · Bagging</span>
+            <h3 style="margin-top:12px;">Random Forest</h3>
+            <ul>
+              <li><strong>100 a 150 árvores</strong> votando em paralelo.</li>
+              <li>Excelente estabilidade contra variância.</li>
+              <li>Porém funciona como <strong>caixa-preta</strong> para auditoria rápida em NOC.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <span class="pill pill-risk">Ensemble · Boosting</span>
+            <h3 style="margin-top:12px;">XGBoost</h3>
+            <ul>
+              <li>Árvores treinadas em <strong>sequência</strong> corrigindo erros residuais anteriores.</li>
+              <li>Ótimo poder preditivo, mas maior complexidade de ajuste e menor explicabilidade direta.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: RESULTADOS -->
+    <section class="slide" data-title="Resultados">
+      <div class="slide-inner">
+        <span class="kicker">06 · Resultados Experimentais (Teste: 52.149 amostras)</span>
+        <h2>Diagnóstico Atual (<span class="mono">T=0</span>) vs. Previsão Proativa (<span class="mono">T+1 = +4 min</span>)</h2>
+        <div class="card" style="padding: 10px 18px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Modo Operacional</th>
+                <th>Modelo</th>
+                <th>Accuracy</th>
+                <th>F1-Macro (Val)</th>
+                <th>F1-Macro (Teste)</th>
+                <th>Recall FALHA</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="row-win">
+                <td><span class="pill pill-ok">T=0 · Agora</span></td>
+                <td>Árvore de Decisão (d=7, 16 folhas)</td>
+                <td class="mono">100,00%</td>
+                <td class="mono">0,9999</td>
+                <td class="mono">1,0000</td>
+                <td class="mono">100,00%</td>
+              </tr>
+              <tr>
+                <td><span class="pill pill-ok">T=0 · Agora</span></td>
+                <td>Random Forest / XGBoost</td>
+                <td class="mono">99,99% / 99,90%</td>
+                <td class="mono">0,9996 / 0,9954</td>
+                <td class="mono">0,9997 / 0,9956</td>
+                <td class="mono">99,93% / 99,87%</td>
+              </tr>
+              <tr class="row-win">
+                <td><span class="pill pill-cyan">T+1 · +4 min</span></td>
+                <td>Árvore Proativa (d=8, pesos 1:2:3)</td>
+                <td class="mono">88,38%</td>
+                <td class="mono">0,5782</td>
+                <td class="mono">0,5699</td>
+                <td class="mono">31,86%</td>
+              </tr>
+              <tr>
+                <td><span class="pill pill-cyan">T+1 · +4 min</span></td>
+                <td>Random Forest Proativo (d=10)</td>
+                <td class="mono">88,80%</td>
+                <td class="mono">0,5873</td>
+                <td class="mono">0,5824</td>
+                <td class="mono">33,85%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <p>
+            <strong>Por que ~32%–34% de Recall no futuro (+4 min)?</strong> Quedas físicas súbitas não dão aviso prévio, mas <strong>~1 em cada 3 falhas futuras nasce de degradação progressiva</strong> — e o CypherNet consegue antecipá-las 4 minutos antes (com <span class="mono">z_max5</span> e <span class="mono">z_tendencia5</span> somando <strong>23,7% da decisão</strong>).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: ARQUITETURA E API -->
+    <section class="slide" data-title="Arquitetura e API">
+      <div class="slide-inner">
+        <span class="kicker">07 · Engenharia MLOps em Produção</span>
+        <h2>Como o CypherNet roda da Medição à Resposta da API</h2>
+        <div class="pipeline">
+          <div class="step">
+            <div class="step-num">PASSO 01</div>
+            <h3>Ingestão</h3>
+            <p>A medição chega via JSON (<span class="mono">POST /api/previsoes</span> ou API ao vivo do RIPE Atlas).</p>
+          </div>
+          <div class="step">
+            <div class="step-num">PASSO 02</div>
+            <h3>Baseline (<span class="mono">csv</span>)</h3>
+            <p>Consulta a mediana, MAD e jitter típico daquela rota específica entre os 69 fluxos.</p>
+          </div>
+          <div class="step">
+            <div class="step-num">PASSO 03</div>
+            <h3>Janela Móvel</h3>
+            <p>Calcula as features no módulo único (<span class="mono">1,4826·MAD</span>) e atualiza a fila das últimas 5 medições.</p>
+          </div>
+          <div class="step">
+            <div class="step-num">PASSO 04</div>
+            <h3>Inferência (&lt;1 ms)</h3>
+            <p>A Árvore em <span class="mono">modelo.joblib</span> (verificada por SHA-256) retorna <span class="mono">T=0</span> e <span class="mono">T+1</span>.</p>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Endpoints REST Disponíveis (Flask)</h3>
+            <p class="mono" style="font-size:0.86rem; line-height:1.9;">
+              GET &nbsp;/api/saude &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Liveness &amp; SHA-256<br>
+              GET &nbsp;/api/modelo &nbsp;&nbsp;&nbsp;&nbsp;→ Metadados &amp; parâmetros<br>
+              POST /api/previsoes &nbsp;→ Predição unitária ou em lote<br>
+              GET &nbsp;/api/previsoes &nbsp;→ Histórico recente da API
+            </p>
+          </div>
+          <div class="card">
+            <h3>Pacote Canônico Reproduzível</h3>
+            <p>
+              Todo o sistema foi empacotado em <span class="mono accent">Grupo05.zip (27,9 KB)</span> contendo <span class="mono">modelo.joblib</span>, <span class="mono">baseline.csv</span> e <span class="mono">metadados.json</span>, validado com 0 divergências nas 173.674 linhas.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: DEMO AO VIVO -->
+    <section class="slide" data-title="Demonstração">
+      <div class="slide-inner">
+        <span class="kicker">08 · Demonstração Interativa</span>
+        <h2>O que vamos testar ao vivo agora no Painel NOC</h2>
+        <div class="grid-3">
+          <div class="card" style="border-left: 4px solid var(--green);">
+            <h3>1. Operação Normal (<span class="ok-c">OK</span>)</h3>
+            <p>Rota <span class="mono">6251|193.0.0.164</span> com RTT próximo à mediana (<span class="mono">28,2 ms</span>) e perda <span class="mono">0%</span>. Confiança ~100% em <strong>OK</strong>.</p>
+          </div>
+          <div class="card" style="border-left: 4px solid var(--amber);">
+            <h3>2. Gray Failure (<span class="risk-c">RISCO</span>)</h3>
+            <p>Elevamos o RTT moderadamente (~40% acima) por 2 ciclos seguidos. A janela <span class="mono">n5_risco</span> sobe e aciona o alerta preventivo <strong>RISCO</strong>.</p>
+          </div>
+          <div class="card" style="border-left: 4px solid var(--red);">
+            <h3>3. Timeout &amp; RIPE Ao Vivo (<span class="fail-c">FALHA</span>)</h3>
+            <p>Perda de <span class="mono">100%</span> mantém <span class="mono">z_robusto = NaN</span> e aciona <strong>FALHA</strong>; e o botão <em>RIPE Atlas ao Vivo</em> busca pings reais de agora!</p>
+          </div>
+        </div>
+        <div class="card highlight" style="text-align:center;">
+          <p class="mono" style="font-size:1rem;">
+            Comando local do estande: <span class="accent">python producao/app/server.py</span> &nbsp;&rarr;&nbsp; <span class="ok-c">http://127.0.0.1:5000</span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: QR CODE E ESTANDE -->
+    <section class="slide" data-title="QR Code & Equipe">
+      <div class="slide-inner stand-grid">
+        <div style="display:flex; flex-direction:column; gap:18px;">
+          <span class="kicker">09 · Acesse no Seu Celular</span>
+          <h2>Teste o <span class="accent">CypherNet</span> e assista ao Pitch (90s)</h2>
+          <p class="lead">
+            Aponte a câmera para o QR Code ao lado para abrir a página interativa do projeto, explorar os diagramas da Árvore de Decisão e simular rotas em tempo real.
+          </p>
+          <div class="card">
+            <h3>Grupo 05 · Estruturas de Dados II (2026)</h3>
+            <p style="line-height:1.8;">
+              Beatriz Gonçalves da Silva &middot; Breno Brasil de Souza<br>
+              Enzo Moraes Sousa &middot; Natsumi Goto<br>
+              Pedro Viana da Silva &middot; Vitória Alessandra das Neves
+            </p>
+          </div>
+          <p class="mono" style="font-size:0.82rem; color:var(--cyan);">
+            https://beaacademico.github.io/ESTRUTURA-DE-DADOS-II-PROJ-1/feira/
+          </p>
+        </div>
+        <div style="text-align:center;">
+          <div class="qr-box">
+            <img src="qrcode_cyphernet_feira.png" alt="QR Code da Página do Projeto CypherNet">
+          </div>
+          <p style="margin-top:12px; font-size:0.88rem; color:var(--muted);">
+            Escaneie para abrir o <strong>CypherNet Showcase</strong>
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="nav-bar">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="nav-left">
+      <strong style="color:var(--text);">CypherNet: Vigia de Redes</strong>
+      <span id="slide-label">Capa</span>
+    </div>
+    <div class="nav-controls">
+      <button class="btn-nav" onclick="prevSlide()" title="Seta Esquerda">← Anterior</button>
+      <span class="slide-counter" id="slide-counter">1 / 10</span>
+      <button class="btn-nav primary" onclick="nextSlide()" title="Seta Direita ou Espaço">Próximo →</button>
+      <button class="btn-nav" onclick="toggleFullscreen()" title="Tecla F">⛶ Tela Cheia</button>
+      <button class="btn-nav" onclick="window.print()" title="Salvar como PDF">⎙ PDF</button>
+    </div>
+  </footer>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    let current = 0;
+
+    function showSlide(index) {
+      current = Math.max(0, Math.min(slides.length - 1, index));
+      slides.forEach((s, i) => s.classList.toggle('active', i === current));
+      document.getElementById('slide-counter').textContent = `${current + 1} / ${slides.length}`;
+      document.getElementById('slide-label').textContent = slides[current].dataset.title || '';
+      document.getElementById('progress-fill').style.width = `${((current + 1) / slides.length) * 100}%`;
+    }
+
+    function nextSlide() { showSlide(current + 1); }
+    function prevSlide() { showSlide(current - 1); }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen?.();
+      } else {
+        document.exitFullscreen?.();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'Home') {
+        showSlide(0);
+      } else if (e.key === 'End') {
+        showSlide(slides.length - 1);
+      } else if (e.key.toLowerCase() === 'f') {
+        toggleFullscreen();
+      }
+    });
+
+    showSlide(0);
+  </script>
+</body>
+</html>
